@@ -6,21 +6,36 @@
 ; ******************************************************************************
 ; * Constantes
 ; ******************************************************************************
+DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (periférico POUT-1)
+TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (periférico POUT-2)
+TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (periférico PIN)
+LINHA      EQU 1       ; linha a testar (4ª linha, 1000b)
+MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
 COMANDOS				EQU	6000H			; endereço de base dos comandos do MediaCenter
-
 DEFINE_LINHA    		EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   		EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
 DEFINE_PIXEL    		EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
 APAGA_AVISO     		EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
 APAGA_ECRÃ	 		EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
+
+SIZE_LISTA_TECLADO EQU 4
+
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
+PLACE 0300H
 
+lista_teclado: WORD 0001     ;valores para a leitura do teclado
+               WORD 0010
+               WORD 0100
+               WORD 1000
+          
+     
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
+PLACE 0
 inicio:
      MOV  [APAGA_AVISO], R1	; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
      MOV  [APAGA_ECRÃ], R1	; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
@@ -29,14 +44,7 @@ inicio:
 
 
 ;###############################################################################
-DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (periférico POUT-1)
-TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (periférico POUT-2)
-TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (periférico PIN)
-LINHA      EQU 1       ; linha a testar (4ª linha, 1000b)
-MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
 
-; **********************************************************************
-		
 ; inicializações
     MOV  R2, TEC_LIN   ; endereço do periférico das linhas
     MOV  R3, TEC_COL   ; endereço do periférico das colunas
@@ -44,6 +52,9 @@ MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas 
     MOV  R5, MASCARA   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
 
 ; corpo principal do programa
+
+; teclado
+
 ciclo:
     MOV  R1, 0 
     MOVB [R4], R1      ; escreve linha e coluna a zero nos displays
