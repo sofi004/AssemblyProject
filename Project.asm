@@ -41,8 +41,9 @@ inicio:
     MOV  R3, TEC_COL   ; endereço do periférico das colunas
     MOV  R4, DISPLAYS  ; endereço do periférico dos displays
     MOV  R5, MASCARA   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
-    MOV  R6, 0100H
-    MOV [R4], R6   ; inicializa o display a 100
+    MOV  R6, 0100H     ; inicializa o valor de R6 a 100H para colocar no display
+    MOV  [R4], R6      ; inicializa o display a 100
+    MOV  R7, 0         ; inicializa R7 a 0 para simbolizar que o jogo ainda não está a correr
 
 ; corpo principal do programa
 
@@ -51,16 +52,30 @@ inicio:
 restart_linhas:
     MOV R1, LINHA
 
-espera_tecla:          ; neste ciclo espera-se até uma tecla ser premida
+espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
     SHR  R1, 1
-    CMP  R1, 0         ; verifica se ja passamos pelas linhas todas
-    JZ   restart_linhas; a linha que estamos a ver volta ao inicio
-    MOVB [R2], R1      ; escrever no periférico de saída (linhas)
-    MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
-    AND  R0, R5        ; elimina bits para além dos bits 0-3
-    CMP  R0, 0         ; há tecla premida?
-    JZ   espera_tecla  ; se nenhuma tecla premida, repete
-                       ; vai mostrar a linha e a coluna da tecla
-    SHL  R1, 4         ; coloca linha no nibble high
-    OR   R1, R0        ; junta coluna (nibble low)
+    CMP  R1, 0          ; verifica se ja passamos pelas linhas todas
+    JZ   restart_linhas ; a linha que estamos a ver volta ao inicio
+    MOVB [R2], R1       ; escrever no periférico de saída (linhas)
+    MOVB R0, [R3]       ; ler do periférico de entrada (colunas)
+    AND  R0, R5         ; elimina bits para além dos bits 0-3
+    CMP  R0, 0          ; há tecla premida?
+    JZ   espera_tecla   ; se nenhuma tecla premida, repete
+                        ; vai mostrar a linha e a coluna da tecla
+    SHL  R1, 4          ; coloca linha no nibble high
+    OR   R1, R0         ; junta coluna (nibble low)
+    JMP escolhe_funcao ;vê se foi premida a tecla c de começar o jogo
     JMP restart_linhas ;
+
+
+escolhe_funcao:
+    MOV R8, 0081H
+    CMP R1, R8
+    JZ inicializa_jogo
+
+
+    JMP restart_linhas
+
+inicializa_jogo:
+    MOV R7, 0001H
+    JMP restart_linhas
