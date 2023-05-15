@@ -22,17 +22,16 @@ SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		; endereço do comando para selecio
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
-PLACE 0300H
 
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
 PLACE 0
 inicio:
-     MOV  [APAGA_AVISO], R1	; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
-     MOV  [APAGA_ECRÃ], R1	; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+    MOV  [APAGA_AVISO], R1	; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRÃ], R1	; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV	R1, 0			; cenário de fundo número 0
-     MOV  [SELECIONA_CENARIO_FUNDO], R1	; seleciona o cenário de fundo
+    MOV  [SELECIONA_CENARIO_FUNDO], R1	; seleciona o cenário de fundo
 
 
 ;###############################################################################
@@ -56,8 +55,8 @@ restart_linhas:
 
 espera_tecla:          ; neste ciclo espera-se até uma tecla ser premida
     SHR  R1, 1
-    CMP  R1, 0        ; verifica se ja passamos pelas linhas todas
-    JZ   restart_linhas; a linha que estamos a ver volta 
+    CMP  R1, 0         ; verifica se ja passamos pelas linhas todas
+    JZ   restart_linhas; a linha que estamos a ver volta ao inicio
     MOVB [R2], R1      ; escrever no periférico de saída (linhas)
     MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
     AND  R0, R5        ; elimina bits para além dos bits 0-3
