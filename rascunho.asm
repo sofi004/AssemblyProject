@@ -48,6 +48,10 @@ inicio:
 
 ; teclado
 
+;ciclo:
+;    MOV  R1, 0 
+;    MOVB [R4], R1      ; escreve linha e coluna a zero nos displays
+
 restart_linhas:
     MOV R1, LINHA
 
@@ -64,3 +68,11 @@ espera_tecla:          ; neste ciclo espera-se até uma tecla ser premida
     SHL  R1, 4         ; coloca linha no nibble high
     OR   R1, R0        ; junta coluna (nibble low)
     JMP restart_linhas ;
+;    MOVB [R4], R1      ; escreve linha e coluna nos displays
+    
+;ha_tecla:              ; neste ciclo espera-se até NENHUMA tecla estar premid
+;    MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
+;    AND  R0, R5        ; elimina bits para além dos bits 0-3
+;    CMP  R0, 0         ; há tecla premida?
+;    JNZ  ha_tecla      ; se ainda houver uma tecla premida, espera até não haver
+;    JMP  ciclo         ; repete ciclo

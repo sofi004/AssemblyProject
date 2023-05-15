@@ -741,7 +741,7 @@
     "positionY" : 40,
     "simGuiVisibleInSimulation" : true,
     "simGuiXRelative" : 398,
-    "simGuiYRelative" : 172,
+    "simGuiYRelative" : 170,
     "simGuiWidth" : 880,
     "simGuiHeight" : 865,
     "clockPeriod" : 200,
