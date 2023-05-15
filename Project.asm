@@ -11,13 +11,13 @@ TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (periférico POUT-2)
 TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (periférico PIN)
 LINHA      EQU 16      ; linha a testar (4ª linha, 1000b)
 MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
-COMANDOS				 EQU	6000H			; endereço de base dos comandos do MediaCenter
+COMANDOS			 EQU 6000H			; endereço de base dos comandos do MediaCenter
 DEFINE_LINHA    		 EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   		 EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
 DEFINE_PIXEL    		 EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
 APAGA_AVISO     		 EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRÃ	 		     EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
-SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
+APAGA_ECRÃ	 		 EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
+SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		        ; endereço do comando para selecionar uma imagem de fundo
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
@@ -30,8 +30,8 @@ PLACE 0
 inicio:
     MOV  [APAGA_AVISO], R1	            ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1	            ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
-	MOV	R1, 0			                ; cenário de fundo número 0
-    MOV  [SELECIONA_CENARIO_FUNDO], R1	; seleciona o cenário de fundo
+	MOV	R1, 0			    ; cenário de fundo número 0
+    MOV  [SELECIONA_CENARIO_FUNDO], R1	    ; seleciona o cenário de fundo
 
 
 ;###############################################################################
@@ -70,7 +70,7 @@ espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
 escolhe_funcao:
     MOV R8, 0081H       
     CMP R1, R8          ; verifica se a tecla primida é a c
-    JZ inicia_jogo  ; se a tecla primida for c, executa inicia_jogo
+    JZ inicia_jogo      ; se a tecla primida for c, executa inicia_jogo
 
 
     JMP restart_linhas  ; se a tecla primida não está associada a nenhuma função volta a restart_linhas
