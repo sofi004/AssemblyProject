@@ -740,7 +740,7 @@
     "positionX" : 258,
     "positionY" : 40,
     "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 22,
+    "simGuiXRelative" : 74,
     "simGuiYRelative" : 110,
     "simGuiWidth" : 880,
     "simGuiHeight" : 865,
@@ -1526,7 +1526,7 @@
     "windowScreenWidthPixels" : 1024,
     "windowScreenHeightixels" : 512,
     "defaultPenColor" : 65280,
-    "image paths" : [ "../../Downloads/asteroid-ge22d1c9c9_1920.jpg" ],
+    "image paths" : [ "start_image.png", "../../Downloads/asteroid-ge22d1c9c9_1920.jpg" ],
     "addressable data" : {
       "className" : "ModuleExtensionMemoryMediaCenter",
       "elementID" : 83,

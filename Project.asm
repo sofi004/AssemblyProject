@@ -72,9 +72,13 @@ escolhe_funcao:
     CMP R1, R8          ; verifica se a tecla primida é a c
     JZ inicia_jogo      ; se a tecla primida for c, executa inicia_jogo
 
+    CMP R7, 1
+    JZ  fases_jogo
 
     JMP restart_linhas  ; se a tecla primida não está associada a nenhuma função volta a restart_linhas
 
 inicia_jogo:
     MOV R7, 1           ; coloca 1 no registo para sabermos se o jogo está a correr ou não
+    MOV R1, 1
+    MOV [SELECIONA_CENARIO_FUNDO], R1
     JMP restart_linhas  ; depois de iniciar o jogo volta a restart linhas  
