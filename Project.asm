@@ -20,7 +20,7 @@ APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pi
 SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H   ; endereço do comando para selecionar uma imagem de fundo
 SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H   ; endereço do comando para selecionar uma video ou som
 REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH   ; endereço do comando para iniciar a reprodução dum video ou som
-SUSPENDE_SOM_VIDEO  EQU COMANDOS + AEH   ; endereço do comando para pausar video ou som
+SUSPENDE_SOM_VIDEO  EQU COMANDOS + 5EH   ; endereço do comando para pausar video ou som
 
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 
