@@ -59,8 +59,8 @@ espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
     SHR  R1, 1   ; passa para a linha seguinte
     CMP  R1, 0   ; verifica se ja passamos pelas linhas todas
     JZ  restart_linhas ; a linha que estamos a ver volta ao inicio
-    MOVB  [R2], R1       ; escrever no periférico de saída (linhas)
-    MOVB  R0, [R3]       ; ler do periférico de entrada (colunas)
+    MOVB  [R2], R1   ; escrever no periférico de saída (linhas)
+    MOVB  R0, [R3]   ; ler do periférico de entrada (colunas)
     AND  R0, R5   ; elimina bits para além dos bits 0-3
     CMP  R0, 0   ; há tecla premida?
     JZ   espera_tecla   ; se nenhuma tecla for primida, repete
