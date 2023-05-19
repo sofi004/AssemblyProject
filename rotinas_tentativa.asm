@@ -46,11 +46,13 @@ inicio:
 
 ; inicializações
     MOV SP, SP_init
+    MOV  R0, 0   ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
     MOV  R2, TEC_LIN   ; endereço do periférico das linhas
     MOV  R3, TEC_COL   ; endereço do periférico das colunas
     MOV  R4, DISPLAYS   ; endereço do periférico dos displays
     MOV  R5, 0100H   ; inicializa o valor de R5 a 100H para colocar no display
     MOV  [R4], R5   ; inicializa o display a 100
+    MOV  R6, 0   ; inicializa R6 a 0, se no final da rotina R8 estiver com 1 então quer dizer que se a tecla primida tem uma função associada
 
 ; ******************************************************************************
 ; corpo principal do programa
@@ -58,6 +60,8 @@ inicio:
 ciclo: 
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL  escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
+    CMP R6, 0
+    JZ ciclo
     JMP  ciclo
 
 ; ******************************************************************************
@@ -94,12 +98,9 @@ espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
 ; escolhe_rotina - Processo que executa a instrução associada à tecla primida
 ; ******************************************************************************
 escolhe_rotina:
-    PUSH  R1   ; tem o valor da linha e coluna da tecla que foi primida no teclado
     PUSH  R2
     PUSH  R3
 
-    MOV  R0, 0   ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
-    MOV  R6, 0   ; inicializa R6 a 0, se no final da rotina R8 estiver com 1 então quer dizer que se a tecla primida tem uma função associada
     MOV  R2, 0081H       
     CMP  R1, R2   ; verifica se a tecla primida é a c
     JZ  inicia_jogo   ; se a tecla primida for c, executa inicia_jogo
@@ -144,5 +145,4 @@ termina_jogo:
 retorna_ciclo:
     POP  R3
     POP  R2
-    POP  R1
     RET 
