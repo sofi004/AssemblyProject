@@ -21,11 +21,13 @@ SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H   ; endereço do comando para seleci
 SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H   ; endereço do comando para selecionar uma video ou som
 REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH   ; endereço do comando para iniciar a reprodução dum video ou som
 
+COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
-
+PLACE  1000H
+pilha:  TABLE 100H   ; espaço reservado para a pilha 200H bytes, 100H words
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
