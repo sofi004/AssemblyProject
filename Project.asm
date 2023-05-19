@@ -26,7 +26,7 @@ SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		        ; endereço do comando para
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
-PLACE 0
+PLACE 0 ; o código tem que começar em 0000H
 inicio:
     MOV  [APAGA_AVISO], R1	            ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV  [APAGA_ECRÃ], R1	            ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
