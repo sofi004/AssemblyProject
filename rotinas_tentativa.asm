@@ -65,7 +65,6 @@ ciclo:
 ; ******************************************************************************
 teclado:
     PUSH  R0
-    PUSH  R1
     PUSH  R2
     PUSH  R3
     PUSH  R4
@@ -95,11 +94,9 @@ espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
 ; escolhe_rotina - Processo que executa a instrução associada à tecla primida
 ; ******************************************************************************
 escolhe_rotina:
-    PUSH  R0
     PUSH  R1   ; tem o valor da linha e coluna da tecla que foi primida no teclado
     PUSH  R2
     PUSH  R3
-    PUSH  R6
 
     MOV  R0, 0   ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
     MOV  R6, 0   ; inicializa R6 a 0, se no final da rotina R8 estiver com 1 então quer dizer que se a tecla primida tem uma função associada
