@@ -29,8 +29,8 @@ COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 ; * ZONA DE DADOS 
 ; ##############################################################################
 PLACE  1000H
-pilha:  TABLE 100H   ; espaço reservado para a pilha 200H bytes, 100H words
-SP:
+STACK 100H   ; espaço reservado para a pilha 200H bytes, 100H words
+	SP_init:
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
