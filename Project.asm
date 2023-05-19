@@ -20,6 +20,7 @@ APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pi
 SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H   ; endereço do comando para selecionar uma imagem de fundo
 SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H   ; endereço do comando para selecionar uma video ou som
 REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH   ; endereço do comando para iniciar a reprodução dum video ou som
+SUSPENDE_SOM_VIDEO  EQU COMANDOS + AEH   ; endereço do comando para pausar video ou som
 
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 
@@ -79,13 +80,22 @@ escolhe_rotina:
 
 inicia_jogo:
     MOV  R7, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
-    MOV  R1, 0   ; video número 0
-    MOV  [SELECIONA_SOM_VIDEO], R1   ; seleciona um video para cenário de fundo
-    MOV  [REPRODUZ_SOM_VIDEO], R1   ; inicia a reprodução do video de fundo do jogo
+    MOV  R9, 0   ; video número 0
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um video para cenário de fundo
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do video de fundo do jogo
     JMP  restart_linhas   ; depois de iniciar o jogo volta a restart linhas 
     
  fases_jogo:
+    MOV  R8, 0082H       
+    CMP  R1, R8   ; verifica se a tecla primida é a d
+    JZ  suspende_jogo   ; se a tecla primida for d, executa suspende_jogo
 	JMP fim
+
+suspende_jogo:
+    MOV  R9, O
+    MOV  [SUSPENDE_SOM_VIDEO], R9
+    MOV	 R10, 1  ; cenário de fundo número 1
+    MOV  [SELECIONA_CENARIO_FUNDO], R10   ; seleciona o cenário de fundo
     
 fim:
     JMP fim   ; termina o programa
