@@ -91,10 +91,10 @@ inicia_jogo:
     JZ  suspende_jogo   ; se a tecla primida for d, executa suspende_jogo
     JMP  restart_linhas 
 suspende_jogo:
-    MOV	 R10, 1  ; cenário de fundo número 1
-    MOV  [SELECIONA_CENARIO_FUNDO], R10   ; seleciona o cenário de fundo
     MOV  R9, 0
     MOV  [SUSPENDE_SOM_VIDEO], R9
+    MOV	 R10, 1  ; cenário de fundo número 1
+    MOV  [SELECIONA_CENARIO_FUNDO], R10   ; seleciona o cenário de fundo
     JMP  restart_linhas
     
 fim:
