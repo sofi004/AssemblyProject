@@ -88,4 +88,4 @@ inicia_jogo:
 	JMP fim
     
 fim:
-    JMP fim   ; termina o programa
+    JMP fim   ; termina o programa jasja
