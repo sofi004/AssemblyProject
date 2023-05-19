@@ -92,7 +92,7 @@ inicia_jogo:
 	JMP fim
 
 suspende_jogo:
-    MOV  R9, O
+    MOV  R9, 0
     MOV  [SUSPENDE_SOM_VIDEO], R9
     MOV	 R10, 1  ; cenário de fundo número 1
     MOV  [SELECIONA_CENARIO_FUNDO], R10   ; seleciona o cenário de fundo
