@@ -102,8 +102,8 @@ escolhe_rotina:
     MOV  R2, 0081H       
     CMP  R1, R2   ; verifica se a tecla primida é a c
     JZ  inicia_jogo   ; se a tecla primida for c, executa inicia_jogo
-    CMP  R0, 1
-    JZ  fases_jogo   ; se o jogo já começou
+    CMP  R0, 0
+    JNZ  fases_jogo   ; se o jogo já começou
     JMP retorna_ciclo; se a tecla primida não está associada a nenhuma função volta a restart_linhas
 
 inicia_jogo:
