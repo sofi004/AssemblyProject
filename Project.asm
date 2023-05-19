@@ -84,7 +84,7 @@ inicia_jogo:
     MOV R7, 1           ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV R1, 0
     MOV [SELECIONA_SOM_VIDEO], R1
-    MOV [REPRODUZ_SOM_VIDEO], SELECIONA_SOM_VIDEO
+    MOV [REPRODUZ_SOM_VIDEO], R1
     JMP restart_linhas  ; depois de iniciar o jogo volta a restart linhas 
     
  fases_jogo:
