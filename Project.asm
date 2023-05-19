@@ -18,7 +18,9 @@ DEFINE_PIXEL    		 EQU COMANDOS + 12H		; endereço do comando para escrever um p
 APAGA_AVISO     		 EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
 APAGA_ECRÃ	 		 EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		        ; endereço do comando para selecionar uma imagem de fundo
-SELECIONA_CENARIO_SOM_VIDEO  EQU COMANDOS + 48H		        ; endereço do comando para selecionar uma video ou som
+SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H		                ; endereço do comando para selecionar uma video ou som
+REPRODUZ_SOM_VIDEO EQU COMANDOS + 5AH                           ; endereço do comando para iniciar a reprodução dum video ou som
+
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
@@ -81,7 +83,8 @@ escolhe_funcao:
 inicia_jogo:
     MOV R7, 1           ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV R1, 0
-    MOV [SELECIONA_CENARIO_SOM_VIDEO], R1
+    MOV [SELECIONA_SOM_VIDEO], R1
+    MOV [REPRODUZ_SOM_VIDEO], SELECIONA_SOM_VIDEO
     JMP restart_linhas  ; depois de iniciar o jogo volta a restart linhas 
     
  fases_jogo:
