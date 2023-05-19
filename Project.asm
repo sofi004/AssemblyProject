@@ -53,7 +53,6 @@ inicio:
 ; corpo principal do programa
 
 ; teclado
-
 restart_linhas:
     MOV R1, LINHA
 
@@ -68,10 +67,9 @@ espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
     JZ   espera_tecla   ; se nenhuma tecla for primida, repete
     SHL  R1, 4   ; coloca linha no nibble high
     OR   R1, R0   ; junta coluna (nibble low)
-    JMP escolhe_funcao   ; verifica se a tecla primida está associada a alguma função
+    JMP escolhe_rotina  ; verifica se a tecla primida está associada a alguma função
 
-
-escolhe_funcao:
+escolhe_rotina:
     MOV  R8, 0081H       
     CMP  R1, R8   ; verifica se a tecla primida é a c
     JZ  inicia_jogo   ; se a tecla primida for c, executa inicia_jogo
