@@ -45,6 +45,7 @@ inicio:
 ;###############################################################################
 
 ; inicializações
+    MOV SP, SP_init
     MOV  R2, TEC_LIN   ; endereço do periférico das linhas
     MOV  R3, TEC_COL   ; endereço do periférico das colunas
     MOV  R4, DISPLAYS   ; endereço do periférico dos displays
