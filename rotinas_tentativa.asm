@@ -52,7 +52,6 @@ inicio:
     MOV  R4, DISPLAYS   ; endereço do periférico dos displays
     MOV  R5, 0100H   ; inicializa o valor de R5 a 100H para colocar no display
     MOV  [R4], R5   ; inicializa o display a 100
-    MOV  R6, 0   ; inicializa R6 a 0, se no final da rotina R8 estiver com 1 então quer dizer que se a tecla primida tem uma função associada
 
 ; ******************************************************************************
 ; corpo principal do programa
@@ -60,8 +59,6 @@ inicio:
 ciclo: 
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL  escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
-    CMP R6, 0
-    JZ ciclo
     JMP  ciclo
 
 ; ******************************************************************************
@@ -138,6 +135,8 @@ continua_jogo:
     JMP  retorna_ciclo
 
 termina_jogo:
+    MOV  [APAGA_AVISO], R3   ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRÃ], R3   ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
     MOV  R3, 1
     MOV  [SELECIONA_CENARIO_FUNDO], R3
     JMP  retorna_ciclo
