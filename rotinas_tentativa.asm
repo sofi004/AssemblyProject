@@ -117,6 +117,8 @@ inicia_jogo:
     MOV  R2, 0082H       
     CMP  R1, R2   ; verifica se a tecla primida é a d
     JZ  suspende_jogo   ; se a tecla primida for d, executa suspende_jogo
+    CMP  R0, 2
+    JZ  retorna_ciclo
     MOV  R2, 0084H      
     CMP  R1, R2   ; verifica se a tecla primida é a e
     JZ  termina_jogo   ; se a tecla primida for e, executa termina_jogo
