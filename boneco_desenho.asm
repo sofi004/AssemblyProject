@@ -24,6 +24,7 @@ SUSPENDE_SOM_VIDEO  EQU COMANDOS + 5EH   ; endereço do comando para pausar vide
 CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar video ou som
 TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
+APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 
 ; ##############################################################################
@@ -151,6 +152,8 @@ suspende_jogo:
     JMP  retorna_ciclo
 
 continua_jogo:
+    MOV  R5, 2
+    MOV  [APAGA_CENARIO_FRONTAL], R5
     MOV  R5, 0
     MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
     MOV  R0, 1   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
