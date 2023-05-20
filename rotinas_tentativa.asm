@@ -150,7 +150,7 @@ suspende_jogo:
 
 continua_jogo:
     MOV  R5, 0
-    MOVB [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
+    MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
     MOV  R0, 1   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
     MOV  R5, 0
     MOVB [R3], R5
@@ -158,9 +158,9 @@ continua_jogo:
 
 termina_jogo:
     MOV  R5, 0   ; video número 0
-    MOVB  [TERMINA_SOM_VIDEO], R5   ; pausa o video número 0
+    MOV  [TERMINA_SOM_VIDEO], R5   ; pausa o video número 0
     MOV  R5, 1   ; cenário de fundo número 1
-    MOVB  [SELECIONA_CENARIO_FUNDO], R5 ; seleciona o cenário de fundo
+    MOV  [SELECIONA_CENARIO_FUNDO], R5 ; seleciona o cenário de fundo
     MOV  R0, 0   ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP  retorna_ciclo
 
