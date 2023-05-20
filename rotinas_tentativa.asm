@@ -133,14 +133,16 @@ suspende_jogo:
     MOV  R5, 0
     MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
-    MOV  [R3], LINHA
+    MOV  R5, LINHA
+    MOV  [R3], R5
     JMP  retorna_ciclo
 
 continua_jogo:
     MOV  R5, 0
     MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
     MOV  R0, 1   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
-    MOV  [R3], LINHA
+    MOV  R5, LINHA
+    MOV  [R3], R5
     JMP  retorna_ciclo
 
 termina_jogo:
