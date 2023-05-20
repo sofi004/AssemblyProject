@@ -75,7 +75,7 @@ teclado:
     PUSH  R4
 
 restart_linhas:
-    MOV R1, LINHA   ; coloca 16 = 10000B em R1
+    MOV R1, LINHA   ; coloca 16 = 10000B em R1MOVB
 
 espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
     SHR  R1, 1   ; passa para a linha seguinte
@@ -126,8 +126,8 @@ inicia_jogo_verificação:
 inicia_jogo:
     MOV  R0, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV  R5, 0   ; video número 0
-    MOVB  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
-    MOVB  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do video de fundo do jogo
+    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
+    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do video de fundo do jogo
     JMP  retorna_ciclo   ; depois de iniciar o jogo volta a restart linhas 
     
  fases_jogo:
@@ -142,7 +142,7 @@ suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
     JZ   continua_jogo   ;   prosseguir com o jogo
     MOV  R5, 0
-    MOVB [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
+    MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
     MOV  R5, 0
     MOVB [R3], R5
