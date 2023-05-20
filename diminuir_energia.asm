@@ -61,8 +61,8 @@ ciclo:
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
-    CMP  R0, 1   ; o jogo está a correr?
-    JNZ  ciclo   ; só desenha se o jogo estiver a correr
+    CMP  R0, 0   ; o jogo está a correr?
+    JZ  ciclo   ; só desenha se o jogo estiver a correr
     JMP  ciclo
 
 ; ******************************************************************************
