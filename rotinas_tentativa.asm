@@ -96,55 +96,62 @@ espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
 ; escolhe_rotina - Processo que executa a instrução associada à tecla primida
 ; ******************************************************************************
 escolhe_rotina:
-    PUSH  R2
-    PUSH  R3
+    PUSH  R4
+    PUSH  R5
 
-    MOV  R2, 0081H       
-    CMP  R1, R2   ; verifica se a tecla primida é a c
-    JZ  inicia_jogo   ; se a tecla primida for c, executa inicia_jogo
+    MOV  R4, 0081H       
+    CMP  R1, R4   ; verifica se a tecla primida é a c
+    JZ  inicia_jogo_verificação   ; se a tecla primida for c, executa inicia_jogo
     CMP  R0, 0
     JNZ  fases_jogo   ; se o jogo já começou
     JMP retorna_ciclo; se a tecla primida não está associada a nenhuma função volta a restart_linhas
 
+inicia_jogo_verificação:
+    CMP  R0, 0
+    JZ  inicia_jogo
+    JMP  retorna_ciclo
 inicia_jogo:
     MOV  R0, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
-    MOV  R3, 0   ; video número 0
-    MOV  [SELECIONA_SOM_VIDEO], R3   ; seleciona um video para cenário de fundo
-    MOV  [REPRODUZ_SOM_VIDEO], R3   ; inicia a reprodução do video de fundo do jogo
+    MOV  R5, 0   ; video número 0
+    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
+    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do video de fundo do jogo
     JMP  retorna_ciclo   ; depois de iniciar o jogo volta a restart linhas 
     
  fases_jogo:
-    MOV  R2, 0082H       
-    CMP  R1, R2   ; verifica se a tecla primida é a d
+    MOV  R4, 0082H       
+    CMP  R1, R4   ; verifica se a tecla primida é a d
     JZ  suspende_jogo   ; se a tecla primida for d, executa suspende_jogo
     CMP  R0, 2
     JZ  retorna_ciclo
-    MOV  R2, 0084H      
-    CMP  R1, R2   ; verifica se a tecla primida é a e
+    MOV  R4, 0084H      
+    CMP  R1, R4   ; verifica se a tecla primida é a e
     JZ  termina_jogo   ; se a tecla primida for e, executa termina_jogo
     JMP  retorna_ciclo
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
     JZ   continua_jogo   
-    MOV  R3, 0
-    MOV  [SUSPENDE_SOM_VIDEO], R3  ; pausa o video de fundo do jogo
+    MOV  R5, 0
+    MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
+    MOV  [R3], LINHA
     JMP  retorna_ciclo
 
 continua_jogo:
-    MOV  R3, 0
-    MOV  [CONTINUA_SOM_VIDEO], R3  ; continua o video de fundo do jogo
+    MOV  R5, 0
+    MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
     MOV  R0, 1   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
+    MOV  [R3], LINHA
     JMP  retorna_ciclo
 
 termina_jogo:
-    MOV  R3, 0
-    MOV  [TERMINA_SOM_VIDEO], R3
-    MOV  R3, 1
-    MOV  [SELECIONA_CENARIO_FUNDO], R3
+    MOV  R5, 0
+    MOV  [TERMINA_SOM_VIDEO], R5
+    MOV  R5, 1
+    MOV  [SELECIONA_CENARIO_FUNDO], R5
+    MOV  R0, 0
     JMP  retorna_ciclo
 
 retorna_ciclo:
-    POP  R3
-    POP  R2
+    POP  R5
+    POP  R4
     RET 
