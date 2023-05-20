@@ -59,7 +59,8 @@ inicio:
 ; ******************************************************************************
 ciclo: 
     CALL  teclado   ; verifica se alguma tecla foi carregada
-    CALL  escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
+    CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
+    CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
     CMP  R0, 1   ; o jogo está a correr?
     JNZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
     CALL asteroide_bom   ; desenha o asteroide bom no canto superior esquerdo
@@ -92,6 +93,17 @@ espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
     POP  R4
     POP  R2
     POP  R0
+    RET
+
+ha_tecla:              ; neste ciclo espera-se até NENHUMA tecla estar premida
+    PUSH R0
+    PUSH R5
+    MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
+    AND  R0, R5        ; elimina bits para além dos bits 0-3
+    CMP  R0, 0         ; há tecla premida?
+    JNZ  ha_tecla      ; se ainda houver uma tecla premida, espera até não haver
+    POP R5
+    POP R0
     RET
 ; ******************************************************************************
 ; escolhe_rotina - Processo que executa a instrução associada à tecla primida
