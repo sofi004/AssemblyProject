@@ -60,6 +60,9 @@ inicio:
 ciclo: 
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL  escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
+    CMP  R0, 1   ; o jogo está a correr?
+    JNZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
+    CALL asteroide_bom   ; desenha o asteroide bom no canto superior esquerdo
     JMP  ciclo
 
 ; ******************************************************************************
@@ -72,7 +75,7 @@ teclado:
     PUSH  R4
 
 restart_linhas:
-    MOV R1, LINHA
+    MOV R1, LINHA   ; coloca 16 = 10000B em R1
 
 espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
     SHR  R1, 1   ; passa para a linha seguinte
@@ -102,14 +105,14 @@ escolhe_rotina:
     MOV  R4, 0081H       
     CMP  R1, R4   ; verifica se a tecla primida é a c
     JZ  inicia_jogo_verificação   ; se a tecla primida for c, executa inicia_jogo
-    CMP  R0, 0
+    CMP  R0, 0   ; o jogo ainda não está a correr?
     JNZ  fases_jogo   ; se o jogo já começou
     JMP retorna_ciclo; se a tecla primida não está associada a nenhuma função volta a restart_linhas
 
 inicia_jogo_verificação:
-    CMP  R0, 0
-    JZ  inicia_jogo
-    JMP  retorna_ciclo
+    CMP  R0, 0   ; o jogo está a correr?
+    JZ  inicia_jogo   ; se o jogo não está a correr vamos pô-lo a correr 
+    JMP  retorna_ciclo  ; senão vamos esperar pela tecla c para o por a correr
 inicia_jogo:
     MOV  R0, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV  R5, 0   ; video número 0
@@ -127,7 +130,7 @@ inicia_jogo:
     JMP  retorna_ciclo
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
-    JZ   continua_jogo   
+    JZ   continua_jogo   ;   prosseguir com o jogo
     MOV  R5, 0
     MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
@@ -144,14 +147,38 @@ continua_jogo:
     JMP  retorna_ciclo
 
 termina_jogo:
-    MOV  R5, 0
-    MOV  [TERMINA_SOM_VIDEO], R5
-    MOV  R5, 1
-    MOV  [SELECIONA_CENARIO_FUNDO], R5
-    MOV  R0, 0
+    MOV  R5, 0   ; video número 0
+    MOV  [TERMINA_SOM_VIDEO], R5   ; pausa o video número 0
+    MOV  R5, 1   ; cenário de fundo número 1
+    MOV  [SELECIONA_CENARIO_FUNDO], R5 ; seleciona o cenário de fundo
+    MOV  R0, 0   ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP  retorna_ciclo
 
 retorna_ciclo:
     POP  R5
     POP  R4
     RET 
+
+; ******************************************************************************
+; asteroide_bom - Processo que desenha o asteroide bom 
+; ******************************************************************************
+
+asteroide_bom:
+    PUSH  R0
+    PUSH  R1
+    PUSH  R2
+    PUSH  R3
+    PUSH  R4
+    PUSH  R5
+    PUSH  R6
+    PUSH  R7
+
+    POP  R7
+    POP  R6
+    POP  R5
+    POP  R4
+    POP  R3
+    POP  R2
+    POP  R1
+    POP  R0
+    RET
