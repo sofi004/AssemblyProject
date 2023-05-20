@@ -23,7 +23,7 @@ REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH   ; endereço do comando para iniciar a r
 SUSPENDE_SOM_VIDEO  EQU COMANDOS + 5EH   ; endereço do comando para pausar video ou som
 CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar video ou som
 TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
-
+SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 
 ; ##############################################################################
@@ -96,14 +96,16 @@ espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
     RET
 
 ha_tecla:              ; neste ciclo espera-se até NENHUMA tecla estar premida
-    PUSH R0
-    PUSH R5
-    MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
-    AND  R0, R5        ; elimina bits para além dos bits 0-3
-    CMP  R0, 0         ; há tecla premida?
-    JNZ  ha_tecla      ; se ainda houver uma tecla premida, espera até não haver
-    POP R5
-    POP R0
+    PUSH R8
+    PUSH R7
+repeticao_tecla:
+    MOV  R7, MASCARA   ; [MASCARA]
+    MOVB R8, [R3]      ; ler do periférico de entrada (colunas)
+    AND  R8, R7        ; elimina bits para além dos bits 0-3
+    CMP  R8, 0         ; há tecla premida?
+    JNZ  repeticao_tecla     ; se ainda houver uma tecla premida, espera até não haver
+    POP R7
+    POP R8
     RET
 ; ******************************************************************************
 ; escolhe_rotina - Processo que executa a instrução associada à tecla primida
@@ -143,17 +145,15 @@ suspende_jogo:
     JZ   continua_jogo   ;   prosseguir com o jogo
     MOV  R5, 0
     MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
+    MOV R5, 2
+    MOV  [SELECIONA_CENARIO_FRONTAL], R5 ; coloca cenario frontal de pausa do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
-    MOV  R5, 0
-    MOVB [R3], R5
     JMP  retorna_ciclo
 
 continua_jogo:
     MOV  R5, 0
     MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
     MOV  R0, 1   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
-    MOV  R5, 0
-    MOVB [R3], R5
     JMP  retorna_ciclo
 
 termina_jogo:
