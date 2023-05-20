@@ -31,8 +31,8 @@ COR_PIXEL_TRANSPARENTE EQU D8D833H   ;cor do pixel; cinzento transparente
 COR_PIXEL_CINZENTO EQU D8D800H   ;cor do pixel; cinzento transparente
 LARGURA_NAVE  EQU 15  ; largura da nave
 ALTURA_NAVE  EQU 5  ;altura da nave
-LARGURA_ECRA_NAVE  EQU 7  ; largura da nave
-ALTURA_NAVE  EQU 2  ;altura da nave
+LARGURA_ECRA_NAVE  EQU 7  ; largura ecra da nave
+ALTURA_NAVE  EQU 2  ;altura ecra da nave
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
@@ -60,7 +60,7 @@ DEF_NAVE:					; tabela que define a nave (cor, largura, altura, pixels)
                 COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE,
                 COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE, COR_PIXEL_VERMELHO
 
-DEF_ECRA_NAVE:
+DEF_ECRA_NAVE:						; tabela que define o ecra da nave (cor, largura, altura, pixels)
     WORD        LARGURA_ECRA_NAVE
     WORD        ALTURA_ECRA_NAVE
     WORD        COR_PIXEL_CINZENTO,COR_PIXEL_VERMELHO,COR_PIXEL_VERDE,COR_PIXEL_CINZENTO, COR_PIXEL_VERDE
