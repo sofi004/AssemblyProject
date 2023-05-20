@@ -62,8 +62,7 @@ ciclo:
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
     CMP  R0, 1   ; o jogo está a correr?
-    JNZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
-    CALL asteroide_bom   ; desenha o asteroide bom no canto superior esquerdo
+    JNZ  ciclo   ; só desenha se o jogo estiver a correr
     JMP  ciclo
 
 ; ******************************************************************************
@@ -169,26 +168,3 @@ retorna_ciclo:
     POP  R4
     RET 
 
-; ******************************************************************************
-; asteroide_bom - Processo que desenha o asteroide bom 
-; ******************************************************************************
-
-asteroide_bom:
-    PUSH  R0
-    PUSH  R1
-    PUSH  R2
-    PUSH  R3
-    PUSH  R4
-    PUSH  R5
-    PUSH  R6
-    PUSH  R7
-
-    POP  R7
-    POP  R6
-    POP  R5
-    POP  R4
-    POP  R3
-    POP  R2
-    POP  R1
-    POP  R0
-    RET
