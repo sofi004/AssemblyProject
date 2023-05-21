@@ -25,9 +25,11 @@ CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar v
 TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
+
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
-LARGURA_ASTEROIDE  EQU 5  ; largura do asteroide
-ALTURA_ASTEROIDE  EQU 5  ; altura do asteroide
+
+LARGURA_ASTEROIDE_BOM  EQU 5  ; largura do asteroide
+ALTURA_ASTEROIDE_BOM  EQU 5  ; altura do asteroide
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
@@ -35,6 +37,17 @@ ALTURA_ASTEROIDE  EQU 5  ; altura do asteroide
 PLACE  1000H
 STACK 100H   ; espaço reservado para a pilha 200H bytes, 100H words
 	SP_init:
+	
+DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, pixels)
+    WORD        LARGURA_ASTEROIDE_BOM
+    WORD        ALTURA_ASTEROIDE_BOM
+    WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
+    WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
+    
+    
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
