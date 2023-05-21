@@ -27,6 +27,7 @@ SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
 
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
+COR_PIXEL_ROXO  EQU 0F85FH   ; cor do pixel: roxo em ARGB
 
 LINHA_ASTEROIDE_BOM EQU 0
 COLUNA_ASTEROIDE_BOM EQU 0
