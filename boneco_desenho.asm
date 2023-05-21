@@ -34,6 +34,11 @@ COLUNA_ASTEROIDE_BOM EQU 0
 LARGURA_ASTEROIDE_BOM  EQU 5  ; largura do asteroide
 ALTURA_ASTEROIDE_BOM  EQU 5  ; altura do asteroide
 
+LINHA_SONDA EQU 26
+COLUNA_SONDA EQU 32
+LARGURA_SONDA  EQU 1  ; largura da sonda
+ALTURA_SONDA  EQU 1  ; altura da sonda
+
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
@@ -50,6 +55,10 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
     
+DEF_SONDA:   ; tabela que define a sonda (cor, largura, altura, pixels)
+    WORD        LARGURA_SONDA
+    WORD        ALTURA_SONDA
+    WORD        COR_PIXEL_ROXO
     
 ; ******************************************************************************
 ; * Código
