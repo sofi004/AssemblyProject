@@ -28,6 +28,8 @@ APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apag
 
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 
+LINHA_ASTEROIDE_BOM EQU 0
+COLUNA_ASTEROIDE_BOM EQU 0
 LARGURA_ASTEROIDE_BOM  EQU 5  ; largura do asteroide
 ALTURA_ASTEROIDE_BOM  EQU 5  ; altura do asteroide
 
