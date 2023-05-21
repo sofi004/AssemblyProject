@@ -26,6 +26,8 @@ TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a r
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
+LARGURA_ASTEROIDE  EQU 5  ; largura do asteroide
+ALTURA_ASTEROIDE  EQU 5  ; altura do asteroide
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
