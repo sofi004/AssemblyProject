@@ -117,9 +117,19 @@ ciclo:
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
+
+    CMP R0, 2
+    JZ  apaga_desenhos
+
     CMP  R0, 0   ; o jogo está a correr?
     JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
-    CALL posicao_nave   ; desenha o asteroide bom no canto superior esquerdo
+    CALL posicao_nave   ; desenha a nave
+
+
+    
+
+
+
     JMP  ciclo
 
 ; ******************************************************************************
@@ -163,6 +173,19 @@ repeticao_tecla:
     POP R7
     POP R8
     RET
+
+
+; ******************************************************************************
+
+; ******************************************************************************
+
+apaga_desenhos:
+    CALL posicao_apagar_nave
+
+
+
+
+
 ; ******************************************************************************
 ; escolhe_rotina - Processo que executa a instrução associada à tecla primida
 ; ******************************************************************************
@@ -272,7 +295,6 @@ desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
     MOV R2, COLUNA_NAVE    ;volta a desenhar na primeira coluna
     MOV R5, LARGURA_NAVE             ;contador de colunas ao maximo
     JMP desenha_pixels
-    
 
 retorna_ciclo_desenho_nave:
     POP R7
@@ -283,4 +305,61 @@ retorna_ciclo_desenho_nave:
     POP R2
     POP R1
     RET
+
+
+posicao_apagar_nave:
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5 
+    PUSH R6
+    PUSH R7
+
+posição_inicio_apagar_nave:
+    MOV  R1, LINHA_NAVE 
+    MOV  R2, COLUNA_NAVE
+
+    ADD R7, R1
+    ADD R7, ALTURA_NAVE
+
+desenha_nave_apagar:
+	MOV	R4, DEF_NAVE		; endereço da tabela que define o boneco
+	MOV	R5, [R4]			; obtém a largura do boneco
+	ADD	R4, 2			 
+    MOV R6, [R4]            ; obtem a altura do boneco
+    
+apaga_pixeis:       		; desenha os pixels do boneco a partir da tabela
+	MOV	R3, 0			; obtém a cor do próximo pixel do boneco
+	MOV  [DEFINE_LINHA], R1	; seleciona a linha
+	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
+	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
+    ADD  R2, 1               ; próxima coluna
+    SUB  R5, 1			; menos uma coluna para tratar
+    JNZ  apaga_pixeis      ; continua até percorrer toda a largura do objeto
+
+    
+    CMP R1, R7      ;verifica se chegou ao fim do desenho
+    JZ retorna_ciclo_apaga_nave
+
+    ADD R1, 1            ;passa para apagar na proxima linha
+    MOV R2, COLUNA_NAVE    ;volta a apagar na primeira coluna
+    MOV R5, LARGURA_NAVE             ;contador de colunas ao maximo
+    JMP apaga_pixeis
+
+retorna_ciclo_apaga_nave:
+    POP R7
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
+
+
+
+
+
+
 
