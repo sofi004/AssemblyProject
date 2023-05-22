@@ -354,7 +354,7 @@ desenha_pixel_sonda:
     MOV [DEFINE_COLUNA], R1
     MOV [DEFINE_PIXEL], R2
 
-retorna_ciclo_nave:
+retorna_ciclo_sonda:
     POP  R6
     POP  R5
     POP  R4
