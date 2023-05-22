@@ -26,7 +26,6 @@ TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a r
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
-<<<<<<< HEAD
 COR_PIXEL_ROXO  EQU 0F85FH   ; cor do pixel: roxo em ARGB
 COR_PIXEL_VERMELHO  EQU 0FF00H   ; cor do pixel: vermelho em ARGB
 COR_PIXEL_TRANSPARENTE EQU D8D833H   ;cor do pixel; cinzento transparente
@@ -41,8 +40,6 @@ LINHA_SONDA EQU 26
 COLUNA_SONDA EQU 32
 LARGURA_SONDA  EQU 1  ; largura da sonda
 ALTURA_SONDA  EQU 1  ; altura da sonda
-=======
->>>>>>> 95804721a4225d92d6d37917d61ccf515d0eb611
 
 COLUNA_NAVA EQU 25
 LINHA_NAVE EQU 27
@@ -57,7 +54,6 @@ ALTURA_ECRA_NAVE  EQU 2  ;altura ecra da nave
 PLACE  1000H
 STACK  100H   ; espaço reservado para a pilha 200H bytes, 100H words
 	SP_init:
-<<<<<<< HEAD
 	
 DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE_BOM
@@ -92,8 +88,6 @@ DEF_NAVE:					; tabela que define a nave (cor, largura, altura, pixels)
                 COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE,
                 COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE, COR_PIXEL_VERMELHO
     
-=======
->>>>>>> 95804721a4225d92d6d37917d61ccf515d0eb611
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
