@@ -349,7 +349,7 @@ posicão_sonda:
     MOV R1, COLUNA_SONDA
     MOV R2, COR_PIXEL_ROXO
 
-desenha_pixel sonda:
+desenha_pixel_sonda:
     MOV [DEFINE_LINHA], R0
     MOV [DEFINE_COLUNA], R1
     MOV [DEFINE_PIXEL], R2
