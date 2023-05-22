@@ -238,7 +238,7 @@ posicao_nave:
     MOV  R2, COLUNA_NAVE
 
 desenha_nave:
-	MOV	R4, DEF_BONECO		; endereço da tabela que define o boneco
+	MOV	R4, DEF_NAVE		; endereço da tabela que define o boneco
 	MOV	R5, [R4]			; obtém a largura do boneco
 	ADD	R4, 2			 
     MOV R6, [R4]            ; obtem a altura do boneco
