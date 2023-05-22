@@ -122,7 +122,7 @@ ciclo:
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
     CMP R0, 2
-    JNZ ciclo 
+    JZ ciclo 
     CALL apaga_nave   ; apaga a nave
     CMP  R0, 0   ; o jogo está a correr?
     JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
