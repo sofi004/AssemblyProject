@@ -245,6 +245,7 @@ posicão_asteroide_bom:
     MOV R1, COLUNA_ASTEROIDE_BOM
     ADD R6, R0
     ADD R6, ALTURA_ASTEROIDE_BOM
+    SUB R6, 1
 
 desenha_asteroide_bom:
     MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
