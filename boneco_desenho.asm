@@ -473,3 +473,35 @@ retorna_ciclo_apaga_asteroide_bom:
     POP R2
     POP R1
     RET
+
+; ******************************************************************************
+; apaga_sonda - Processo que apaga a sonda
+; ******************************************************************************
+apaga_sonda:
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5 
+    PUSH R6
+    PUSH R7
+
+posição_inicio_apagar_sonda:
+    MOV  R1, LINHA_SONDA
+    MOV  R2, COLUNA_SONDA
+    MOV  R3, 0
+    
+apaga_pixeis_sonda: 
+	MOV  [DEFINE_LINHA], R1	; seleciona a linha
+	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
+	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
+
+retorna_ciclo_apaga_asteroide_bom:
+    POP R7
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
