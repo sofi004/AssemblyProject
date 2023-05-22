@@ -230,7 +230,6 @@ retorna_ciclo:
 ; ******************************************************************************
 ; asteroide_bom - Processo que desenha o asteroide bom 
 ; ******************************************************************************
-
 asteroide_bom:
     PUSH  R0
     PUSH  R1
@@ -239,17 +238,19 @@ asteroide_bom:
     PUSH  R4
     PUSH  R5
     PUSH  R6
-    PUSH  R7
+
 posicão_asteroide_bom:
     MOV R0, LINHA_ASTEROIDE_BOM
     MOV R1, COLUNA_ASTEROIDE_BOM
+    ADD R6, R0
+    ADD R6, ALTURA_ASTEROIDE_BOM
 
 desenha_asteroide_bom:
     MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
     MOV R3, [R2]   ; obtem a largura do asteroide bom
     ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
     MOV R4, [R2]   ; obtem a altura da asteroide bom
-    ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom
+    ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
 desenha_pixels_asteroide_bom:
     MOV R5, [R2]
@@ -261,8 +262,14 @@ desenha_pixels_asteroide_bom:
     SUB R3, 1
     JNZ desenha_pixels_asteroide_bom
 
-retorna_ciclo_desenho_asteroide_bom:
-    POP  R7
+CMP R0, R6
+JZ retorna_ciclo_asteroide_bom
+ADD R0, 1
+MOV R1, COLUNA_ASTEROIDE_BOM
+MOV R3, LARGURA_ASTEROIDE_BOM
+JMP desenha_pixels_asteroide_bom
+
+retorna_ciclo_asteroide_bom:
     POP  R6
     POP  R5
     POP  R4
