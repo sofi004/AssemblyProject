@@ -42,7 +42,7 @@ COLUNA_SONDA EQU 32
 LARGURA_SONDA  EQU 1  ; largura da sonda
 ALTURA_SONDA  EQU 1  ; altura da sonda
 
-COLUNA_NAVA EQU 25
+COLUNA_NAVE EQU 25
 LINHA_NAVE EQU 27
 LARGURA_NAVE  EQU 15  ; largura da nave
 ALTURA_NAVE  EQU 5  ;altura da nave
@@ -121,6 +121,7 @@ ciclo:
     CMP  R0, 0   ; o jogo está a correr?
     JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
     CALL asteroide_bom   ; desenha o asteroide bom no canto superior esquerdo
+    CALL nave
     JMP  ciclo
 
 ; ******************************************************************************
@@ -272,6 +273,60 @@ MOV R3, LARGURA_ASTEROIDE_BOM
 JMP desenha_pixels_asteroide_bom
 
 retorna_ciclo_asteroide_bom:
+    POP  R6
+    POP  R5
+    POP  R4
+    POP  R3
+    POP  R2
+    POP  R1
+    POP  R0
+    RET
+
+
+; ******************************************************************************
+; nave - Processo que desenha a nave
+; ******************************************************************************
+nave:
+    PUSH  R0
+    PUSH  R1
+    PUSH  R2
+    PUSH  R3
+    PUSH  R4
+    PUSH  R5
+    PUSH  R6
+
+posicão_nave:
+    MOV R0, LINHA_NAVE
+    MOV R1, COLUNA_NAVE
+    ADD R6, R0
+    ADD R6, ALTURA_NAVE
+    SUB R6, 1
+
+desenha_nave:
+    MOV R2, DEF_NAVE   ; endereço da tabela que define o asteroide bom
+    MOV R3, [R2]   ; obtem a largura do asteroide bom
+    ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
+    MOV R4, [R2]   ; obtem a altura da asteroide bom
+    ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
+
+desenha_pixels_nave:
+    MOV R5, [R2]
+    MOV [DEFINE_LINHA], R0
+    MOV [DEFINE_COLUNA], R1
+    MOV [DEFINE_PIXEL], R5
+    ADD R2, 2
+    ADD R1, 1
+    SUB R3, 1
+    JNZ desenha_pixels_nave
+
+CMP R0, R6
+JZ retorna_ciclo_nave
+ADD R0, 1
+MOV R1, COLUNA_NAVE
+MOV R3, LARGURA_NAVE
+JMP desenha_pixels_nave
+
+retorna_ciclo_nave:
     POP  R6
     POP  R5
     POP  R4
