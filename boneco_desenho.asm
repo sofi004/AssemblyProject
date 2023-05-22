@@ -401,7 +401,7 @@ apaga_pixeis_nave:       		; desenha os pixels do boneco a partir da tabela
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
     ADD  R2, 1               ; próxima coluna
     SUB  R5, 1			; menos uma coluna para tratar
-    JNZ  apaga_pixeis      ; continua até percorrer toda a largura do objeto
+    JNZ  apaga_pixeis_nave      ; continua até percorrer toda a largura do objeto
 
     
     CMP R1, R7      ;verifica se chegou ao fim do desenho
@@ -410,7 +410,7 @@ apaga_pixeis_nave:       		; desenha os pixels do boneco a partir da tabela
     ADD R1, 1            ;passa para apagar na proxima linha
     MOV R2, COLUNA_NAVE    ;volta a apagar na primeira coluna
     MOV R5, LARGURA_NAVE             ;contador de colunas ao maximo
-    JMP apaga_pixeis
+    JMP apaga_pixeis_nave
 
 retorna_ciclo_apaga_nave:
     POP R7
