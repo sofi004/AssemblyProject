@@ -259,12 +259,12 @@ desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
     ADD  R2, 1               ; próxima coluna
     SUB  R5, 1			; menos uma coluna para tratar
     JNZ  desenha_pixels      ; continua até percorrer toda a largura do objeto
-
-    CMP R1,ALTURA_NAVE      ;verifica se chegou ao fim do desenho
-    JMP retorna_ciclo_desenho_nave
+    
+    CMP R1, LINHA_NAVE+ALTURA_NAVE      ;verifica se chegou ao fim do desenho
+    JZ retorna_ciclo_desenho_nave
 
     ADD R4, 2
-    MOV R1, 1            ;passa para desenhar na proxima linha
+    ADD R1, 1            ;passa para desenhar na proxima linha
     MOV R2, LARGURA_NAVE    ;volta a desenhar na primeira coluna
     MOV R5, R2              ;contador de colunas ao maximo
     JMP desenha_pixels
