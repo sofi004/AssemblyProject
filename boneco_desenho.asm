@@ -39,8 +39,6 @@ ALTURA_ASTEROIDE_BOM  EQU 5  ; altura do asteroide
 
 LINHA_SONDA EQU 26
 COLUNA_SONDA EQU 32
-LARGURA_SONDA  EQU 1  ; largura da sonda
-ALTURA_SONDA  EQU 1  ; altura da sonda
 
 COLUNA_NAVE EQU 25
 LINHA_NAVE EQU 27
@@ -66,8 +64,6 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
     
 DEF_SONDA:           ; tabela que define a sonda (cor, largura, altura, pixels)
-    WORD        LARGURA_SONDA
-    WORD        ALTURA_SONDA
     WORD        COR_PIXEL_ROXO
 
 DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
@@ -325,6 +321,38 @@ ADD R0, 1
 MOV R1, COLUNA_NAVE
 MOV R3, LARGURA_NAVE
 JMP desenha_pixels_nave
+
+retorna_ciclo_nave:
+    POP  R6
+    POP  R5
+    POP  R4
+    POP  R3
+    POP  R2
+    POP  R1
+    POP  R0
+    RET
+
+; ******************************************************************************
+; sonda - Processo que desenha a sonda
+; ******************************************************************************
+sonda:
+    PUSH  R0
+    PUSH  R1
+    PUSH  R2
+    PUSH  R3
+    PUSH  R4
+    PUSH  R5
+    PUSH  R6
+
+posicão_sonda:
+    MOV R0, LINHA_SONDA
+    MOV R1, COLUNA_SONDA
+    MOV R2, COR_PIXEL_ROXO
+
+desenha_pixel sonda:
+    MOV [DEFINE_LINHA], R0
+    MOV [DEFINE_COLUNA], R1
+    MOV [DEFINE_PIXEL], R2
 
 retorna_ciclo_nave:
     POP  R6
