@@ -62,9 +62,6 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
-    
-DEF_SONDA:           ; tabela que define a sonda (cor, largura, altura, pixels)
-    WORD        COR_PIXEL_ROXO
 
 DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
@@ -118,6 +115,7 @@ ciclo:
     JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
     CALL asteroide_bom   ; desenha o asteroide bom no canto superior esquerdo
     CALL nave
+    CALL sonda
     JMP  ciclo
 
 ; ******************************************************************************
@@ -339,10 +337,6 @@ sonda:
     PUSH  R0
     PUSH  R1
     PUSH  R2
-    PUSH  R3
-    PUSH  R4
-    PUSH  R5
-    PUSH  R6
 
 posicão_sonda:
     MOV R0, LINHA_SONDA
@@ -355,10 +349,6 @@ desenha_pixel_sonda:
     MOV [DEFINE_PIXEL], R2
 
 retorna_ciclo_sonda:
-    POP  R6
-    POP  R5
-    POP  R4
-    POP  R3
     POP  R2
     POP  R1
     POP  R0
