@@ -25,11 +25,12 @@ CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar v
 TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
+
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 COR_PIXEL_ROXO  EQU 0F85FH   ; cor do pixel: roxo em ARGB
 COR_PIXEL_VERMELHO  EQU 0FF00H   ; cor do pixel: vermelho em ARGB
-COR_PIXEL_TRANSPARENTE EQU D8D833H   ;cor do pixel; cinzento transparente
-COR_PIXEL_CINZENTO EQU D8D800H   ;cor do pixel; cinzento transparente
+COR_PIXEL_TRANSPARENTE EQU 0FCCCH   ;cor do pixel; cinzento transparente
+COR_PIXEL_CINZENTO EQU 0F777H   ;cor do pixel; cinzento transparente
 
 LINHA_ASTEROIDE_BOM EQU 0
 COLUNA_ASTEROIDE_BOM EQU 0
