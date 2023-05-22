@@ -232,9 +232,13 @@ retorna_ciclo:
 ; ******************************************************************************
 
 posicao_nave:
-    PUSH R0
     PUSH R1
-    
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5 
+    PUSH R6
+
 posição_nave_bonita:
     MOV  R1, LINHA_NAVE 
     MOV  R2, COLUNA_NAVE
@@ -265,7 +269,11 @@ desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
     
 
 retorna_ciclo_desenho_nave:
-    POP R0
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
     POP R1
     RET
 
