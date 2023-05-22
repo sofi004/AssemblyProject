@@ -38,8 +38,8 @@ COR_PIXEL_CINZENTO EQU 0F777H   ;cor do pixel; cinzento transparente
 ; ******************************************************************************
 LINHA_ASTEROIDE_BOM EQU 0   ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
 COLUNA_ASTEROIDE_BOM EQU 0   ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
-LARGURA_ASTEROIDE_BOM  EQU 5  ; largura do asteroide
-ALTURA_ASTEROIDE_BOM  EQU 5  ; altura do asteroide
+LARGURA_ASTEROIDE  EQU 5  ; largura do asteroide
+ALTURA_ASTEROIDE  EQU 5  ; altura do asteroide
 LINHA_SONDA EQU 26   ; linha onde vai ser desenhado o primeiro pixel da sonda
 COLUNA_SONDA EQU 32   ; coluna onde vai ser desenhado o primeiro pixel da sonda
 COLUNA_NAVE EQU 25   ; coluna onde vai ser desenhado o primeiro pixel da nave
@@ -66,7 +66,13 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
 
 DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE
-
+    WORD        ALTURA_ASTEROIDE
+    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
+    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
+    WORD        COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO
+    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
+    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
+    
 DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
     WORD        ALTURA_NAVE
