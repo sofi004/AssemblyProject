@@ -25,28 +25,29 @@ CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar v
 TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
-
+; ******************************************************************************
+; * Paleta
+; ******************************************************************************
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 COR_PIXEL_ROXO  EQU 0F85FH   ; cor do pixel: roxo em ARGB
 COR_PIXEL_VERMELHO  EQU 0FF00H   ; cor do pixel: vermelho em ARGB
 COR_PIXEL_TRANSPARENTE EQU 0FCCCH   ;cor do pixel; cinzento transparente
 COR_PIXEL_CINZENTO EQU 0F777H   ;cor do pixel; cinzento transparente
-
-LINHA_ASTEROIDE_BOM EQU 0
-COLUNA_ASTEROIDE_BOM EQU 0
+; ******************************************************************************
+; * Definição dos desenhos
+; ******************************************************************************
+LINHA_ASTEROIDE_BOM EQU 0   ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
+COLUNA_ASTEROIDE_BOM EQU 0   ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
 LARGURA_ASTEROIDE_BOM  EQU 5  ; largura do asteroide
 ALTURA_ASTEROIDE_BOM  EQU 5  ; altura do asteroide
-
-LINHA_SONDA EQU 26
-COLUNA_SONDA EQU 32
-
-COLUNA_NAVE EQU 25
-LINHA_NAVE EQU 27
+LINHA_SONDA EQU 26   ; linha onde vai ser desenhado o primeiro pixel da sonda
+COLUNA_SONDA EQU 32   ; coluna onde vai ser desenhado o primeiro pixel da sonda
+COLUNA_NAVE EQU 25   ; coluna onde vai ser desenhado o primeiro pixel da nave
+LINHA_NAVE EQU 27   ; linha onde vai ser desenhado o primeiro pixel da nave
 LARGURA_NAVE  EQU 15  ; largura da nave
-ALTURA_NAVE  EQU 5  ;altura da nave
-LARGURA_ECRA_NAVE  EQU 7  ; largura ecra da nave
-ALTURA_ECRA_NAVE  EQU 2  ;altura ecra da nave
-
+ALTURA_NAVE  EQU 5  ; altura da nave
+LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
+ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
@@ -55,13 +56,16 @@ STACK  100H   ; espaço reservado para a pilha 200H bytes, 100H words
 	SP_init:
 	
 DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, pixels)
-    WORD        LARGURA_ASTEROIDE_BOM
-    WORD        ALTURA_ASTEROIDE_BOM
+    WORD        LARGURA_ASTEROIDE   
+    WORD        ALTURA_ASTEROIDE 
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
+
+DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, pixels)
+    WORD        LARGURA_ASTEROIDE
 
 DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
@@ -113,9 +117,9 @@ ciclo:
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
     CMP  R0, 0   ; o jogo está a correr?
     JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
-    CALL asteroide_bom   ; desenha o asteroide bom no canto superior esquerdo
-    CALL nave
-    CALL sonda
+    CALL asteroide_bom   ; desenha o asteroide bom
+    CALL nave   ; desenha a nave
+    CALL sonda   ; desenha a sonda
     JMP  ciclo
 
 ; ******************************************************************************
@@ -238,9 +242,9 @@ asteroide_bom:
 posicão_asteroide_bom:
     MOV R0, LINHA_ASTEROIDE_BOM
     MOV R1, COLUNA_ASTEROIDE_BOM
-    ADD R6, R0
-    ADD R6, ALTURA_ASTEROIDE_BOM
-    SUB R6, 1
+    ADD R6, R0   
+    ADD R6, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide
+    SUB R6, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide
 
 desenha_asteroide_bom:
     MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
@@ -250,20 +254,20 @@ desenha_asteroide_bom:
     ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
 desenha_pixels_asteroide_bom:
-    MOV R5, [R2]
-    MOV [DEFINE_LINHA], R0
-    MOV [DEFINE_COLUNA], R1
-    MOV [DEFINE_PIXEL], R5
-    ADD R2, 2
-    ADD R1, 1
-    SUB R3, 1
+    MOV R5, [R2]   ;
+    MOV [DEFINE_LINHA], R0   ;
+    MOV [DEFINE_COLUNA], R1   ;
+    MOV [DEFINE_PIXEL], R5   ;
+    ADD R2, 2   ;
+    ADD R1, 1   ;
+    SUB R3, 1   ;
     JNZ desenha_pixels_asteroide_bom
 
 CMP R0, R6
 JZ retorna_ciclo_asteroide_bom
 ADD R0, 1
 MOV R1, COLUNA_ASTEROIDE_BOM
-MOV R3, LARGURA_ASTEROIDE_BOM
+MOV R3, LARGURA_ASTEROIDE
 JMP desenha_pixels_asteroide_bom
 
 retorna_ciclo_asteroide_bom:
