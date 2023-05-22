@@ -65,12 +65,12 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
     
-DEF_SONDA:   ; tabela que define a sonda (cor, largura, altura, pixels)
+DEF_SONDA:           ; tabela que define a sonda (cor, largura, altura, pixels)
     WORD        LARGURA_SONDA
     WORD        ALTURA_SONDA
     WORD        COR_PIXEL_ROXO
 
-DEF_NAVE:					; tabela que define a nave (cor, largura, altura, pixels)
+DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
     WORD        ALTURA_NAVE
 	WORD		0, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO,
@@ -103,7 +103,7 @@ inicio:
 ;###############################################################################
 
 ; inicializações
-    MOV SP, SP_init
+    MOV  SP, SP_init
     MOV  R0, 0   ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
     MOV  R2, TEC_LIN   ; endereço do periférico das linhas
     MOV  R3, TEC_COL   ; endereço do periférico das colunas
@@ -127,17 +127,17 @@ ciclo:
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
 ; ******************************************************************************
 teclado:
-    PUSH  R0
-    PUSH  R2
-    PUSH  R4
+    PUSH R0
+    PUSH R2
+    PUSH R4
 
 restart_linhas:
-    MOV R1, LINHA   ; coloca 16 = 10000B em R1MOVB
+    MOV  R1, LINHA   ; coloca 16 = 10000B em R1MOVB
 
 espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
     SHR  R1, 1   ; passa para a linha seguinte
     CMP  R1, 0   ; verifica se ja passamos pelas linhas todas
-    JZ  restart_linhas ; voltamos ao inicio das linhas 
+    JZ   restart_linhas ; voltamos ao inicio das linhas 
     MOVB [R2], R1   ; escrever no periférico de saída (linhas)
     MOVB R0, [R3]   ; ler do periférico de entrada (colunas)
     MOV  R4, MASCARA   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
@@ -161,8 +161,8 @@ repeticao_tecla:
     AND  R8, R7        ; elimina bits para além dos bits 0-3
     CMP  R8, 0         ; há tecla premida?
     JNZ  repeticao_tecla     ; se ainda houver uma tecla premida, espera até não haver
-    POP R7
-    POP R8
+    POP  R7
+    POP  R8
     RET
 ; ******************************************************************************
 ; escolhe_rotina - Processo que executa a instrução associada à tecla primida
@@ -173,10 +173,10 @@ escolhe_rotina:
 
     MOV  R4, 0081H       
     CMP  R1, R4   ; verifica se a tecla primida é a c
-    JZ  inicia_jogo_verificação   ; se a tecla primida for c, executa inicia_jogo
+    JZ   inicia_jogo_verificação   ; se a tecla primida for c, executa inicia_jogo
     CMP  R0, 0   ; o jogo ainda não está a correr?
     JNZ  fases_jogo   ; se o jogo já começou
-    JMP retorna_ciclo; se a tecla primida não está associada a nenhuma função volta a restart_linhas
+    JMP  retorna_ciclo; se a tecla primida não está associada a nenhuma função volta a restart_linhas
 
 inicia_jogo_verificação:
     CMP  R0, 0   ; o jogo está a correr?
@@ -192,17 +192,17 @@ inicia_jogo:
  fases_jogo:
     MOV  R4, 0082H       
     CMP  R1, R4   ; verifica se a tecla primida é a d
-    JZ  suspende_jogo   ; se a tecla primida for d, executa suspende_jogo
+    JZ   suspende_jogo   ; se a tecla primida for d, executa suspende_jogo
     MOV  R4, 0084H      
     CMP  R1, R4   ; verifica se a tecla primida é a e
-    JZ  termina_jogo   ; se a tecla primida for e, executa termina_jogo
+    JZ   termina_jogo   ; se a tecla primida for e, executa termina_jogo
     JMP  retorna_ciclo
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
     JZ   continua_jogo   ;   prosseguir com o jogo
     MOV  R5, 0
     MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
-    MOV R5, 2
+    MOV  R5, 2
     MOV  [SELECIONA_CENARIO_FRONTAL], R5 ; coloca cenario frontal de pausa do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
     JMP  retorna_ciclo
