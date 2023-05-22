@@ -271,7 +271,7 @@ desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
     ADD R4, 2
     ADD R1, 1            ;passa para desenhar na proxima linha
     MOV R2, COLUNA_NAVE    ;volta a desenhar na primeira coluna
-    MOV R5, R2              ;contador de colunas ao maximo
+    MOV R5, LARGURA_NAVE             ;contador de colunas ao maximo
     JMP desenha_pixels
     
 
