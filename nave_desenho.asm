@@ -26,20 +26,48 @@ TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a r
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
+COR_PIXEL_ROXO  EQU 0F85FH   ; cor do pixel: roxo em ARGB
 COR_PIXEL_VERMELHO  EQU 0FF00H   ; cor do pixel: vermelho em ARGB
 COR_PIXEL_TRANSPARENTE EQU D8D833H   ;cor do pixel; cinzento transparente
 COR_PIXEL_CINZENTO EQU D8D800H   ;cor do pixel; cinzento transparente
+
+LINHA_ASTEROIDE_BOM EQU 0
+COLUNA_ASTEROIDE_BOM EQU 0
+LARGURA_ASTEROIDE_BOM  EQU 5  ; largura do asteroide
+ALTURA_ASTEROIDE_BOM  EQU 5  ; altura do asteroide
+
+LINHA_SONDA EQU 26
+COLUNA_SONDA EQU 32
+LARGURA_SONDA  EQU 1  ; largura da sonda
+ALTURA_SONDA  EQU 1  ; altura da sonda
+
+COLUNA_NAVE EQU 25
+LINHA_NAVE EQU 27
 LARGURA_NAVE  EQU 15  ; largura da nave
 ALTURA_NAVE  EQU 5  ;altura da nave
 LARGURA_ECRA_NAVE  EQU 7  ; largura ecra da nave
-ALTURA_NAVE  EQU 2  ;altura ecra da nave
+ALTURA_ECRA_NAVE  EQU 2  ;altura ecra da nave
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
 PLACE  1000H
-STACK 100H   ; espaço reservado para a pilha 200H bytes, 100H words
+STACK  100H   ; espaço reservado para a pilha 200H bytes, 100H words
 	SP_init:
+	
+DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, pixels)
+    WORD        LARGURA_ASTEROIDE_BOM
+    WORD        ALTURA_ASTEROIDE_BOM
+    WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
+    WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
+    
+DEF_SONDA:   ; tabela que define a sonda (cor, largura, altura, pixels)
+    WORD        LARGURA_SONDA
+    WORD        ALTURA_SONDA
+    WORD        COR_PIXEL_ROXO
 
 DEF_NAVE:					; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
@@ -59,17 +87,7 @@ DEF_NAVE:					; tabela que define a nave (cor, largura, altura, pixels)
                 COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE,
                 COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE,
                 COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE, COR_PIXEL_VERMELHO
-
-DEF_ECRA_NAVE:						; tabela que define o ecra da nave (cor, largura, altura, pixels)
-    WORD        LARGURA_ECRA_NAVE
-    WORD        ALTURA_ECRA_NAVE
-    WORD        COR_PIXEL_CINZENTO,COR_PIXEL_VERMELHO,COR_PIXEL_VERDE,COR_PIXEL_CINZENTO, COR_PIXEL_VERDE
-                COR_PIXEL_CINZENTO,COR_PIXEL_CINZENTO
-    WORD        COR_PIXEL_VERDE,COR_PIXEL_CINZENTO,COR_PIXEL_VERDE,COR_PIXEL_VERMELHO,
-
-
-
-
+    
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
@@ -100,7 +118,8 @@ ciclo:
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
     CMP  R0, 0   ; o jogo está a correr?
-    JZ  ciclo   ; só desenha se o jogo estiver a correr
+    JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
+    CALL posicao_nave   ; desenha o asteroide bom no canto superior esquerdo
     JMP  ciclo
 
 ; ******************************************************************************
@@ -208,4 +227,41 @@ retorna_ciclo:
     POP  R4
     RET 
 
+; ******************************************************************************
+; asteroide_bom - Processo que desenha o asteroide bom 
+; ******************************************************************************
+
+posicao_nave:
+    PUSH R0
+    PUSH R1
+    MOV  R1, LINHA_NAVE 
+    MOV  R2, COLUNA_NAVE
+
+desenha_nave:
+	MOV	R4, DEF_BONECO		; endereço da tabela que define o boneco
+	MOV	R5, [R4]			; obtém a largura do boneco
+	ADD	R4, 2			 
+    MOV R6, [R4]            ; obtem a altura do boneco
+    ADD R4, 2               ; endereço da cor do 1º pixel (2 porque a largura é uma word)
     
+desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
+	MOV	R3, [R4]			; obtém a cor do próximo pixel do boneco
+	MOV  [DEFINE_LINHA], R1	; seleciona a linha
+	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
+	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
+	ADD	R4, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD  R2, 1               ; próxima coluna
+    SUB  R5, 1			; menos uma coluna para tratar
+    JNZ  desenha_pixels      ; continua até percorrer toda a largura do objeto
+    CMP R1,ALTURA_NAVE
+    JMP retorna_ciclo_desenho_nave
+    ADD R1, 1               ;passa para desenhar na proxima linha
+    MOV R2, LARGURA_NAVE    ;volta a desenhar na primeira coluna
+    JMP desenha_pixels
+    
+
+retorna_ciclo_desenho_nave:
+    POP R0
+    POP R1
+    RET
+
