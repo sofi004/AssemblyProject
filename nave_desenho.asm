@@ -238,6 +238,7 @@ posicao_nave:
     PUSH R4
     PUSH R5 
     PUSH R6
+    PUSH R7
 
 posição_nave_bonita:
     MOV  R1, LINHA_NAVE 
@@ -269,12 +270,13 @@ desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
 
     ADD R4, 2
     ADD R1, 1            ;passa para desenhar na proxima linha
-    MOV R2, LARGURA_NAVE    ;volta a desenhar na primeira coluna
+    MOV R2, COLUNA_NAVE    ;volta a desenhar na primeira coluna
     MOV R5, R2              ;contador de colunas ao maximo
     JMP desenha_pixels
     
 
 retorna_ciclo_desenho_nave:
+    POP R7
     POP R6
     POP R5
     POP R4
