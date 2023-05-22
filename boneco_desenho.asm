@@ -240,7 +240,28 @@ asteroide_bom:
     PUSH  R5
     PUSH  R6
     PUSH  R7
+posicão_asteroide_bom:
+    MOV R0, LINHA_ASTEROIDE_BOM
+    MOV R1, COLUNA_ASTEROIDE_BOM
 
+desenha_asteroide_bom:
+    MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
+    MOV R3, [R2]   ; obtem a largura do asteroide bom
+    ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
+    MOV R4, [R2]   ; obtem a altura da asteroide bom
+    ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom
+
+desenha_pixels_asteroide_bom:
+    MOV R5, [R2]
+    MOV [DEFINE_LINHA], R0
+    MOV [DEFINE_COLUNA], R1
+    MOV [DEFINE_PIXEL], R5
+    ADD R2, 2
+    ADD R1, 1
+    SUB R3, 1
+    JNZ desenha_pixels_asteroide_bom
+
+retorna_ciclo_desenho_asteroide_bom:
     POP  R7
     POP  R6
     POP  R5
