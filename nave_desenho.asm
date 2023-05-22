@@ -28,8 +28,8 @@ APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apag
 COR_PIXEL_VERDE  EQU 0C0F0H   ; cor do pixel: verde em ARGB
 COR_PIXEL_ROXO  EQU 0F85FH   ; cor do pixel: roxo em ARGB
 COR_PIXEL_VERMELHO  EQU 0FF00H   ; cor do pixel: vermelho em ARGB
-COR_PIXEL_TRANSPARENTE EQU D8D833H   ;cor do pixel; cinzento transparente
-COR_PIXEL_CINZENTO EQU D8D800H   ;cor do pixel; cinzento transparente
+COR_PIXEL_TRANSPARENTE EQU 0FCCCH   ;cor do pixel; cinzento transparente
+COR_PIXEL_CINZENTO EQU 0F777H   ;cor do pixel; cinzento transparente
 
 LINHA_ASTEROIDE_BOM EQU 0
 COLUNA_ASTEROIDE_BOM EQU 0
@@ -256,7 +256,7 @@ desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
 
     CMP R1,ALTURA_NAVE      ;verifica se chegou ao fim do desenho
     JMP retorna_ciclo_desenho_nave
-    
+
     ADD R1, 1               ;passa para desenhar na proxima linha
     MOV R2, LARGURA_NAVE    ;volta a desenhar na primeira coluna
     JMP desenha_pixels
