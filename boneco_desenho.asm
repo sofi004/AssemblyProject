@@ -446,7 +446,7 @@ desenha_apaga_asteroide_bom:
 	ADD	R4, 2			 
     MOV R6, [R4]            ; obtem a altura do boneco
     
-apaga_pixeis:       		; desenha os pixels do boneco a partir da tabela
+apaga_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
