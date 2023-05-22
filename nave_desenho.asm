@@ -243,6 +243,9 @@ posição_nave_bonita:
     MOV  R1, LINHA_NAVE 
     MOV  R2, COLUNA_NAVE
 
+    ADD R7, R1
+    ADD R7, ALTURA_NAVE
+
 desenha_nave:
 	MOV	R4, DEF_NAVE		; endereço da tabela que define o boneco
 	MOV	R5, [R4]			; obtém a largura do boneco
@@ -259,8 +262,9 @@ desenha_pixels:       		; desenha os pixels do boneco a partir da tabela
     ADD  R2, 1               ; próxima coluna
     SUB  R5, 1			; menos uma coluna para tratar
     JNZ  desenha_pixels      ; continua até percorrer toda a largura do objeto
+
     
-    CMP R1, LINHA_NAVE+ALTURA_NAVE      ;verifica se chegou ao fim do desenho
+    CMP R1, R7      ;verifica se chegou ao fim do desenho
     JZ retorna_ciclo_desenho_nave
 
     ADD R4, 2
