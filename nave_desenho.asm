@@ -234,6 +234,8 @@ retorna_ciclo:
 posicao_nave:
     PUSH R0
     PUSH R1
+    
+posição_nave_bonita:
     MOV  R1, LINHA_NAVE 
     MOV  R2, COLUNA_NAVE
 
