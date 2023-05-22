@@ -72,7 +72,7 @@ DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, 
     WORD        COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO
     WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
     WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
-    
+
 DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
     WORD        ALTURA_NAVE
@@ -224,6 +224,8 @@ continua_jogo:
     JMP  retorna_ciclo
 
 termina_jogo:
+    MOV  R5, 2
+    MOV  [APAGA_CENARIO_FRONTAL], R5
     MOV  R5, 0   ; video número 0
     MOV  [TERMINA_SOM_VIDEO], R5   ; pausa o video número 0
     MOV  R5, 1   ; cenário de fundo número 1
