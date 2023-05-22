@@ -121,9 +121,10 @@ ciclo:
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
-    CMP R0, 2
-    JZ ciclo 
+    CMP R0, 2   ; o jogo está parado?
+    JZ ciclo   ; só apaga os desenhos quando terminamos o jogo
     CALL apaga_nave   ; apaga a nave
+    CALL apaga_asteroide_bom   ; apaga o asteroide
     CMP  R0, 0   ; o jogo está a correr?
     JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
     CALL asteroide_bom   ; desenha o asteroide bom
@@ -216,8 +217,8 @@ suspende_jogo:
     JMP  retorna_ciclo
 
 continua_jogo:
-    MOV  R5, 2
-    MOV  [APAGA_CENARIO_FRONTAL], R5
+    MOV  R5, 2   ; quando o jogo está parado e terminamos temos que apagar o cenário frontal
+    MOV  [APAGA_CENARIO_FRONTAL], R5 
     MOV  R5, 0
     MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
     MOV  R0, 1   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
@@ -370,7 +371,7 @@ retorna_ciclo_sonda:
     RET
 
 ; ******************************************************************************
-; apaga - Processo que apaga a nave
+; apaga_nave - Processo que apaga a nave
 ; ******************************************************************************
 apaga_nave:
     PUSH R1
@@ -387,13 +388,13 @@ posição_inicio_apagar_nave:
     ADD R7, R1
     ADD R7, ALTURA_NAVE
 
-desenha_nave_apagar:
+desenha_apaga_nave:
 	MOV	R4, DEF_NAVE		; endereço da tabela que define o boneco
 	MOV	R5, [R4]			; obtém a largura do boneco
 	ADD	R4, 2			 
     MOV R6, [R4]            ; obtem a altura do boneco
     
-apaga_pixeis:       		; desenha os pixels do boneco a partir da tabela
+apaga_pixeis_nave:       		; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
@@ -412,6 +413,58 @@ apaga_pixeis:       		; desenha os pixels do boneco a partir da tabela
     JMP apaga_pixeis
 
 retorna_ciclo_apaga_nave:
+    POP R7
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
+
+; ******************************************************************************
+; apaga_asteroide - Processo que apaga o asteroide
+; ******************************************************************************
+apaga_asteroide_bom:
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5 
+    PUSH R6
+    PUSH R7
+
+posição_inicio_apagar_asteroide_bom:
+    MOV  R1, LINHA_ASTEROIDE_BOM
+    MOV  R2, COLUNA_ASTEROIDE_BOM
+    ADD R7, R1
+    ADD R7, ALTURA_ASTEROIDE
+
+desenha_apaga_asteroide_bom:
+	MOV	R4, DEF_ASTEROIDE_BOM		; endereço da tabela que define o boneco
+	MOV	R5, [R4]			; obtém a largura do boneco
+	ADD	R4, 2			 
+    MOV R6, [R4]            ; obtem a altura do boneco
+    
+apaga_pixeis:       		; desenha os pixels do boneco a partir da tabela
+	MOV	R3, 0			; obtém a cor do próximo pixel do boneco
+	MOV  [DEFINE_LINHA], R1	; seleciona a linha
+	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
+	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
+    ADD  R2, 1               ; próxima coluna
+    SUB  R5, 1			; menos uma coluna para tratar
+    JNZ  apaga_pixeis_asteroide_bom      ; continua até percorrer toda a largura do objeto
+
+    
+    CMP R1, R7      ;verifica se chegou ao fim do desenho
+    JZ retorna_ciclo_apaga_asteroide_bom
+
+    ADD R1, 1            ;passa para apagar na proxima linha
+    MOV R2, COLUNA_ASTEROIDE_BOM    ;volta a apagar na primeira coluna
+    MOV R5, LARGURA_ASTEROIDE             ;contador de colunas ao maximo
+    JMP apaga_pixeis_asteroide_bom
+
+retorna_ciclo_apaga_asteroide_bom:
     POP R7
     POP R6
     POP R5
