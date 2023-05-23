@@ -555,6 +555,7 @@ CMP R0, R7  ; verifica se chegou ao fim do desenho
 JZ retorna_ciclo_move_asteroide_bom
 ADD R0, 1   ; passa para desenhar na proxima linha
 MOV R1, COLUNA_ASTEROIDE_BOM   ; volta a desenhar na primeira coluna
+ADD R1, R6
 MOV R3, LARGURA_ASTEROIDE   ; contador de colunas ao maximo
 JMP desenha_move_pixels_asteroide_bom
 
