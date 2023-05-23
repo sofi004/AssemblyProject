@@ -214,6 +214,11 @@ move_asteroide:
     MOV  [SELECIONA_ECRÃ], R9
     CALL mover_asteroide_bom
     MOV  [MOSTRA_ECRÃ], R9
+    MOV  R9, 0
+    MOV  [SELECIONA_ECRÃ], R9
+    CALL nave
+    CALL ecra_nave
+    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 move_sonda:
     MOV  R9, 0022H
