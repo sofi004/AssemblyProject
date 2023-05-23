@@ -195,9 +195,15 @@ apagar:
     JMP  ciclo
 
 move_asteroide:
+    MOV  R9, 0021H
+    CMP  R1, R9 
+    JNZ ciclo
     CALL mover_asteroide_bom
     JMP  ciclo
-move_sonda:    
+move_sonda:
+    MOV  R9, 0022H
+    CMP  R1, R9 
+    JNZ ciclo
     CALL mover_sonda
     JMP  ciclo
 
