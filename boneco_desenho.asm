@@ -481,10 +481,6 @@ apaga_sonda:
     PUSH R1
     PUSH R2
     PUSH R3
-    PUSH R4
-    PUSH R5 
-    PUSH R6
-    PUSH R7
 
 posição_inicio_apagar_sonda:
     MOV  R1, LINHA_SONDA
@@ -497,10 +493,6 @@ apaga_pixeis_sonda:
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
 
 retorna_ciclo_apaga_asteroide_bom:
-    POP R7
-    POP R6
-    POP R5
-    POP R4
     POP R3
     POP R2
     POP R1
