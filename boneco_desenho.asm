@@ -135,8 +135,9 @@ ciclo:
     CALL nave   ; desenha a nave
     CALL sonda   ; desenha a sonda
     MOV  R8, 0021H
-    CMP R1, R8   ; verifica se a tecla premida é a 4
+    CMP R0, R8   ; verifica se a tecla premida é a 4
     JNZ  ciclo
+    CALL apaga_asteroide_bom   ; apaga o asteroide
     CALL mover_asteroide_bom
     JMP  ciclo
 
@@ -525,8 +526,7 @@ contador_tecla_4:
     MOV R5, R6
     SUB R5, 1
 
-
-
+; apaga o asteroide da ultima posição
 posição_move_inicio_apagar_asteroide_bom:
     MOV  R1, LINHA_ASTEROIDE_BOM
     ADD  R1, R5
@@ -560,10 +560,7 @@ apaga_move_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir 
     MOV R8, LARGURA_ASTEROIDE             ;contador de colunas ao maximo
     JMP apaga_move_pixeis_asteroide_bom
 
-
-
-
-
+; desenha o asteroide no novo local
 posicão_move_asteroide_bom:
     MOV R0, LINHA_ASTEROIDE_BOM
     ADD R0, R6
