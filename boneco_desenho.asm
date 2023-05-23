@@ -492,7 +492,7 @@ apaga_pixeis_sonda:
 	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
 
-retorna_ciclo_apaga_asteroide_bom:
+retorna_ciclo_apaga_sonda:
     POP R3
     POP R2
     POP R1
