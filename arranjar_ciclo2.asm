@@ -204,19 +204,7 @@ desenhar:
     JMP  ciclo
 
 apagar: 
-    MOV  R9, 0
-    MOV  [SELECIONA_ECRÃ], R9
-    CALL apaga_nave             ; apaga a nave
-    MOV  [MOSTRA_ECRÃ], R9
-    MOV  R9, 1
-    MOV  [SELECIONA_ECRÃ], R9
-    CALL apaga_asteroide_bom    ; apaga o asteroide
-    MOV  [MOSTRA_ECRÃ], R9
-    MOV  R9, 2
-    MOV  [SELECIONA_ECRÃ], R9
-    CALL apaga_sonda            ; apaga a sonda
-    MOV  [MOSTRA_ECRÃ], R9
-    JMP  ciclo
+    MOV [APAGA_ECRÃ], R9
 
 move_asteroide:
     MOV  R9, 0021H
