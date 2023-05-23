@@ -693,6 +693,7 @@ posicão_move_asteroide_bom:
     ADD R0, R6
     MOV R1, COLUNA_ASTEROIDE_BOM
     ADD R1, R6
+    MOV R7, 0
     ADD R7, R0   
     ADD R7, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide bom
     SUB R7, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
