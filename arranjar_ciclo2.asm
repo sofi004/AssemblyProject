@@ -16,7 +16,6 @@ DEFINE_LINHA  EQU COMANDOS + 0AH   ; endereço do comando para definir a linha
 DEFINE_COLUNA  EQU COMANDOS + 0CH   ; endereço do comando para definir a coluna
 DEFINE_PIXEL  EQU COMANDOS + 12H   ; endereço do comando para escrever um pixel
 APAGA_AVISO  EQU COMANDOS + 40H   ; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H   ; endereço do comando para selecionar uma imagem de fundo
 SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H   ; endereço do comando para selecionar uma video ou som
 REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH   ; endereço do comando para iniciar a reprodução dum video ou som
@@ -25,6 +24,9 @@ CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar v
 TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
+APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pixels já desenhados
+SELECIONA_ECRÃ EQU COMANDOS + 04H ; seleciona um ecrã especifico
+MOSTRA_ECRÃ EQU COMANDOS + 06H ; mostra o ecrã especificado
 ; ******************************************************************************
 ; * Paleta
 ; ******************************************************************************
@@ -52,7 +54,6 @@ COLUNA_ECRA_NAVE EQU 29 ; coluna onde vai ser desenhado o primeiro pixel do ecra
 LINHA_ECRA_NAVE EQU 29  ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
-ATRASO  EQU 400H   ; atraso para limitar a velocidade de movimento do boneco
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
