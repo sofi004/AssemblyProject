@@ -152,7 +152,7 @@ move_asteroide:
 move_sonda:    
     CALL mover_sonda
     JMP  ciclo
-    
+
 ; ******************************************************************************
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
 ; ******************************************************************************
@@ -664,7 +664,6 @@ apaga_desenha_pixeis_sonda:
     MOV  [DEFINE_PIXEL], R4
 
     POP R8
-    POP R7
     POP R5
     POP R4
     POP R3
