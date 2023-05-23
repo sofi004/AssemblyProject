@@ -467,7 +467,7 @@ desenha_pixels_ecra_nave:
     JNZ desenha_pixels_ecra_nave
 
 CMP R0, R6
-JZ retorna_ciclo_ecra_nave
+JZ retorna_ciclo_nave_ecra
 ADD R0, 1
 MOV R1, COLUNA_ECRA_NAVE
 MOV R3, LARGURA_ECRA_NAVE   ;contador de colunas ao maximo
