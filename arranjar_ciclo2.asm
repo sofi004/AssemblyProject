@@ -217,6 +217,8 @@ inicia_jogo:
     MOV  R5, 0   ; video número 0
     MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
     MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do video de fundo do jogo
+    MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
+    MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
     JMP  retorna_ciclo   ; depois de iniciar o jogo volta a restart linhas 
     
  fases_jogo:
