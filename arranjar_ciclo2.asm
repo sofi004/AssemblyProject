@@ -138,18 +138,21 @@ desenhar:
     CALL asteroide_bom          ; desenha o asteroide bom
     CALL nave                   ; desenha a nave
     CALL sonda                  ; desenha a sonda
-    
+    JMP  ciclo
+
 apagar: 
     CALL apaga_nave             ; apaga a nave
     CALL apaga_asteroide_bom    ; apaga o asteroide
     CALL apaga_sonda            ; apaga a sonda
+    JMP  ciclo
 
 move_asteroide:
     CALL mover_asteroide_bom
-
+    JMP  ciclo
 move_sonda:    
     CALL mover_sonda
-
+    JMP  ciclo
+    
 ; ******************************************************************************
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
 ; ******************************************************************************
