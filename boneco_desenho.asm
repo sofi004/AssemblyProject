@@ -124,11 +124,6 @@ ciclo:
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
-    MOV  R8, 0021H
-    CMP R1, R8   ; verifica se a tecla premida é a 4
-    JNZ  ciclo
-    CALL mover_asteroide_bom
-    JMP ciclo
     CMP R0, 2   ; o jogo está parado?
     JZ ciclo   ; só apaga os desenhos quando terminamos o jogo
     CALL apaga_nave   ; apaga a nave
@@ -140,6 +135,16 @@ ciclo:
     CALL nave   ; desenha a nave
     CALL sonda   ; desenha a sonda
     JMP  ciclo
+
+    MOV  R8, 0021H
+    CMP R1, R8   ; verifica se a tecla premida é a 4
+    JNZ  ciclo
+    CALL mover_asteroide_bom
+
+    MOV  R8, 0022H
+    CMP R1, R8   ; verifica se a tecla premida é a 5
+    JNZ  ciclo
+    CALL mover_sonda
 
 ; ******************************************************************************
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
@@ -606,3 +611,44 @@ retorna_ciclo_move_asteroide_bom:
     POP R0
     RET
 
+; ******************************************************************************
+; mover_sonda - Processo que move a sonda
+; ******************************************************************************
+
+mover_sonda:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R6 
+    PUSH R8 
+
+contador_tecla_5:
+    ADD R7, 1
+    MOV R5, R7
+    SUB R5, 1
+
+posição_apagar_desenhar_sonda:
+    MOV  R1, LINHA_SONDA
+    ADD  R1, R5
+    MOV  R2, COLUNA_SONDA
+    MOV  R3, 0
+    MOV  R4, COR_PIXEL_ROXO
+    
+apaga_desenha_pixeis_sonda: 
+	MOV  [DEFINE_LINHA], R1	; seleciona a linha
+	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
+	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
+    MOV  [DEFINE_PIXEL], R4
+
+    POP R8
+    POP R7
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
