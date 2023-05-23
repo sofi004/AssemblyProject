@@ -641,6 +641,7 @@ mover_sonda:
     PUSH R3
     PUSH R4
     PUSH R5
+    PUSH R6
 
 contador_tecla_5:
     ADD R7, 1
@@ -649,17 +650,21 @@ contador_tecla_5:
 
 posição_apagar_desenhar_sonda:
     MOV  R1, LINHA_SONDA
-    ADD  R1, R5
+    SUB  R1, R5
     MOV  R2, COLUNA_SONDA
     MOV  R3, 0
     MOV  R4, COR_PIXEL_ROXO
+    MOV  R6, LINHA_SONDA
+    SUB  R6, R7
     
 apaga_desenha_pixeis_sonda: 
 	MOV  [DEFINE_LINHA], R1	; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
+    MOV  [DEFINE_LINHA], R6	; seleciona a linha
     MOV  [DEFINE_PIXEL], R4
 
+    POP R6
     POP R5
     POP R4
     POP R3
