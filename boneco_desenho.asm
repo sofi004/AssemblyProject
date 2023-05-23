@@ -506,7 +506,7 @@ retorna_ciclo_apaga_sonda:
 ; mover_asteroide_bom - Processo que move o asteroide bom
 ; ******************************************************************************
 mover_asteroide_bom:
-    PUSH RO
+    PUSH R0
     PUSH R1
     PUSH R2
     PUSH R3
