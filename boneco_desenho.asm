@@ -135,7 +135,7 @@ ciclo:
     CALL nave   ; desenha a nave
     CALL sonda   ; desenha a sonda
     MOV  R8, 0021H
-    CMP R0, R8   ; verifica se a tecla premida é a 4
+    CMP R1, R8   ; verifica se a tecla premida é a 4
     JNZ  ciclo
     CALL apaga_asteroide_bom   ; apaga o asteroide
     CALL mover_asteroide_bom
