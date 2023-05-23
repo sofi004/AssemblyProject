@@ -188,19 +188,10 @@ ciclo:
     JMP  ciclo
 
 desenhar:
-    MOV  R9, 1
-    MOV  [SELECIONA_ECRÃ], R9
     CALL asteroide_bom          ; desenha o asteroide bom
-    MOV  [MOSTRA_ECRÃ], R9
-    MOV  R9, 0
-    MOV  [SELECIONA_ECRÃ], R9
     CALL nave                   ; desenha a nave
     CALL ecra_nave		; desenha o ecra da nave(1)
-    MOV  [MOSTRA_ECRÃ], R9
-    MOV  R9, 2
-    MOV  [SELECIONA_ECRÃ], R9
     CALL sonda                  ; desenha a sonda
-    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 
 apagar: 
@@ -210,24 +201,15 @@ move_asteroide:
     MOV  R9, 0021H
     CMP  R1, R9 
     JNZ ciclo
-    MOV  R9, 1
-    MOV  [SELECIONA_ECRÃ], R9
     CALL mover_asteroide_bom
-    MOV  [MOSTRA_ECRÃ], R9
-    MOV  R9, 0
-    MOV  [SELECIONA_ECRÃ], R9
     CALL nave
     CALL ecra_nave
-    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 move_sonda:
     MOV  R9, 0022H
     CMP  R1, R9 
     JNZ ciclo
-    MOV  R9, 2
-    MOV  [SELECIONA_ECRÃ], R9
     CALL mover_sonda
-    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 
 ; ******************************************************************************
