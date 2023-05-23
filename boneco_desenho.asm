@@ -558,7 +558,7 @@ apaga_move_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir 
     MOV R2, COLUNA_ASTEROIDE_BOM    ;volta a apagar na primeira coluna
     ADD R2, R5
     MOV R8, LARGURA_ASTEROIDE             ;contador de colunas ao maximo
-    JMP apaga_pixeis_asteroide_bom
+    JMP apaga_move_pixeis_asteroide_bom
 
 
 
