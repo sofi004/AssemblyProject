@@ -462,7 +462,7 @@ posicão_ecra_nave:
     SUB R6, 1
 
 desenha_ecra_nave:
-    MOV R2, DEF_ECRA_NAVE_2   ; endereço da tabela que define o asteroide bom
+    MOV R2, DEF_ECRA_NAVE_3   ; endereço da tabela que define o asteroide bom
     MOV R3, [R2]   ; obtem a largura do asteroide bom
     ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
     MOV R4, [R2]   ; obtem a altura da asteroide bom
