@@ -134,6 +134,10 @@ ciclo:
     CALL asteroide_bom   ; desenha o asteroide bom
     CALL nave   ; desenha a nave
     CALL sonda   ; desenha a sonda
+    MOV  R8, 0021H
+    CMP R1, R8   ; verifica se a tecla premida é a 4
+    JNZ  ciclo
+    CALL mover_asteroide_bom
     JMP  ciclo
 
 ; ******************************************************************************
@@ -237,6 +241,7 @@ termina_jogo:
     MOV  [SELECIONA_CENARIO_FUNDO], R5 ; seleciona o cenário de fundo
     MOV  R0, 0   ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP  retorna_ciclo
+
 
 retorna_ciclo:
     POP  R5
