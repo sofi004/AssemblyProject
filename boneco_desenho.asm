@@ -124,6 +124,11 @@ ciclo:
     CALL  teclado   ; verifica se alguma tecla foi carregada
     CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
+    MOV  R8, 0021H
+    CMP R1, R8   ; verifica se a tecla premida é a 4
+    JNZ  ciclo
+    CALL mover_asteroide_bom
+    JMP ciclo
     CMP R0, 2   ; o jogo está parado?
     JZ ciclo   ; só apaga os desenhos quando terminamos o jogo
     CALL apaga_nave   ; apaga a nave
@@ -134,11 +139,6 @@ ciclo:
     CALL asteroide_bom   ; desenha o asteroide bom
     CALL nave   ; desenha a nave
     CALL sonda   ; desenha a sonda
-    MOV  R8, 0021H
-    CMP R1, R8   ; verifica se a tecla premida é a 4
-    JNZ  ciclo
-    CALL apaga_asteroide_bom   ; apaga o asteroide
-    CALL mover_asteroide_bom
     JMP  ciclo
 
 ; ******************************************************************************
