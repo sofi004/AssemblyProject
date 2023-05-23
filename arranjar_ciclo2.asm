@@ -48,7 +48,7 @@ COLUNA_NAVE EQU 25   ; coluna onde vai ser desenhado o primeiro pixel da nave
 LINHA_NAVE EQU 27   ; linha onde vai ser desenhado o primeiro pixel da nave
 LARGURA_NAVE  EQU 15  ; largura da nave
 ALTURA_NAVE  EQU 5  ; altura da nave
-COLUNA_ECRA_NAVE EQU 28 ; coluna onde vai ser desenhado o primeiro pixel do ecra da nave
+COLUNA_ECRA_NAVE EQU 29 ; coluna onde vai ser desenhado o primeiro pixel do ecra da nave
 LINHA_ECRA_NAVE EQU 29  ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
