@@ -636,14 +636,11 @@ retorna_ciclo_move_asteroide_bom:
 ; ******************************************************************************
 
 mover_sonda:
-    PUSH R0
     PUSH R1
     PUSH R2
     PUSH R3
     PUSH R4
     PUSH R5
-    PUSH R6 
-    PUSH R8 
 
 contador_tecla_5:
     ADD R7, 1
@@ -663,11 +660,9 @@ apaga_desenha_pixeis_sonda:
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
     MOV  [DEFINE_PIXEL], R4
 
-    POP R8
     POP R5
     POP R4
     POP R3
     POP R2
     POP R1
-    POP R0
     RET
