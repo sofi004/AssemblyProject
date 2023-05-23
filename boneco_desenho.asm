@@ -544,7 +544,7 @@ desenha_move_pixels_asteroide_bom:   ; desenha os pixels do boneco a partir da t
     ADD R2, 2   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD R1, 1   ; próxima coluna
     SUB R3, 1   ; menos uma coluna para tratar
-    JNZ desenha_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
+    JNZ desenha_move_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
 
 CMP R0, R7  ; verifica se chegou ao fim do desenho
 JZ retorna_ciclo_move_asteroide_bom
