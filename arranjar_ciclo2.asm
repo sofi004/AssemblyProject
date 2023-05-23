@@ -27,6 +27,10 @@ APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apag
 APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_ECRÃ EQU COMANDOS + 04H ; seleciona um ecrã especifico
 MOSTRA_ECRÃ EQU COMANDOS + 06H ; mostra o ecrã especificado
+ESCONDE_ECRÃ EQU COMANDOS + 08H ; esconde o ecrã especificado
+MUTE EQU COMANDOS + 4CH ; corta o volume de todos os sons ou videos a reproduzir
+DESMUTE EQU COMANDOS + 52Ħ ; retoma o volume de todos os sons ou videos a reproduzir 
+
 ; ******************************************************************************
 ; * Paleta
 ; ******************************************************************************
@@ -37,6 +41,7 @@ COR_PIXEL_TRANSPARENTE EQU 0FCCCH   ;cor do pixel; cinzento transparente
 COR_PIXEL_CINZENTO EQU 0F777H   ;cor do pixel; cinzento transparente
 COR_PIXEL_AMARELO   EQU 0FFF0H  ;cor do pixel: amarelo em ARGB
 COR_PIXEL_AZUL_CLARO  EQU 0F0FFH        ;cor do pixel: azul em ARGB
+
 ; ******************************************************************************
 ; * Definição dos desenhos
 ; ******************************************************************************
@@ -54,6 +59,7 @@ COLUNA_ECRA_NAVE EQU 29 ; coluna onde vai ser desenhado o primeiro pixel do ecra
 LINHA_ECRA_NAVE EQU 29  ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
+
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
@@ -182,29 +188,53 @@ ciclo:
     JMP  ciclo
 
 desenhar:
+    MOV  R9, 0
+    MOV  [SELECIONA_ECRÃ], R9
     CALL asteroide_bom          ; desenha o asteroide bom
+    MOV  [MOSTRA_ECRÃ], R9
+    MOV  R9, 1
+    MOV  [SELECIONA_ECRÃ], R9
     CALL nave                   ; desenha a nave
     CALL ecra_nave		; desenha o ecra da nave(1)
+    MOV  [MOSTRA_ECRÃ], R9
+    MOV  R9, 2
+    MOV  [SELECIONA_ECRÃ], R9
     CALL sonda                  ; desenha a sonda
+    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 
 apagar: 
+    MOV  R9, 0
+    MOV  [SELECIONA_ECRÃ], R9
     CALL apaga_nave             ; apaga a nave
+    MOV  [MOSTRA_ECRÃ], R9
+    MOV  R9, 1
+    MOV  [SELECIONA_ECRÃ], R9
     CALL apaga_asteroide_bom    ; apaga o asteroide
+    MOV  [MOSTRA_ECRÃ], R9
+    MOV  R9, 2
+    MOV  [SELECIONA_ECRÃ], R9
     CALL apaga_sonda            ; apaga a sonda
+    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 
 move_asteroide:
     MOV  R9, 0021H
     CMP  R1, R9 
     JNZ ciclo
+    MOV  R9, 0
+    MOV  [SELECIONA_ECRÃ], R9
     CALL mover_asteroide_bom
+    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 move_sonda:
     MOV  R9, 0022H
     CMP  R1, R9 
     JNZ ciclo
+    MOV  R9, 2
+    MOV  [SELECIONA_ECRÃ], R9
     CALL mover_sonda
+    MOV  [MOSTRA_ECRÃ], R9
     JMP  ciclo
 
 ; ******************************************************************************
