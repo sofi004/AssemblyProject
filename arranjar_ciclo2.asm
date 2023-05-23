@@ -121,29 +121,33 @@ inicio:
 ; corpo principal do programa
 ; ******************************************************************************
 ciclo: 
-    CALL  teclado   ; verifica se alguma tecla foi carregada
-    CALL escolhe_rotina   ;escolhe a rotina a usar tendo em conta a tecla primida
-    CALL ha_tecla ; esperamos que nenhuma tecla esteja a ser premida
-    CMP R0, 2   ; o jogo está parado?
-    JZ ciclo   ; só apaga os desenhos quando terminamos o jogo
-    CALL apaga_nave   ; apaga a nave
-    CALL apaga_asteroide_bom   ; apaga o asteroide
-    CALL apaga_sonda   ; apaga a sonda
-    CMP  R0, 0   ; o jogo está a correr?
-    JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
-    CALL asteroide_bom   ; desenha o asteroide bom
-    CALL nave   ; desenha a nave
-    CALL sonda   ; desenha a sonda
+    CALL  teclado               ; verifica se alguma tecla foi carregada
+    CALL escolhe_rotina         ;escolhe a rotina a usar tendo em conta a tecla primida
+    CALL ha_tecla               ; esperamos que nenhuma tecla esteja a ser premida
+    CMP R0, 0                   ; o jogo está parado?
+    JZ apagar                    ; só apaga os desenhos quando terminamos o jogo
+    CMP  R0, 1                  ; o jogo está a correr?
+    JZ   desenhar               ; só desenha o asteroide se o jogo estiver a correr  
+    CMP R0, 4
+    JZ move_asteroide 
+    CMP R0, 5
+    JZ move_sonda              
     JMP  ciclo
 
-    MOV  R8, 0021H
-    CMP R1, R8   ; verifica se a tecla premida é a 4
-    JNZ  ciclo
+desenhar:
+    CALL asteroide_bom          ; desenha o asteroide bom
+    CALL nave                   ; desenha a nave
+    CALL sonda                  ; desenha a sonda
+    
+apagar: 
+    CALL apaga_nave             ; apaga a nave
+    CALL apaga_asteroide_bom    ; apaga o asteroide
+    CALL apaga_sonda            ; apaga a sonda
+
+move_asteroide:
     CALL mover_asteroide_bom
 
-    MOV  R8, 0022H
-    CMP R1, R8   ; verifica se a tecla premida é a 5
-    JNZ  ciclo
+move_sonda:    
     CALL mover_sonda
 
 ; ******************************************************************************
@@ -214,11 +218,17 @@ inicia_jogo:
     
  fases_jogo:
     MOV  R4, 0082H       
-    CMP  R1, R4   ; verifica se a tecla primida é a d
-    JZ   suspende_jogo   ; se a tecla primida for d, executa suspende_jogo
+    CMP  R1, R4                     ; verifica se a tecla primida é a d
+    JZ   suspende_jogo              ; se a tecla primida for d, executa suspende_jogo
     MOV  R4, 0084H      
-    CMP  R1, R4   ; verifica se a tecla primida é a e
-    JZ   termina_jogo   ; se a tecla primida for e, executa termina_jogo
+    CMP  R1, R4                     ; verifica se a tecla primida é a e
+    JZ   termina_jogo               ; se a tecla primida for e, executa termina_jogo
+    MOV  R4, 0021H
+    CMP  R1, R4                     ; verifica se a tecla premida é a 4
+    JZ   mover_asteroide_bom_fase
+    MOV  R4, 0022H
+    CMP  R1, R4                  ; verifica se a tecla premida é a 5
+    JZ   mover_sonda_fase       ; se a tecla primida for e, executa termina_jogo
     JMP  retorna_ciclo
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
@@ -248,6 +258,13 @@ termina_jogo:
     MOV  R0, 0   ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP  retorna_ciclo
 
+mover_sonda_fase:
+    MOV R0, 5
+    JMP  retorna_ciclo
+
+mover_asteroide_bom_fase:
+    MOV R0, 4
+    JMP  retorna_ciclo
 
 retorna_ciclo:
     POP  R5
