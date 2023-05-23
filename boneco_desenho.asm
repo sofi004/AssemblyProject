@@ -527,7 +527,7 @@ contador_tecla_4:
 
 
 
-posição_inicio_apagar_asteroide_bom:
+posição_move_inicio_apagar_asteroide_bom:
     MOV  R1, LINHA_ASTEROIDE_BOM
     ADD  R1, R5
     MOV  R2, COLUNA_ASTEROIDE_BOM
@@ -535,20 +535,20 @@ posição_inicio_apagar_asteroide_bom:
     ADD R7, R1
     ADD R7, ALTURA_ASTEROIDE
 
-desenha_apaga_asteroide_bom:
+desenha_move_apaga_asteroide_bom:
 	MOV	R4, DEF_ASTEROIDE_BOM		; endereço da tabela que define o boneco
 	MOV	R8, [R4]			; obtém a largura do boneco
 	ADD	R4, 2			 
     MOV R0, [R4]            ; obtem a altura do boneco
     
-apaga_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir da tabela
+apaga_move_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
     ADD  R2, 1               ; próxima coluna
     SUB  R8, 1			; menos uma coluna para tratar
-    JNZ  apaga_pixeis_asteroide_bom      ; continua até percorrer toda a largura do objeto
+    JNZ  apaga_move_pixeis_asteroide_bom      ; continua até percorrer toda a largura do objeto
 
     
     CMP R1, R7      ;verifica se chegou ao fim do desenho
