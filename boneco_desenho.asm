@@ -584,7 +584,7 @@ retorna_ciclo_move_asteroide_bom:
 ; mover_sonda - Processo que move a sonda
 ; ******************************************************************************
 mover_sonda:
-    PUSH RO
+    PUSH R0
     PUSH R1
     PUSH R2
     PUSH R3
