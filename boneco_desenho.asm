@@ -48,6 +48,7 @@ LARGURA_NAVE  EQU 15  ; largura da nave
 ALTURA_NAVE  EQU 5  ; altura da nave
 LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
+ATRASO  EQU 400H   ; atraso para limitar a velocidade de movimento do boneco
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
@@ -113,6 +114,8 @@ inicio:
     MOV  R4, DISPLAYS   ; endereço do periférico dos displays
     MOV  R5, 0100H   ; inicializa o valor de R5 a 100H para colocar no display
     MOV  [R4], R5   ; inicializa o display a 100
+    MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
+    MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
 
 ; ******************************************************************************
 ; corpo principal do programa
@@ -497,4 +500,143 @@ retorna_ciclo_apaga_sonda:
     POP R3
     POP R2
     POP R1
+    RET
+
+; ******************************************************************************
+; mover_asteroide_bom - Processo que move o asteroide bom
+; ******************************************************************************
+mover_asteroide_bom:
+    PUSH RO
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R7 
+    PUSH R8 
+
+contador_tecla_4:
+    ADD R6, 1
+    MOV R5, R6
+    SUB R5, 1
+
+posicão_move_asteroide_bom:
+    MOV R0, LINHA_ASTEROIDE_BOM
+    ADD R0, R6
+    MOV R1, COLUNA_ASTEROIDE_BOM
+    ADD R1, R6
+    ADD R7, R0   
+    ADD R7, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide bom
+    SUB R7, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
+
+desenha_move_asteroide_bom:
+    MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
+    MOV R3, [R2]   ; obtem a largura do asteroide bom
+    ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
+    MOV R4, [R2]   ; obtem a altura da asteroide bom
+    ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
+
+desenha_move_pixels_asteroide_bom:   ; desenha os pixels do boneco a partir da tabela
+    MOV R8, [R2]   ; obtém a cor do próximo pixel do boneco
+    MOV [DEFINE_LINHA], R0   ; seleciona a linha
+    MOV [DEFINE_COLUNA], R1   ; seleciona a coluna
+    MOV [DEFINE_PIXEL], R8   ; altera a cor do pixel na linha e coluna selecionadas
+    ADD R2, 2   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD R1, 1   ; próxima coluna
+    SUB R3, 1   ; menos uma coluna para tratar
+    JNZ desenha_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
+
+CMP R0, R7  ; verifica se chegou ao fim do desenho
+JZ retorna_ciclo_move_asteroide_bom
+ADD R0, 1   ; passa para desenhar na proxima linha
+MOV R1, COLUNA_ASTEROIDE_BOM   ; volta a desenhar na primeira coluna
+MOV R3, LARGURA_ASTEROIDE   ; contador de colunas ao maximo
+JMP desenha_move_pixels_asteroide_bom
+
+retorna_ciclo_move_asteroide_bom:
+    POP R8
+    POP R7
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+; ******************************************************************************
+; mover_sonda - Processo que move a sonda
+; ******************************************************************************
+mover_sonda:
+    PUSH RO
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5 
+
+contador_tecla_5:
+    ADD R6, 1
+
+posicão_asteroide_bom:
+    MOV R0, LINHA_ASTEROIDE_BOM
+    MOV R1, COLUNA_ASTEROIDE_BOM
+    ADD R6, R0   
+    ADD R6, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide bom
+    SUB R6, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
+
+desenha_asteroide_bom:
+    MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
+    MOV R3, [R2]   ; obtem a largura do asteroide bom
+    ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
+    MOV R4, [R2]   ; obtem a altura da asteroide bom
+    ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
+
+desenha_pixels_asteroide_bom:   ; desenha os pixels do boneco a partir da tabela
+    MOV R5, [R2]   ; obtém a cor do próximo pixel do boneco
+    MOV [DEFINE_LINHA], R0   ; seleciona a linha
+    MOV [DEFINE_COLUNA], R1   ; seleciona a coluna
+    MOV [DEFINE_PIXEL], R5   ; altera a cor do pixel na linha e coluna selecionadas
+    ADD R2, 2   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD R1, 1   ; próxima coluna
+    SUB R3, 1   ; menos uma coluna para tratar
+    JNZ desenha_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
+
+CMP R0, R6  ; verifica se chegou ao fim do desenho
+JZ retorna_ciclo_asteroide_bom
+ADD R0, 1   ; passa para desenhar na proxima linha
+MOV R1, COLUNA_ASTEROIDE_BOM   ; volta a desenhar na primeira coluna
+MOV R3, LARGURA_ASTEROIDE   ; contador de colunas ao maximo
+JMP desenha_pixels_asteroide_bom
+
+
+
+
+
+
+
+
+retorna_ciclo_move_sonda:
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
     RET
