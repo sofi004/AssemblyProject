@@ -263,11 +263,11 @@ termina_jogo:
     JMP  retorna_ciclo
 
 mover_sonda_fase:
-    R0, 5
+    MOV R0, 5
     JMP  retorna_ciclo
 
 mover_asteroide_bom_fase:
-    R0, 4
+    MOV R0, 4
     JMP  retorna_ciclo
 
 retorna_ciclo:
