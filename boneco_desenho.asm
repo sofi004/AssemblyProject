@@ -125,6 +125,7 @@ ciclo:
     JZ ciclo   ; só apaga os desenhos quando terminamos o jogo
     CALL apaga_nave   ; apaga a nave
     CALL apaga_asteroide_bom   ; apaga o asteroide
+    CALL apaga_sonda   ; apaga a sonda
     CMP  R0, 0   ; o jogo está a correr?
     JZ  ciclo   ; só desenha o asteroide se o jogo estiver a correr
     CALL asteroide_bom   ; desenha o asteroide bom
