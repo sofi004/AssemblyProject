@@ -48,6 +48,8 @@ COLUNA_NAVE EQU 25   ; coluna onde vai ser desenhado o primeiro pixel da nave
 LINHA_NAVE EQU 27   ; linha onde vai ser desenhado o primeiro pixel da nave
 LARGURA_NAVE  EQU 15  ; largura da nave
 ALTURA_NAVE  EQU 5  ; altura da nave
+COLUNA_ECRA_NAVE EQU 28 ; coluna onde vai ser desenhado o primeiro pixel do ecra da nave
+LINHA_ECRA_NAVE EQU 29  ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
 ATRASO  EQU 400H   ; atraso para limitar a velocidade de movimento do boneco
@@ -181,6 +183,7 @@ ciclo:
 desenhar:
     CALL asteroide_bom          ; desenha o asteroide bom
     CALL nave                   ; desenha a nave
+    CALL ecra_nave		; desenha o ecra da nave(1)
     CALL sonda                  ; desenha a sonda
     JMP  ciclo
 
@@ -418,6 +421,59 @@ MOV R3, LARGURA_NAVE   ;contador de colunas ao maximo
 JMP desenha_pixels_nave
 
 retorna_ciclo_nave:
+    POP  R6
+    POP  R5
+    POP  R4
+    POP  R3
+    POP  R2
+    POP  R1
+    POP  R0
+    RET
+
+; ******************************************************************************
+; ecra_nave - Processo que desenha o ecra da nave
+; ******************************************************************************
+ecra_nave:
+    PUSH  R0
+    PUSH  R1
+    PUSH  R2
+    PUSH  R3
+    PUSH  R4
+    PUSH  R5
+    PUSH  R6
+
+posicão_ecra_nave:
+    MOV R0, LINHA_ECRA_NAVE
+    MOV R1, COLUNA_ECRA_NAVE
+    ADD R6, R0
+    ADD R6, ALTURA_ECRA_NAVE
+    SUB R6, 1
+
+desenha_ecra_nave:
+    MOV R2, DEF_ECRA_NAVE_1   ; endereço da tabela que define o asteroide bom
+    MOV R3, [R2]   ; obtem a largura do asteroide bom
+    ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
+    MOV R4, [R2]   ; obtem a altura da asteroide bom
+    ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
+
+desenha_pixels_ecra_nave:
+    MOV R5, [R2]
+    MOV [DEFINE_LINHA], R0
+    MOV [DEFINE_COLUNA], R1
+    MOV [DEFINE_PIXEL], R5
+    ADD R2, 2
+    ADD R1, 1
+    SUB R3, 1
+    JNZ desenha_pixels_ecra_nave
+
+CMP R0, R6
+JZ retorna_ciclo_ecra_nave
+ADD R0, 1
+MOV R1, COLUNA_ECRA_NAVE
+MOV R3, LARGURA_ECRA_NAVE   ;contador de colunas ao maximo
+JMP desenha_pixels_ecra_nave
+
+retorna_ciclo_nave_ecra:
     POP  R6
     POP  R5
     POP  R4
