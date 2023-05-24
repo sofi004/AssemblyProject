@@ -331,6 +331,8 @@ termina_jogo:
     MOV [APAGA_ECRÃ], R5
     MOV  R5, 2
     MOV  [APAGA_CENARIO_FRONTAL], R5
+    MOV  R5, 1   ; video número 0
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o video número 0
     MOV  R5, 0   ; video número 0
     MOV  [TERMINA_SOM_VIDEO], R5   ; termina o video número 0
     MOV  R5, 1   ; cenário de fundo número 1
