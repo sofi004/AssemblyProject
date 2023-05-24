@@ -854,7 +854,7 @@ apaga_desenha_pixeis_sonda:
 mais_energia:
     PUSH R2
     MOV R2, [R4]
-    INC R2 
+    ADD R2, 0001H
     MOV [R4], R2
     POP R2
     RET
@@ -862,7 +862,7 @@ mais_energia:
 menos_energia:
     PUSH R2
     MOV R2, [R4]
-    INC R2
+    SUB R2, 0001H
     MOV [R4], R2
     POP R2
     RET
