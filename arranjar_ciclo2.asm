@@ -155,6 +155,9 @@ inicio:
     MOV  [APAGA_ECRÃ], R1   ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV	 R1, 0   ; cenário de fundo número 0
     MOV  [SELECIONA_CENARIO_FUNDO], R1   ; seleciona o cenário de fundo
+    MOV  R9, 2   ; video número 0
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um video para cenário de fundo
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do video de fundo do jogo
 
 
 ;###############################################################################
