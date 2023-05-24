@@ -185,7 +185,7 @@ ciclo:
     CMP R0, 4
     JZ move_asteroide 
     CMP R0, 5
-    JZ move_sonda              
+    JZ move_sonda               
     JMP  ciclo
 
 desenhar:
@@ -217,7 +217,7 @@ move_sonda:
     CMP  R1, R9 
     JNZ ciclo
     MOV  R9, 3   ; som número 3
-    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semlhante a um beep
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semelhante a um beep
     MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do beep
     MOV R9, 2
     MOV [SELECIONA_ECRÃ], R9
@@ -311,7 +311,13 @@ inicia_jogo:
     JZ   mover_asteroide_bom_fase
     MOV  R4, 0022H
     CMP  R1, R4                  ; verifica se a tecla premida é a 5
-    JZ   mover_sonda_fase       ; se a tecla primida for e, executa termina_jogo
+    JZ   mover_sonda_fase       ; se a tecla primida for e, executa mover_sonda_fase
+    MOV R4, 0041H
+    CMP R1, R4
+    JZ aumenta_energia
+    MOV R4, 0042H
+    CMP R1, R4
+    JZ diminui_energia
     JMP  retorna_ciclo
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
@@ -815,3 +821,39 @@ apaga_desenha_pixeis_sonda:
     POP R2
     POP R1
     RET
+
+
+; ******************************************************************************
+; display_energia- processo que altera o valor no display de energia
+; ******************************************************************************
+
+aumenta_energia:
+    CALL mais_energia
+    JMP retorna_ciclo
+
+diminui_energia:
+    CALL menos_energia
+    JMP retorna_ciclo
+
+
+
+mais_energia:
+    PUSH R2
+    PUSH R4
+    MOV R4, DISPLAYS
+    MOV R2, [R4]
+    ADD R2, 01H
+    MOV [R4], R2
+    POP R4
+    POP R2
+
+menos_energia:
+    PUSH R2
+    PUSH R4
+    MOV R4, DISPLAYS
+    MOV R2, [R4]
+    SUB R2, 01H
+    MOV [R4], R2
+    POP R4
+    POP R2
+
