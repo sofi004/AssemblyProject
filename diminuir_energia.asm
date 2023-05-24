@@ -234,12 +234,15 @@ energia_mais_escolha:
     MOV  R9, 0041H
     CMP  R1, R9
     JNZ ciclo
-    CALL mais_energia
+    JMP mais_energia
+    JMP  ciclo
+    
 energia_menos_escolha:
     MOV  R9, 0042H
     CMP  R1, R9
     JNZ ciclo
-    CALL menos_energia
+    JMP menos_energia
+    JMP  ciclo
 
 ; ******************************************************************************
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
@@ -852,18 +855,9 @@ apaga_desenha_pixeis_sonda:
 ; display_energia- processo que altera o valor no display de energia
 ; ******************************************************************************
 mais_energia:
-    PUSH R2
-    MOV R2, [R4]
-    ADD R2, 1
-    MOV [R4], R2
-    POP R2
-    RET
+    ADD R5, 01H
+    MOV [R4], R5
 
 menos_energia:
-    PUSH R2
-    MOV R2, [R4]
-    SUB R2, 1
-    MOV [R4], R2
-    POP R2
-    RET
-
+    SUB R5, 01H
+    MOV [R4], R5
