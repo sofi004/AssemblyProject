@@ -280,6 +280,8 @@ inicia_jogo_verificação:
 inicia_jogo:
     MOV  R5, 2   ; som número 2
     MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 2
+    MOV  R5, 4   ; som número 4
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 4
     MOV  R0, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV  R5, 0   ; video número 0
     MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
@@ -331,12 +333,15 @@ termina_jogo:
     MOV [APAGA_ECRÃ], R5
     MOV  R5, 2
     MOV  [APAGA_CENARIO_FRONTAL], R5
-    MOV  R5, 1   ; video número 0
-    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o video número 0
+    MOV  R5, 1   ; som número 1
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 1
     MOV  R5, 0   ; video número 0
     MOV  [TERMINA_SOM_VIDEO], R5   ; termina o video número 0
     MOV  R5, 1   ; cenário de fundo número 1
     MOV  [SELECIONA_CENARIO_FUNDO], R5 ; seleciona o cenário de fundo
+    MOV  R5, 4   ; som número 4
+    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona o som que diz respeito ao jogo ter terminado
+    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do som que diz respeito ao jogo ter terminado
     MOV  R0, 0   ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP  retorna_ciclo
 
