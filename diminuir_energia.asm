@@ -859,7 +859,7 @@ mais_energia:
     POP R2
     RET
 
-mais_energia:
+menos_energia:
     PUSH R2
     MOV R2, [R4]
     SUB R2, 01H
