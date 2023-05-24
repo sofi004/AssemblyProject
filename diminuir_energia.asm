@@ -185,7 +185,11 @@ ciclo:
     CMP R0, 4
     JZ move_asteroide 
     CMP R0, 5
-    JZ move_sonda               
+    JZ move_sonda 
+    CMP R0, 8
+    JZ energia_mais_escolha
+    CMP R0, 9 
+    JZ energia_menos_escolha             
     JMP  ciclo
 
 desenhar:
@@ -223,6 +227,17 @@ move_sonda:
     MOV [SELECIONA_ECRÃ], R9
     CALL mover_sonda
     JMP  ciclo
+
+energia_mais_escolha:
+    MOV  R9, 0041H
+    CMP  R1, R9
+    JNZ ciclo
+    CALL aumenta_energia
+energia_menos_escolha:
+    MOV  R9, 0042H
+    CMP  R1, R9
+    JNZ ciclo
+    CALL diminui_energia
 
 ; ******************************************************************************
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
@@ -314,10 +329,10 @@ inicia_jogo:
     JZ   mover_sonda_fase       ; se a tecla primida for e, executa mover_sonda_fase
     MOV R4, 0041H
     CMP R1, R4
-    JZ aumenta_energia
+    JZ energia_mais_fase
     MOV R4, 0042H
     CMP R1, R4
-    JZ diminui_energia
+    JZ energia_menos_fase
     JMP  retorna_ciclo
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
@@ -363,6 +378,14 @@ mover_sonda_fase:
 
 mover_asteroide_bom_fase:
     MOV R0, 4
+    JMP  retorna_ciclo
+
+energia_mais_fase:
+    MOV R0, 8
+    JMP  retorna_ciclo
+
+energia_menos_fase:
+    MOV R0, 9
     JMP  retorna_ciclo
 
 retorna_ciclo:
