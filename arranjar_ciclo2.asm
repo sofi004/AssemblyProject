@@ -155,9 +155,9 @@ inicio:
     MOV  [APAGA_ECRÃ], R1   ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV	 R1, 0   ; cenário de fundo número 0
     MOV  [SELECIONA_CENARIO_FUNDO], R1   ; seleciona o cenário de fundo
-    MOV  R9, 2   ; video número 0
-    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um video para cenário de fundo
-    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do video de fundo do jogo
+    MOV  R9, 2   ; som número 2
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som para a intro do jogo
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do som da intro
 
 
 ;###############################################################################
@@ -278,6 +278,8 @@ inicia_jogo_verificação:
     JZ  inicia_jogo   ; se o jogo não está a correr vamos pô-lo a correr 
     JMP  retorna_ciclo  ; senão vamos esperar pela tecla c para o por a correr
 inicia_jogo:
+    MOV  R5, 2   ; som número 2
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 2
     MOV  R0, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV  R5, 0   ; video número 0
     MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
@@ -323,7 +325,7 @@ termina_jogo:
     MOV  R5, 2
     MOV  [APAGA_CENARIO_FRONTAL], R5
     MOV  R5, 0   ; video número 0
-    MOV  [TERMINA_SOM_VIDEO], R5   ; pausa o video número 0
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o video número 0
     MOV  R5, 1   ; cenário de fundo número 1
     MOV  [SELECIONA_CENARIO_FUNDO], R5 ; seleciona o cenário de fundo
     MOV  R0, 0   ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
