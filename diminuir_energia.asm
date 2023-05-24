@@ -185,10 +185,12 @@ ciclo:
     CMP R0, 4
     JZ move_asteroide 
     CMP R0, 5
-    JZ move_sonda 
-    CMP R0, 8
+    JZ move_sonda
+    MOV R9, 8 
+    CMP R0, R9
     JZ energia_mais_escolha
-    CMP R0, 9 
+    MOV R9, 9
+    CMP R0, R9 
     JZ energia_menos_escolha             
     JMP  ciclo
 
