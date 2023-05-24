@@ -284,6 +284,9 @@ inicia_jogo:
     MOV  R5, 0   ; video número 0
     MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
     MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do video de fundo do jogo
+    MOV  R5, 1   ; som número 1
+    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona o som de fundo do jogo
+    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do som de fundo
     MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
     MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
     JMP  retorna_ciclo   ; depois de iniciar o jogo volta a restart linhas 
@@ -305,8 +308,10 @@ inicia_jogo:
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
     JZ   continua_jogo   ;   prosseguir com o jogo
-    MOV  R5, 0
+    MOV  R5, 1
     MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
+    MOV  R5, 0
+    MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o som de fundo do jogo
     MOV  R5, 2
     MOV  [SELECIONA_CENARIO_FRONTAL], R5 ; coloca cenario frontal de pausa do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
@@ -317,6 +322,8 @@ continua_jogo:
     MOV  [APAGA_CENARIO_FRONTAL], R5 
     MOV  R5, 0
     MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
+    MOV  R5, 1
+    MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o som de fundo do jogo
     MOV  R0, 3   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
     JMP  retorna_ciclo
 
