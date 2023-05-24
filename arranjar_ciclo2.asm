@@ -177,8 +177,6 @@ ciclo:
     CALL  teclado               ; verifica se alguma tecla foi carregada
     CALL escolhe_rotina         ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla               ; esperamos que nenhuma tecla esteja a ser premida
-    CMP R0, 0                   ; o jogo está parado?
-    JZ apagar                    ; só apaga os desenhos quando terminamos o jogo
     CMP  R0, 1                  ; o jogo está a correr?
     JZ   desenhar               ; só desenha o asteroide se o jogo estiver a correr  
     CMP R0, 4
@@ -193,9 +191,6 @@ desenhar:
     CALL ecra_nave		; desenha o ecra da nave(1)
     CALL sonda                  ; desenha a sonda
     JMP  ciclo
-
-apagar: 
-    MOV [APAGA_ECRÃ], R9
 
 move_asteroide:
     MOV  R9, 0021H
@@ -313,6 +308,7 @@ continua_jogo:
     JMP  retorna_ciclo
 
 termina_jogo:
+    MOV [APAGA_ECRÃ], R5
     MOV  R5, 2
     MOV  [APAGA_CENARIO_FRONTAL], R5
     MOV  R5, 0   ; video número 0
@@ -462,7 +458,7 @@ posicão_ecra_nave:
     SUB R6, 1
 
 desenha_ecra_nave:
-    MOV R2, DEF_ECRA_NAVE_3   ; endereço da tabela que define o asteroide bom
+    MOV R2, DEF_ECRA_NAVE_2   ; endereço da tabela que define o asteroide bom
     MOV R3, [R2]   ; obtem a largura do asteroide bom
     ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
     MOV R4, [R2]   ; obtem a altura da asteroide bom
