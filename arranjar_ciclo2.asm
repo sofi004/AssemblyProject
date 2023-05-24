@@ -205,6 +205,9 @@ move_asteroide:
     MOV  R9, 0021H
     CMP  R1, R9 
     JNZ ciclo
+    MOV  R9, 3   ; som número 3
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semlhante a um beep
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do beep
     MOV R9, 1
     MOV [SELECIONA_ECRÃ], R9
     CALL mover_asteroide_bom
@@ -213,6 +216,9 @@ move_sonda:
     MOV  R9, 0022H
     CMP  R1, R9 
     JNZ ciclo
+    MOV  R9, 3   ; som número 3
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semlhante a um beep
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do beep
     MOV R9, 2
     MOV [SELECIONA_ECRÃ], R9
     CALL mover_sonda
