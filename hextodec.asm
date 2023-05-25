@@ -857,6 +857,8 @@ apaga_desenha_pixeis_sonda:
 mais_energia:
     PUSH R0
     PUSH R1
+    PUSH R2
+    MOV R2, 10
     MOV  R4, DISPLAYS
     ADD R5, 01H
     MOV R0, R5
@@ -864,8 +866,11 @@ mais_energia:
     MOV R1, R5
     DIV R1, R5
     SHL R1, 4
-    ADD R0, R1
+    MOV R2, 0H
+    ADD R2, R1 
+    ADD R0, R2
     MOV [R4], R0
+    POP R2
     POP R1
     POP R0
     RET
@@ -873,6 +878,8 @@ mais_energia:
 menos_energia:
     PUSH R0
     PUSH R1
+    PUSH R2
+    MOV R2, 10
     MOV  R4, DISPLAYS
     SUB R5, 01H
     MOV R0, R5
@@ -880,9 +887,11 @@ menos_energia:
     MOV R1, R5
     DIV R1, R5
     SHL R1, 4
-    ADD R0, R1
+    MOV R2, 0H
+    ADD R2, R1 
+    ADD R0, R2
     MOV [R4], R0
+    POP R2
     POP R1
     POP R0
     RET
-    
