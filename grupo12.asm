@@ -13,6 +13,7 @@
 ; * TECLA D -  pausa/ continua o jogo 
 ; * TECLA E -  termina o jogo 
 ; * [DISPLAY] = 0H - acabou-se a energia, muda-se o cenário de fundo e acaba-se o jogo
+; * Quando o jogo se reinicia os displays voltam a 100H e os desenhos às suas posições iniciais
 ; ******************************************************************************************************************************************************
 
 ; ******************************************************************************************************************************************************
