@@ -170,6 +170,7 @@ inicio:
     MOV  R4, DISPLAYS   ; endereço do periférico dos displays
     MOV  R5, 0100H   ; inicializa o valor de R5 a 100H para colocar no display
     MOV  [R4], R5   ; inicializa o display a 100
+    MOV  R5, 0064H
     MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
     MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
 
