@@ -335,7 +335,7 @@ inicia_jogo_verificação:
     JMP  retorna_ciclo                          ; senão vamos esperar pela tecla c para o por a correr
 inicia_jogo:
     MOV  R5, 5                                  ; som número 4
-    MOV  [TERMINA_SOM_VIDEO], R5                                     ; este ciclo inicia/ reinicia o jogo
+    MOV  [TERMINA_SOM_VIDEO], R5                ; este ciclo inicia/ reinicia o jogo
     MOV  R5, 2   
     MOV  [TERMINA_SOM_VIDEO], R5                ; termina o som número 2
     MOV  R5, 4                                  ; som número 4
@@ -643,7 +643,7 @@ contador_tecla_4:
 
 
 ; apaga o asteroide da ultima posição
-posição_move_inicio_apagar_asteroide_bom:
+posição_inicio_move_asteroide_bom:
     MOV  R1, LINHA_ASTEROIDE_BOM
     ADD  R1, R5
     MOV  R2, COLUNA_ASTEROIDE_BOM
@@ -651,30 +651,30 @@ posição_move_inicio_apagar_asteroide_bom:
     ADD R7, R1
     ADD R7, ALTURA_ASTEROIDE
 
-desenha_move_apaga_asteroide_bom:
+apaga_asteroide_bom:
 	MOV	R4, DEF_ASTEROIDE_BOM		            ; endereço da tabela que define o boneco
 	MOV	R8, [R4]			                    ; obtém a largura do boneco
 	ADD	R4, 2			 
     MOV R0, [R4]                                ; obtem a altura do boneco
     
-apaga_move_pixeis_asteroide_bom:       		    ; desenha os pixels do boneco a partir da tabela
+apaga_pixeis_asteroide_bom:       		    ; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			                        ; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	                    ; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	                ; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	                    ; altera a cor do pixel na linha e coluna selecionadas
     ADD  R2, 1                                  ; próxima coluna
     SUB  R8, 1			                        ; menos uma coluna para tratar
-    JNZ  apaga_move_pixeis_asteroide_bom        ; continua até percorrer toda a largura do objeto
+    JNZ  apaga_pixeis_asteroide_bom        ; continua até percorrer toda a largura do objeto
 
     
     CMP R1, R7                                  ;verifica se chegou ao fim do desenho
-    JZ posicão_move_asteroide_bom
+    JZ posicão_inicio_move_asteroide_bom
 
     ADD R1, 1                                   ;passa a apagar na proxima linha
     MOV R2, COLUNA_ASTEROIDE_BOM                ;volta a apagar na primeira coluna
     ADD R2, R5
     MOV R8, LARGURA_ASTEROIDE                   ;contador de colunas ao maximo
-    JMP apaga_move_pixeis_asteroide_bom
+    JMP apaga_pixeis_asteroide_bom
 
 
 ; desenha o asteroide no novo local
