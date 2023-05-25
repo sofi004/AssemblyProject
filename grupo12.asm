@@ -245,14 +245,14 @@ energia_mais_escolha:
     MOV  R9, 0041H
     CMP  R1, R9                                 ; a tecla 8 está realmente a ser premida?
     JNZ ciclo                                   ; se a tecla 8 não estiver a ser premida estão volta-se a ciclo
-    JMP mais_energia                            ; aumenta o número no display uma unidade
+    CALL mais_energia                            ; aumenta o número no display uma unidade
     JMP  ciclo
 
 energia_menos_escolha:
     MOV  R9, 0042H                              
     CMP  R1, R9                                 ; a tecla 9 está realmente a ser premida?
     JNZ ciclo                                   ; se a tecla 9 não estiver a ser premida estão volta-se a ciclo
-    JMP menos_energia                           ; diminui o número no display uma unidade
+    CALL menos_energia                           ; diminui o número no display uma unidade
     JMP  ciclo
 
 ; ******************************************************************************
@@ -872,20 +872,24 @@ apaga_desenha_pixeis_sonda:
 ; display_energia- processo que altera o valor no display de energia
 ; ******************************************************************************
 mais_energia:
+    PUSH R6
     MOV  R4, DISPLAYS
     ADD R5, 01H
     MOV R6, R5
     CALL hex_para_dec
     MOV [R4], R6
-    JMP  ciclo
+    POP R6
+    RET ciclo
 
 menos_energia:
+    PUSH R6
     MOV  R4, DISPLAYS
     SUB R5, 01H
     MOV R6, R5
     CALL hex_para_dec
     MOV [R4], R6
-    JMP  ciclo
+    POP R6
+    RET ciclo
 
 hex_para_dec:
     PUSH R0
