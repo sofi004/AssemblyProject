@@ -668,7 +668,7 @@ apaga_pixeis_asteroide_bom:       		    ; desenha os pixels do boneco a partir d
 
     
     CMP R1, R7                                  ;verifica se chegou ao fim do desenho
-    JZ posicão_inicio_move_asteroide_bom
+    JZ posicão_move_asteroide_bom
 
     ADD R1, 1                                   ;passa a apagar na proxima linha
     MOV R2, COLUNA_ASTEROIDE_BOM                ;volta a apagar na primeira coluna
