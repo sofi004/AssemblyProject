@@ -245,7 +245,7 @@ move_sonda:
     JMP  ciclo
 
 acabou_energia:
-    MOV  [APAGA_ECRÃ], R9                        ; não interesssa o valor de R5, apaga todos os pixeis, de todos os ecrãs
+    MOV  [APAGA_ECRÃ], R9                        ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
     MOV  R9, 2
     MOV  [APAGA_CENARIO_FRONTAL], R9            ; apaga o cenário frontal número 2 (transparência)
     MOV  R9, 1                      
@@ -400,7 +400,7 @@ continua_jogo:
     JMP  retorna_ciclo
 
 termina_jogo:
-    MOV [APAGA_ECRÃ], R5                        ; não interesssa o valor de R5, apaga todos os pixeis, de todos os ecrãs
+    MOV [APAGA_ECRÃ], R5                        ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
     MOV  R5, 2
     MOV  [APAGA_CENARIO_FRONTAL], R5            ; apaga o cenário frontal número 2 (transparência)
     MOV  R5, 1                      
@@ -657,14 +657,14 @@ apaga_asteroide_bom:
 	ADD	R4, 2			 
     MOV R0, [R4]                                ; obtem a altura do boneco
     
-apaga_pixeis_asteroide_bom:       		    ; desenha os pixels do boneco a partir da tabela
+apaga_pixels_asteroide_bom:       		    ; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			                        ; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	                    ; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	                ; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	                    ; altera a cor do pixel na linha e coluna selecionadas
     ADD  R2, 1                                  ; próxima coluna
     SUB  R8, 1			                        ; menos uma coluna para tratar
-    JNZ  apaga_pixeis_asteroide_bom        ; continua até percorrer toda a largura do objeto
+    JNZ  apaga_pixels_asteroide_bom        ; continua até percorrer toda a largura do objeto
 
     
     CMP R1, R7                                  ;verifica se chegou ao fim do desenho
@@ -674,7 +674,7 @@ apaga_pixeis_asteroide_bom:       		    ; desenha os pixels do boneco a partir d
     MOV R2, COLUNA_ASTEROIDE_BOM                ;volta a apagar na primeira coluna
     ADD R2, R5
     MOV R8, LARGURA_ASTEROIDE                   ;contador de colunas ao maximo
-    JMP apaga_pixeis_asteroide_bom
+    JMP apaga_pixels_asteroide_bom
 
 
 ; desenha o asteroide no novo local
@@ -749,7 +749,7 @@ posição_apagar_desenhar_sonda:
     MOV  R6, LINHA_SONDA
     SUB  R6, R7
     
-apaga_desenha_pixeis_sonda: 
+apaga_desenha_pixels_sonda: 
 	MOV  [DEFINE_LINHA], R1	                    ; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	                ; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	                    ; altera a cor do pixel na linha e coluna selecionadas
