@@ -69,14 +69,14 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
 
-DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, pixels)
-    WORD        LARGURA_ASTEROIDE
-    WORD        ALTURA_ASTEROIDE
-    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
-    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
-    WORD        COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO
-    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
-    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
+;DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, pixels)
+;    WORD        LARGURA_ASTEROIDE
+;    WORD        ALTURA_ASTEROIDE
+;    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
+;    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
+;    WORD        COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO
+;    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
+;   WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
 
 DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
@@ -183,7 +183,7 @@ ciclo:
 desenhar:
     CALL asteroide_bom          ; desenha o asteroide bom
     CALL nave                   ; desenha a nave
-    CALL ecra_nave		; desenha o ecra da nave(1)
+    CALL ecra_nave		; desenha o ecra da nave(2)
     CALL sonda                  ; desenha a sonda
     JMP  ciclo
 
@@ -645,85 +645,95 @@ mover_asteroide_bom:
     PUSH R3
     PUSH R4
     PUSH R5
-    PUSH R7 
-    PUSH R8 
+    PUSH R7
 
-contador_tecla_4:
-    ADD R6, 1
-    MOV R5, R6
-    SUB R5, 1
-
-; apaga o asteroide da ultima posição
-posição_move_inicio_apagar_asteroide_bom:
+aposição_inicio_apagar_asteroide_bom:
     MOV  R1, LINHA_ASTEROIDE_BOM
-    ADD  R1, R5
     MOV  R2, COLUNA_ASTEROIDE_BOM
-    ADD R2,R5
     ADD R7, R1
     ADD R7, ALTURA_ASTEROIDE
 
-desenha_move_apaga_asteroide_bom:
+adesenha_apaga_asteroide_bom:
 	MOV	R4, DEF_ASTEROIDE_BOM		; endereço da tabela que define o boneco
-	MOV	R8, [R4]			; obtém a largura do boneco
+	MOV	R5, [R4]			; obtém a largura do boneco
 	ADD	R4, 2			 
-    MOV R0, [R4]            ; obtem a altura do boneco
+    MOV R6, [R4]            ; obtem a altura do boneco
     
-apaga_move_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir da tabela
+aapaga_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
     ADD  R2, 1               ; próxima coluna
-    SUB  R8, 1			; menos uma coluna para tratar
-    JNZ  apaga_move_pixeis_asteroide_bom      ; continua até percorrer toda a largura do objeto
+    SUB  R5, 1			; menos uma coluna para tratar
+    JNZ  aapaga_pixeis_asteroide_bom      ; continua até percorrer toda a largura do objeto
 
     
     CMP R1, R7      ;verifica se chegou ao fim do desenho
-    JZ posicão_move_asteroide_bom
+    JZ aasteroide_bom
+
+    CMP R1, R7
+    JZ aretorna_ciclo_move_asteroide_bom
 
     ADD R1, 1            ;passa para apagar na proxima linha
     MOV R2, COLUNA_ASTEROIDE_BOM    ;volta a apagar na primeira coluna
-    ADD R2, R5
-    MOV R8, LARGURA_ASTEROIDE             ;contador de colunas ao maximo
-    JMP apaga_move_pixeis_asteroide_bom
+    MOV R5, LARGURA_ASTEROIDE             ;contador de colunas ao maximo
+    JMP aapaga_pixeis_asteroide_bom
 
-; desenha o asteroide no novo local
-posicão_move_asteroide_bom:
+
+aasteroide_bom:
+    PUSH  R0
+    PUSH  R1
+    PUSH  R2
+    PUSH  R3
+    PUSH  R4
+    PUSH  R5
+    PUSH  R6
+
+aposicão_asteroide_bom:
     MOV R0, LINHA_ASTEROIDE_BOM
-    ADD R0, R6
+    ADD R0, 1
     MOV R1, COLUNA_ASTEROIDE_BOM
-    ADD R1, R6
-    ADD R7, R0   
-    ADD R7, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide bom
-    SUB R7, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
+    ADD R1, 1
+    ADD R6, R0   
+    ADD R6, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide bom
+    SUB R6, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
 
-desenha_move_asteroide_bom:
+adesenha_asteroide_bom:
     MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
     MOV R3, [R2]   ; obtem a largura do asteroide bom
     ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
     MOV R4, [R2]   ; obtem a altura da asteroide bom
     ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
-desenha_move_pixels_asteroide_bom:   ; desenha os pixels do boneco a partir da tabela
-    MOV R8, [R2]   ; obtém a cor do próximo pixel do boneco
+adesenha_pixels_asteroide_bom:   ; desenha os pixels do boneco a partir da tabela
+    MOV R5, [R2]   ; obtém a cor do próximo pixel do boneco
     MOV [DEFINE_LINHA], R0   ; seleciona a linha
     MOV [DEFINE_COLUNA], R1   ; seleciona a coluna
-    MOV [DEFINE_PIXEL], R8   ; altera a cor do pixel na linha e coluna selecionadas
+    MOV [DEFINE_PIXEL], R5   ; altera a cor do pixel na linha e coluna selecionadas
     ADD R2, 2   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD R1, 1   ; próxima coluna
     SUB R3, 1   ; menos uma coluna para tratar
-    JNZ desenha_move_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
+    JNZ adesenha_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
 
-CMP R0, R7  ; verifica se chegou ao fim do desenho
-JZ retorna_ciclo_move_asteroide_bom
+CMP R0, R6  ; verifica se chegou ao fim do desenho
+JZ aretorna_ciclo_asteroide_bom
 ADD R0, 1   ; passa para desenhar na proxima linha
 MOV R1, COLUNA_ASTEROIDE_BOM   ; volta a desenhar na primeira coluna
-ADD R1, R6
+ADD R1, 1
 MOV R3, LARGURA_ASTEROIDE   ; contador de colunas ao maximo
-JMP desenha_move_pixels_asteroide_bom
+JMP adesenha_pixels_asteroide_bom
 
-retorna_ciclo_move_asteroide_bom:
-    POP R8
+aretorna_ciclo_asteroide_bom:
+    POP  R6
+    POP  R5
+    POP  R4
+    POP  R3
+    POP  R2
+    POP  R1
+    POP  R0
+
+aretorna_ciclo_move_asteroide_bom:
     POP R7
     POP R5
     POP R4
