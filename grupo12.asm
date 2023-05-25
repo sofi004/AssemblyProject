@@ -375,7 +375,7 @@ continua_jogo:
     MOV  [CONTINUA_SOM_VIDEO], R5               ; continua o video de fundo do jogo(0)
     MOV  R5, 1
     MOV  [CONTINUA_SOM_VIDEO], R5               ; continua o som de fundo do jogo(1)
-    MOV  R0, 1                                  ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
+    MOV  R0, 3                                  ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
     JMP  retorna_ciclo
 
 termina_jogo:
