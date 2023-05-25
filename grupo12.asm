@@ -198,6 +198,8 @@ ciclo:
     JZ move_asteroide                           ; move-se o asteroide uma linha e coluna para baixo
     CMP R0, 5                                   ; a tecla 5 foi premida?
     JZ move_sonda                               ; move-se a sonda uma linha para cima 
+    CMP R5, 0                                   ; o display apresenta 0?
+    JZ acabou_energia                           ; termina o jogo, muda de cenário de fundo
     MOV R9, 8                                   ; mete-se 8 num registo, porque cmp só dá para usar diretamente com números até 7
     CMP R0, R9                                  ; a tecla 8 foi premida?
     JZ energia_mais_escolha                     ; aumenta-se o número no display uma unidade
@@ -240,6 +242,22 @@ move_sonda:
     MOV R9, 2
     MOV [SELECIONA_ECRÃ], R9                    ; seleciona o ecrã número 2
     CALL mover_sonda                            ; move-se a sonda uma linha para cima 
+    JMP  ciclo
+
+acabou_energia:
+    MOV  [APAGA_ECRÃ], R9                        ; não interesssa o valor de R5, apaga todos os pixeis, de todos os ecrãs
+    MOV  R9, 2
+    MOV  [APAGA_CENARIO_FRONTAL], R9            ; apaga o cenário frontal número 2 (transparência)
+    MOV  R9, 1                      
+    MOV  [TERMINA_SOM_VIDEO], R9                ; termina o som número 1
+    MOV  R9, 0   
+    MOV  [TERMINA_SOM_VIDEO], R9                ; termina o video número 0
+    MOV  R9, 3   
+    MOV  [SELECIONA_CENARIO_FUNDO], R9          ; seleciona o cenário de fundo número 1
+    MOV  R9, 5   
+    MOV  [SELECIONA_SOM_VIDEO], R9              ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV  [REPRODUZ_SOM_VIDEO], R9               ; inicia a reprodução do som número 4
+    MOV  R0, 0                                  ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP  ciclo
 
 energia_mais_escolha:
