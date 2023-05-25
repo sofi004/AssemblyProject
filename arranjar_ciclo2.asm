@@ -16,7 +16,6 @@ DEFINE_LINHA  EQU COMANDOS + 0AH   ; endereço do comando para definir a linha
 DEFINE_COLUNA  EQU COMANDOS + 0CH   ; endereço do comando para definir a coluna
 DEFINE_PIXEL  EQU COMANDOS + 12H   ; endereço do comando para escrever um pixel
 APAGA_AVISO  EQU COMANDOS + 40H   ; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H   ; endereço do comando para selecionar uma imagem de fundo
 SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H   ; endereço do comando para selecionar uma video ou som
 REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH   ; endereço do comando para iniciar a reprodução dum video ou som
@@ -25,6 +24,13 @@ CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar v
 TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
 SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
 APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
+APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pixels já desenhados
+SELECIONA_ECRÃ EQU COMANDOS + 04H ; seleciona um ecrã especifico
+MOSTRA_ECRÃ EQU COMANDOS + 06H ; mostra o ecrã especificado
+ESCONDE_ECRÃ EQU COMANDOS + 08H ; esconde o ecrã especificado
+MUTE EQU COMANDOS + 4CH ; corta o volume de todos os sons ou videos a reproduzir
+DESMUTE EQU COMANDOS + 52Ħ ; retoma o volume de todos os sons ou videos a reproduzir 
+
 ; ******************************************************************************
 ; * Paleta
 ; ******************************************************************************
@@ -35,6 +41,7 @@ COR_PIXEL_TRANSPARENTE EQU 0FCCCH   ;cor do pixel; cinzento transparente
 COR_PIXEL_CINZENTO EQU 0F777H   ;cor do pixel; cinzento transparente
 COR_PIXEL_AMARELO   EQU 0FFF0H  ;cor do pixel: amarelo em ARGB
 COR_PIXEL_AZUL_CLARO  EQU 0F0FFH        ;cor do pixel: azul em ARGB
+
 ; ******************************************************************************
 ; * Definição dos desenhos
 ; ******************************************************************************
@@ -52,7 +59,7 @@ COLUNA_ECRA_NAVE EQU 29 ; coluna onde vai ser desenhado o primeiro pixel do ecra
 LINHA_ECRA_NAVE EQU 29  ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
-ATRASO  EQU 400H   ; atraso para limitar a velocidade de movimento do boneco
+
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
@@ -69,14 +76,14 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
 
-;DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, pixels)
-;    WORD        LARGURA_ASTEROIDE
-;    WORD        ALTURA_ASTEROIDE
-;    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
-;    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
-;    WORD        COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO
-;    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
-;   WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
+DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, pixels)
+    WORD        LARGURA_ASTEROIDE
+    WORD        ALTURA_ASTEROIDE
+    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
+    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
+    WORD        COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO
+    WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
+    WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
 
 DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
@@ -148,6 +155,9 @@ inicio:
     MOV  [APAGA_ECRÃ], R1   ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV	 R1, 0   ; cenário de fundo número 0
     MOV  [SELECIONA_CENARIO_FUNDO], R1   ; seleciona o cenário de fundo
+    MOV  R9, 2   ; som número 2
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som para a intro do jogo
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do som da intro
 
 
 ;###############################################################################
@@ -170,8 +180,6 @@ ciclo:
     CALL  teclado               ; verifica se alguma tecla foi carregada
     CALL escolhe_rotina         ;escolhe a rotina a usar tendo em conta a tecla primida
     CALL ha_tecla               ; esperamos que nenhuma tecla esteja a ser premida
-    CMP R0, 0                   ; o jogo está parado?
-    JZ apagar                    ; só apaga os desenhos quando terminamos o jogo
     CMP  R0, 1                  ; o jogo está a correr?
     JZ   desenhar               ; só desenha o asteroide se o jogo estiver a correr  
     CMP R0, 4
@@ -181,22 +189,38 @@ ciclo:
     JMP  ciclo
 
 desenhar:
+    MOV R9, 1
+    MOV [SELECIONA_ECRÃ], R9
     CALL asteroide_bom          ; desenha o asteroide bom
+    MOV R9, 0
+    MOV [SELECIONA_ECRÃ], R9
     CALL nave                   ; desenha a nave
-    CALL ecra_nave		; desenha o ecra da nave(2)
+    CALL ecra_nave		; desenha o ecra da nave(1)
+    MOV R9, 2
+    MOV [SELECIONA_ECRÃ], R9
     CALL sonda                  ; desenha a sonda
     JMP  ciclo
 
-apagar: 
-    CALL apaga_nave             ; apaga a nave
-    CALL apaga_asteroide_bom    ; apaga o asteroide
-    CALL apaga_sonda            ; apaga a sonda
-    JMP  ciclo
-
 move_asteroide:
+    MOV  R9, 0021H
+    CMP  R1, R9 
+    JNZ ciclo
+    MOV  R9, 3   ; som número 3
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semlhante a um beep
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do beep
+    MOV R9, 1
+    MOV [SELECIONA_ECRÃ], R9
     CALL mover_asteroide_bom
     JMP  ciclo
-move_sonda:    
+move_sonda:
+    MOV  R9, 0022H
+    CMP  R1, R9 
+    JNZ ciclo
+    MOV  R9, 3   ; som número 3
+    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semlhante a um beep
+    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do beep
+    MOV R9, 2
+    MOV [SELECIONA_ECRÃ], R9
     CALL mover_sonda
     JMP  ciclo
 
@@ -260,10 +284,17 @@ inicia_jogo_verificação:
     JZ  inicia_jogo   ; se o jogo não está a correr vamos pô-lo a correr 
     JMP  retorna_ciclo  ; senão vamos esperar pela tecla c para o por a correr
 inicia_jogo:
+    MOV  R5, 2   ; som número 2
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 2
+    MOV  R5, 4   ; som número 4
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 4
     MOV  R0, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV  R5, 0   ; video número 0
     MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
     MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do video de fundo do jogo
+    MOV  R5, 1   ; som número 1
+    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona o som de fundo do jogo
+    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do som de fundo
     MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
     MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
     JMP  retorna_ciclo   ; depois de iniciar o jogo volta a restart linhas 
@@ -285,8 +316,10 @@ inicia_jogo:
 suspende_jogo:
     CMP  R0, 2   ; o jogo já começou e está parado?
     JZ   continua_jogo   ;   prosseguir com o jogo
-    MOV  R5, 0
+    MOV  R5, 1
     MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
+    MOV  R5, 0
+    MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o som de fundo do jogo
     MOV  R5, 2
     MOV  [SELECIONA_CENARIO_FRONTAL], R5 ; coloca cenario frontal de pausa do jogo
     MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
@@ -297,16 +330,24 @@ continua_jogo:
     MOV  [APAGA_CENARIO_FRONTAL], R5 
     MOV  R5, 0
     MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
+    MOV  R5, 1
+    MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o som de fundo do jogo
     MOV  R0, 3   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
     JMP  retorna_ciclo
 
 termina_jogo:
+    MOV [APAGA_ECRÃ], R5
     MOV  R5, 2
     MOV  [APAGA_CENARIO_FRONTAL], R5
+    MOV  R5, 1   ; som número 1
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 1
     MOV  R5, 0   ; video número 0
-    MOV  [TERMINA_SOM_VIDEO], R5   ; pausa o video número 0
+    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o video número 0
     MOV  R5, 1   ; cenário de fundo número 1
     MOV  [SELECIONA_CENARIO_FUNDO], R5 ; seleciona o cenário de fundo
+    MOV  R5, 4   ; som número 4
+    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona o som que diz respeito ao jogo ter terminado
+    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do som que diz respeito ao jogo ter terminado
     MOV  R0, 0   ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP  retorna_ciclo
 
@@ -645,95 +686,86 @@ mover_asteroide_bom:
     PUSH R3
     PUSH R4
     PUSH R5
-    PUSH R7
+    PUSH R7 
+    PUSH R8 
 
-aposição_inicio_apagar_asteroide_bom:
+contador_tecla_4:
+    ADD R6, 1
+    MOV R5, R6
+    SUB R5, 1
+
+; apaga o asteroide da ultima posição
+posição_move_inicio_apagar_asteroide_bom:
     MOV  R1, LINHA_ASTEROIDE_BOM
+    ADD  R1, R5
     MOV  R2, COLUNA_ASTEROIDE_BOM
+    ADD R2,R5
     ADD R7, R1
     ADD R7, ALTURA_ASTEROIDE
 
-adesenha_apaga_asteroide_bom:
+desenha_move_apaga_asteroide_bom:
 	MOV	R4, DEF_ASTEROIDE_BOM		; endereço da tabela que define o boneco
-	MOV	R5, [R4]			; obtém a largura do boneco
+	MOV	R8, [R4]			; obtém a largura do boneco
 	ADD	R4, 2			 
-    MOV R6, [R4]            ; obtem a altura do boneco
+    MOV R0, [R4]            ; obtem a altura do boneco
     
-aapaga_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir da tabela
+apaga_move_pixeis_asteroide_bom:       		; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	; altera a cor do pixel na linha e coluna selecionadas
     ADD  R2, 1               ; próxima coluna
-    SUB  R5, 1			; menos uma coluna para tratar
-    JNZ  aapaga_pixeis_asteroide_bom      ; continua até percorrer toda a largura do objeto
+    SUB  R8, 1			; menos uma coluna para tratar
+    JNZ  apaga_move_pixeis_asteroide_bom      ; continua até percorrer toda a largura do objeto
 
     
     CMP R1, R7      ;verifica se chegou ao fim do desenho
-    JZ aasteroide_bom
-
-    CMP R1, R7
-    JZ aretorna_ciclo_move_asteroide_bom
+    JZ posicão_move_asteroide_bom
 
     ADD R1, 1            ;passa para apagar na proxima linha
     MOV R2, COLUNA_ASTEROIDE_BOM    ;volta a apagar na primeira coluna
-    MOV R5, LARGURA_ASTEROIDE             ;contador de colunas ao maximo
-    JMP aapaga_pixeis_asteroide_bom
+    ADD R2, R5
+    MOV R8, LARGURA_ASTEROIDE             ;contador de colunas ao maximo
+    JMP apaga_move_pixeis_asteroide_bom
 
-
-aasteroide_bom:
-    PUSH  R0
-    PUSH  R1
-    PUSH  R2
-    PUSH  R3
-    PUSH  R4
-    PUSH  R5
-    PUSH  R6
-
-aposicão_asteroide_bom:
+; desenha o asteroide no novo local
+posicão_move_asteroide_bom:
     MOV R0, LINHA_ASTEROIDE_BOM
-    ADD R0, 1
+    ADD R0, R6
     MOV R1, COLUNA_ASTEROIDE_BOM
-    ADD R1, 1
-    ADD R6, R0   
-    ADD R6, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide bom
-    SUB R6, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
+    ADD R1, R6
+    MOV R7, 0
+    ADD R7, R0   
+    ADD R7, ALTURA_ASTEROIDE   ; soma da altura do asteroide com a linha do asteroide bom
+    SUB R7, 1   ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
 
-adesenha_asteroide_bom:
+desenha_move_asteroide_bom:
     MOV R2, DEF_ASTEROIDE_BOM   ; endereço da tabela que define o asteroide bom
     MOV R3, [R2]   ; obtem a largura do asteroide bom
     ADD R2, 2   ; obtem  o endereço da altura do asteroide bom
     MOV R4, [R2]   ; obtem a altura da asteroide bom
     ADD R2, 2   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
-adesenha_pixels_asteroide_bom:   ; desenha os pixels do boneco a partir da tabela
-    MOV R5, [R2]   ; obtém a cor do próximo pixel do boneco
+desenha_move_pixels_asteroide_bom:   ; desenha os pixels do boneco a partir da tabela
+    MOV R8, [R2]   ; obtém a cor do próximo pixel do boneco
     MOV [DEFINE_LINHA], R0   ; seleciona a linha
     MOV [DEFINE_COLUNA], R1   ; seleciona a coluna
-    MOV [DEFINE_PIXEL], R5   ; altera a cor do pixel na linha e coluna selecionadas
+    MOV [DEFINE_PIXEL], R8   ; altera a cor do pixel na linha e coluna selecionadas
     ADD R2, 2   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD R1, 1   ; próxima coluna
     SUB R3, 1   ; menos uma coluna para tratar
-    JNZ adesenha_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
+    JNZ desenha_move_pixels_asteroide_bom ; continua até percorrer toda a largura do objeto
 
-CMP R0, R6  ; verifica se chegou ao fim do desenho
-JZ aretorna_ciclo_asteroide_bom
+CMP R0, R7  ; verifica se chegou ao fim do desenho
+JZ retorna_ciclo_move_asteroide_bom
 ADD R0, 1   ; passa para desenhar na proxima linha
 MOV R1, COLUNA_ASTEROIDE_BOM   ; volta a desenhar na primeira coluna
-ADD R1, 1
+ADD R1, R6
 MOV R3, LARGURA_ASTEROIDE   ; contador de colunas ao maximo
-JMP adesenha_pixels_asteroide_bom
+JMP desenha_move_pixels_asteroide_bom
 
-aretorna_ciclo_asteroide_bom:
-    POP  R6
-    POP  R5
-    POP  R4
-    POP  R3
-    POP  R2
-    POP  R1
-    POP  R0
-
-aretorna_ciclo_move_asteroide_bom:
+retorna_ciclo_move_asteroide_bom:
+    POP R8
     POP R7
     POP R5
     POP R4
