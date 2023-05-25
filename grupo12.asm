@@ -333,7 +333,9 @@ inicia_jogo_verificação:
     CMP  R0, 0                                  ; o jogo está a correr?
     JZ  inicia_jogo                             ; se o jogo não está a correr vamos pô-lo a correr 
     JMP  retorna_ciclo                          ; senão vamos esperar pela tecla c para o por a correr
-inicia_jogo:                                    ; este ciclo inicia/ reinicia o jogo
+inicia_jogo:
+    MOV  R5, 5                                  ; som número 4
+    MOV  [TERMINA_SOM_VIDEO], R5                                     ; este ciclo inicia/ reinicia o jogo
     MOV  R5, 2   
     MOV  [TERMINA_SOM_VIDEO], R5                ; termina o som número 2
     MOV  R5, 4                                  ; som número 4
