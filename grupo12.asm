@@ -879,7 +879,7 @@ mais_energia:
     CALL hex_para_dec
     MOV [R4], R6
     POP R6
-    RET ciclo
+    RET
 
 menos_energia:
     PUSH R6
@@ -889,7 +889,7 @@ menos_energia:
     CALL hex_para_dec
     MOV [R4], R6
     POP R6
-    RET ciclo
+    RET
 
 hex_para_dec:
     PUSH R0
