@@ -168,7 +168,7 @@ inicio:
     MOV  R2, TEC_LIN   ; endereço do periférico das linhas
     MOV  R3, TEC_COL   ; endereço do periférico das colunas
     MOV  R4, DISPLAYS   ; endereço do periférico dos displays
-    MOV  R5, 0100H   ; inicializa o valor de R5 a 100H para colocar no display
+    MOV  R5, 100   ; inicializa o valor de R5 a 100H para colocar no display
     MOV  [R4], R5   ; inicializa o display a 100
     MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
     MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
