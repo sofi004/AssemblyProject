@@ -862,7 +862,7 @@ mais_energia:
     MOV  R4, DISPLAYS
     ADD R5, 01H
     MOV R0, R5
-    MOD R0, 10
+    MOD R0, R2
     MOV R1, R5
     DIV R1, R5
     SHL R1, 4
@@ -883,7 +883,7 @@ menos_energia:
     MOV  R4, DISPLAYS
     SUB R5, 01H
     MOV R0, R5
-    MOD R0, 10
+    MOD R0, R2
     MOV R1, R5
     DIV R1, R5
     SHL R1, 4
