@@ -4,70 +4,81 @@
 ; ******************************************************************************
 
 ; ******************************************************************************
+; * DESCRIÇÃO
+; * TECLA 4 -  move o asteroide bom uma linha e coluna para baixo
+; * TECLA 5 -  move a sonda uma linha para cima
+; * TECLA 8 -  aumenta em uma unidade o valor nos displays
+; * TECLA 9 -  diminui em uma unidade o valor nos displays
+; * TECLA C -  inicia/reinicia o jogo
+; * TECLA D -  pausa/ continua o jogo 
+; * TECLA E -  termina o jogo 
+; ******************************************************************************
+
+; ******************************************************************************
 ; * Constantes
 ; ******************************************************************************
-DISPLAYS  EQU 0A000H   ; endereço dos displays de 7 segmentos (periférico POUT-1)
-TEC_LIN  EQU 0C000H   ; endereço das linhas do teclado (periférico POUT-2)
-TEC_COL  EQU 0E000H   ; endereço das colunas do teclado (periférico PIN)
-LINHA  EQU 16   ; linha a testar (4ª linha, 1000b)
-MASCARA  EQU 0FH   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
-COMANDOS  EQU 6000H   ; endereço de base dos comandos do MediaCenter
-DEFINE_LINHA  EQU COMANDOS + 0AH   ; endereço do comando para definir a linha
-DEFINE_COLUNA  EQU COMANDOS + 0CH   ; endereço do comando para definir a coluna
-DEFINE_PIXEL  EQU COMANDOS + 12H   ; endereço do comando para escrever um pixel
-APAGA_AVISO  EQU COMANDOS + 40H   ; endereço do comando para apagar o aviso de nenhum cenário selecionado
-SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H   ; endereço do comando para selecionar uma imagem de fundo
-SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H   ; endereço do comando para selecionar uma video ou som
-REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH   ; endereço do comando para iniciar a reprodução dum video ou som
-SUSPENDE_SOM_VIDEO  EQU COMANDOS + 5EH   ; endereço do comando para pausar video ou som
-CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H   ; endereço do comando para continuar video ou som
-TERMINA_SOM_VIDEO  EQU COMANDOS + 66H   ; endereço do comando para terminar a reprodução do som ou video
-SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H ; endereço do comando para colocar uma imagem para sobrepor o resto
-APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H ; endereço do comando para apagar apagar o cenarios frontal
-APAGA_ECRÃ  EQU COMANDOS + 02H   ; endereço do comando para apagar todos os pixels já desenhados
-SELECIONA_ECRÃ EQU COMANDOS + 04H ; seleciona um ecrã especifico
-MOSTRA_ECRÃ EQU COMANDOS + 06H ; mostra o ecrã especificado
-ESCONDE_ECRÃ EQU COMANDOS + 08H ; esconde o ecrã especificado
-MUTE EQU COMANDOS + 4CH ; corta o volume de todos os sons ou videos a reproduzir
-DESMUTE EQU COMANDOS + 52Ħ ; retoma o volume de todos os sons ou videos a reproduzir 
+DISPLAYS  EQU 0A000H                            ; endereço dos displays de 7 segmentos (periférico POUT-1)
+TEC_LIN  EQU 0C000H                             ; endereço das linhas do teclado (periférico POUT-2)
+TEC_COL  EQU 0E000H                             ; endereço das colunas do teclado (periférico PIN)
+LINHA  EQU 16                                   ; linha a testar (4ª linha, 1000b)
+MASCARA  EQU 0FH                                ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+COMANDOS  EQU 6000H                             ; endereço de base dos comandos do MediaCenter
+DEFINE_LINHA  EQU COMANDOS + 0AH                ; endereço do comando para definir a linha
+DEFINE_COLUNA  EQU COMANDOS + 0CH               ; endereço do comando para definir a coluna
+DEFINE_PIXEL  EQU COMANDOS + 12H                ; endereço do comando para escrever um pixel
+APAGA_AVISO  EQU COMANDOS + 40H                 ; endereço do comando para apagar o aviso de nenhum cenário selecionado
+SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H     ; endereço do comando para selecionar uma imagem de fundo
+SELECIONA_SOM_VIDEO  EQU COMANDOS + 48H         ; endereço do comando para selecionar uma video ou som
+REPRODUZ_SOM_VIDEO  EQU COMANDOS + 5AH          ; endereço do comando para iniciar a reprodução dum video ou som
+SUSPENDE_SOM_VIDEO  EQU COMANDOS + 5EH          ; endereço do comando para pausar video ou som
+CONTINUA_SOM_VIDEO  EQU COMANDOS + 60H          ; endereço do comando para continuar video ou som
+TERMINA_SOM_VIDEO  EQU COMANDOS + 66H           ; endereço do comando para terminar a reprodução do som ou video
+SELECIONA_CENARIO_FRONTAL EQU COMANDOS + 46H    ; endereço do comando para colocar uma imagem para sobrepor o resto
+APAGA_CENARIO_FRONTAL EQU COMANDOS + 44H        ; endereço do comando para apagar apagar o cenarios frontal
+APAGA_ECRÃ  EQU COMANDOS + 02H                  ; endereço do comando para apagar todos os pixels já desenhados
+SELECIONA_ECRÃ EQU COMANDOS + 04H               ; seleciona um ecrã especifico
+MOSTRA_ECRÃ EQU COMANDOS + 06H                  ; mostra o ecrã especificado
+ESCONDE_ECRÃ EQU COMANDOS + 08H                 ; esconde o ecrã especificado
+MUTE EQU COMANDOS + 4CH                         ; corta o volume de todos os sons ou videos a reproduzir
+DESMUTE EQU COMANDOS + 52Ħ                      ; retoma o volume de todos os sons ou videos a reproduzir 
 
 ; ******************************************************************************
 ; * Paleta
 ; ******************************************************************************
-COR_PIXEL_VERDE  EQU 0F0F0H   ; cor do pixel: verde em ARGB
-COR_PIXEL_ROXO  EQU 0F85FH   ; cor do pixel: roxo em ARGB
-COR_PIXEL_VERMELHO  EQU 0FF00H   ; cor do pixel: vermelho em ARGB
-COR_PIXEL_TRANSPARENTE EQU 0FCCCH   ;cor do pixel; cinzento transparente
-COR_PIXEL_CINZENTO EQU 0F777H   ;cor do pixel; cinzento transparente
-COR_PIXEL_AMARELO   EQU 0FFF0H  ;cor do pixel: amarelo em ARGB
-COR_PIXEL_AZUL_CLARO  EQU 0F0FFH        ;cor do pixel: azul em ARGB
+COR_PIXEL_VERDE  EQU 0F0F0H                     ; cor do pixel: verde em ARGB
+COR_PIXEL_ROXO  EQU 0F85FH                      ; cor do pixel: roxo em ARGB
+COR_PIXEL_VERMELHO  EQU 0FF00H                  ; cor do pixel: vermelho em ARGB
+COR_PIXEL_TRANSPARENTE EQU 0FCCCH               ;cor do pixel; cinzento transparente
+COR_PIXEL_CINZENTO EQU 0F777H                   ;cor do pixel; cinzento transparente
+COR_PIXEL_AMARELO   EQU 0FFF0H                  ;cor do pixel: amarelo em ARGB
+COR_PIXEL_AZUL_CLARO  EQU 0F0FFH                ;cor do pixel: azul em ARGB
 
 ; ******************************************************************************
 ; * Definição dos desenhos
 ; ******************************************************************************
-LINHA_ASTEROIDE_BOM EQU 0   ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
-COLUNA_ASTEROIDE_BOM EQU 0   ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
-LARGURA_ASTEROIDE  EQU 5  ; largura do asteroide
-ALTURA_ASTEROIDE  EQU 5  ; altura do asteroide
-LINHA_SONDA EQU 26   ; linha onde vai ser desenhado o primeiro pixel da sonda
-COLUNA_SONDA EQU 32   ; coluna onde vai ser desenhado o primeiro pixel da sonda
-COLUNA_NAVE EQU 25   ; coluna onde vai ser desenhado o primeiro pixel da nave
-LINHA_NAVE EQU 27   ; linha onde vai ser desenhado o primeiro pixel da nave
-LARGURA_NAVE  EQU 15  ; largura da nave
-ALTURA_NAVE  EQU 5  ; altura da nave
-COLUNA_ECRA_NAVE EQU 29 ; coluna onde vai ser desenhado o primeiro pixel do ecra da nave
-LINHA_ECRA_NAVE EQU 29  ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
-LARGURA_ECRA_NAVE  EQU 7  ; largura do ecrã da nave
-ALTURA_ECRA_NAVE  EQU 2  ; altura do ecrã da nave
+LINHA_ASTEROIDE_BOM EQU 0                       ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
+COLUNA_ASTEROIDE_BOM EQU 0                      ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
+LARGURA_ASTEROIDE  EQU 5                        ; largura do asteroide
+ALTURA_ASTEROIDE  EQU 5                         ; altura do asteroide
+LINHA_SONDA EQU 26                              ; linha onde vai ser desenhado o primeiro pixel da sonda
+COLUNA_SONDA EQU 32                             ; coluna onde vai ser desenhado o primeiro pixel da sonda
+COLUNA_NAVE EQU 25                              ; coluna onde vai ser desenhado o primeiro pixel da nave
+LINHA_NAVE EQU 27                               ; linha onde vai ser desenhado o primeiro pixel da nave
+LARGURA_NAVE  EQU 15                            ; largura da nave
+ALTURA_NAVE  EQU 5                              ; altura da nave
+COLUNA_ECRA_NAVE EQU 29                         ; coluna onde vai ser desenhado o primeiro pixel do ecra da nave
+LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
+LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
+ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
 
 ; ##############################################################################
 ; * ZONA DE DADOS 
 ; ##############################################################################
 PLACE  1000H
-STACK  100H   ; espaço reservado para a pilha 200H bytes, 100H words
+STACK  100H                                     ; espaço reservado para a pilha 200H bytes, 100H words
 	SP_init:
 	
-DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, pixels)
+DEF_ASTEROIDE_BOM:                              ; tabela que define o asteroide bom (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE   
     WORD        ALTURA_ASTEROIDE 
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
@@ -76,7 +87,7 @@ DEF_ASTEROIDE_BOM:   ; tabela que define o asteroide bom (cor, largura, altura, 
     WORD        COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
     WORD        0, COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE, 0
 
-DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, pixels)
+DEF_ASTEROIDE_MAU:                              ; tabela que define o asteroide mau (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE
     WORD        ALTURA_ASTEROIDE
     WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
@@ -85,7 +96,7 @@ DEF_ASTEROIDE_MAU:   ; tabela que define o asteroide mau (cor, largura, altura, 
     WORD        0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, 0
     WORD        COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO, 0, COR_PIXEL_VERMELHO
 
-DEF_NAVE:	         ; tabela que define a nave (cor, largura, altura, pixels)
+DEF_NAVE:	                                    ; tabela que define a nave (cor, largura, altura, pixels)
 	WORD		LARGURA_NAVE
     WORD        ALTURA_NAVE
 	WORD		0, 0, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO, COR_PIXEL_VERMELHO,
@@ -149,99 +160,100 @@ DEF_ECRA_NAVE_7:
 ; ******************************************************************************
 ; * Código
 ; ******************************************************************************
-PLACE  0   ; o código tem que começar em 0000H
+PLACE  0                                        ; o código tem que começar em 0000H
 inicio:
-    MOV  [APAGA_AVISO], R1   ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
-    MOV  [APAGA_ECRÃ], R1   ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
-	MOV	 R1, 0   ; cenário de fundo número 0
-    MOV  [SELECIONA_CENARIO_FUNDO], R1   ; seleciona o cenário de fundo
-    MOV  R9, 2   ; som número 2
-    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som para a intro do jogo
-    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do som da intro
+    MOV  [APAGA_AVISO], R1                      ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
+    MOV  [APAGA_ECRÃ], R1                       ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+	MOV	 R1, 0                                  ; cenário de fundo número 0
+    MOV  [SELECIONA_CENARIO_FUNDO], R1          ; seleciona o cenário de fundo
+    MOV  R9, 2                                  ; som número 2
+    MOV  [SELECIONA_SOM_VIDEO], R9              ; seleciona um som para a intro do jogo
+    MOV  [REPRODUZ_SOM_VIDEO], R9               ; inicia a reprodução do som da intro
 
-
-;###############################################################################
-
+; ******************************************************************************
 ; inicializações
+; ******************************************************************************
     MOV  SP, SP_init
-    MOV  R0, 0   ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
-    MOV  R2, TEC_LIN   ; endereço do periférico das linhas
-    MOV  R3, TEC_COL   ; endereço do periférico das colunas
-    MOV  R4, DISPLAYS   ; endereço do periférico dos displays
-    MOV  R5, 0100H   ; inicializa o valor de R5 a 100H para colocar no display
-    MOV  [R4], R5   ; inicializa o display a 100
-    MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
-    MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
+    MOV  R0, 0                                  ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
+    MOV  R2, TEC_LIN                            ; endereço do periférico das linhas
+    MOV  R3, TEC_COL                            ; endereço do periférico das colunas
+    MOV  R4, DISPLAYS                           ; endereço do periférico dos displays
+    MOV  R5, 0100H                              ; inicializa o valor de R5 a 100H para colocar no display
+    MOV  [R4], R5                               ; inicializa o display a 100
+    MOV  R5, 0064H                              ; 64 em hexadecimal é 100 é decimal
+    MOV  R6, 0                                  ; inicializa o contador da tecla 4 para mover o asteroide 
+    MOV  R7, 0                                  ; inicializa o contador da tecla 5 para mover a sonda
 
 ; ******************************************************************************
 ; corpo principal do programa
 ; ******************************************************************************
 ciclo: 
-    CALL  teclado               ; verifica se alguma tecla foi carregada
-    CALL escolhe_rotina         ;escolhe a rotina a usar tendo em conta a tecla primida
-    CALL ha_tecla               ; esperamos que nenhuma tecla esteja a ser premida
-    CMP  R0, 1                  ; o jogo está a correr?
-    JZ   desenhar               ; só desenha o asteroide se o jogo estiver a correr  
-    CMP R0, 4
-    JZ move_asteroide 
-    CMP R0, 5
-    JZ move_sonda
-    MOV R9, 8 
-    CMP R0, R9
-    JZ energia_mais_escolha
-    MOV R9, 9
-    CMP R0, R9 
-    JZ energia_menos_escolha             
-    JMP  ciclo
+    CALL  teclado                               ; verifica se alguma tecla foi carregada
+    CALL escolhe_rotina                         ;escolhe a rotina a usar tendo em conta a tecla premida
+    CALL ha_tecla                               ; esperamos que nenhuma tecla esteja a ser premida
+    CMP  R0, 1                                  ; o jogo está a correr?
+    JZ   desenhar                               ; se o jogo está a correr desenhamos a nave, os asteroides e a sonda   
+    CMP R0, 4                                   ; a tecla 4 foi premida?
+    JZ move_asteroide                           ; move-se o asteroide uma linha e coluna para baixo
+    CMP R0, 5                                   ; a tecla 5 foi premida?
+    JZ move_sonda                               ; move-se a sonda uma linha para cima 
+    MOV R9, 8                                   ; mete-se 8 num registo, porque cmp só dá para usar diretamente com números até 7
+    CMP R0, R9                                  ; a tecla 8 foi premida?
+    JZ energia_mais_escolha                     ; aumenta-se o número no display uma unidade
+    MOV R9, 9                                   ; mete-se 9 num registo, porque cmp só dá para usar diretamente com números até 7
+    CMP R0, R9                                  ; a tecla 9 foi premida?
+    JZ energia_menos_escolha                    ; diminui-se o número no display uma unidade
+    JMP  ciclo                                  
 
 desenhar:
     MOV R9, 1
-    MOV [SELECIONA_ECRÃ], R9
-    CALL asteroide_bom          ; desenha o asteroide bom
-    MOV R9, 0
-    MOV [SELECIONA_ECRÃ], R9
-    CALL nave                   ; desenha a nave
-    CALL ecra_nave		; desenha o ecra da nave(1)
-    MOV R9, 2
-    MOV [SELECIONA_ECRÃ], R9
-    CALL sonda                  ; desenha a sonda
+    MOV [SELECIONA_ECRÃ], R9                    ; seleciona o ecrã número 1
+    CALL asteroide_bom                          ; desenha o asteroide bom
+    MOV R9, 0                                   
+    MOV [SELECIONA_ECRÃ], R9                    ; seleciona o ecrã número 0
+    CALL nave                                   ; desenha a nave
+    CALL ecra_nave		                        ; desenha o ecrã da nave
+    MOV R9, 2                                   
+    MOV [SELECIONA_ECRÃ], R9                    ; seleciona o ecrã número 2
+    CALL sonda                                  ; desenha a sonda
     JMP  ciclo
 
 move_asteroide:
-    MOV  R9, 0021H
-    CMP  R1, R9 
-    JNZ ciclo
-    MOV  R9, 3   ; som número 3
-    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semlhante a um beep
-    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do beep
+    MOV  R9, 0021H                              
+    CMP  R1, R9                                 ; a tecla 4 está realmente a ser premida?
+    JNZ ciclo                                   ; se a tecla 4 não estiver a ser premida estão volta-se a ciclo
+    MOV  R9, 3                                 
+    MOV  [SELECIONA_SOM_VIDEO], R9              ; seleciona o som número 3 (beep)
+    MOV  [REPRODUZ_SOM_VIDEO], R9               ; inicia a reprodução do beep
     MOV R9, 1
-    MOV [SELECIONA_ECRÃ], R9
-    CALL mover_asteroide_bom
+    MOV [SELECIONA_ECRÃ], R9                    ; seleciona o ecrã número 1
+    CALL mover_asteroide_bom                    ; move-se o asteroide uma linha e coluna para baixo
     JMP  ciclo
 move_sonda:
     MOV  R9, 0022H
-    CMP  R1, R9 
-    JNZ ciclo
-    MOV  R9, 3   ; som número 3
-    MOV  [SELECIONA_SOM_VIDEO], R9   ; seleciona um som semelhante a um beep
-    MOV  [REPRODUZ_SOM_VIDEO], R9   ; inicia a reprodução do beep
+    CMP  R1, R9                                 ; a tecla 5 está realmente a ser premida?
+    JNZ ciclo                                   ; se a tecla 5 não estiver a ser premida estão volta-se a ciclo
+    MOV  R9, 3   
+    MOV  [SELECIONA_SOM_VIDEO], R9              ; seleciona o som número 3 (beep)
+    MOV  [REPRODUZ_SOM_VIDEO], R9               ; inicia a reprodução do beep
     MOV R9, 2
-    MOV [SELECIONA_ECRÃ], R9
-    CALL mover_sonda
+    MOV [SELECIONA_ECRÃ], R9                    ; seleciona o ecrã número 2
+    CALL mover_sonda                            ; move-se a sonda uma linha para cima 
     JMP  ciclo
 
 energia_mais_escolha:
     MOV  R9, 0041H
-    CMP  R1, R9
-    JNZ ciclo
-    JMP mais_energia
+    CMP  R1, R9                                 ; a tecla 8 está realmente a ser premida?
+    JNZ ciclo                                   ; se a tecla 8 não estiver a ser premida estão volta-se a ciclo
+    JMP mais_energia                            ; aumenta o número no display uma unidade
     JMP  ciclo
 
 energia_menos_escolha:
-    MOV  R9, 0042H
-    CMP  R1, R9
-    JNZ ciclo
-    JMP menos_energia
+    MOV  R9, 0042H                              
+    CMP  R1, R9                                 ; a tecla 9 está realmente a ser premida?
+    JNZ ciclo                                   ; se a tecla 9 não estiver a ser premida estão volta-se a ciclo
+    JMP menos_energia                           ; diminui o número no display uma unidade
+    JMP  ciclo
 
 ; ******************************************************************************
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
@@ -252,112 +264,118 @@ teclado:
     PUSH R4
 
 restart_linhas:
-    MOV  R1, LINHA   ; coloca 16 = 10000B em R1MOVB
+    MOV  R1, LINHA                              ; coloca 16 = 10000 em binário no registo 1
 
-espera_tecla:   ; neste ciclo espera-se até uma tecla ser premida
-    SHR  R1, 1   ; passa para a linha seguinte
-    CMP  R1, 0   ; verifica se ja passamos pelas linhas todas
-    JZ   restart_linhas ; voltamos ao inicio das linhas 
-    MOVB [R2], R1   ; escrever no periférico de saída (linhas)
-    MOVB R0, [R3]   ; ler do periférico de entrada (colunas)
-    MOV  R4, MASCARA   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
-    AND  R0, R4   ; elimina bits para além dos bits 0-3
-    CMP  R0, 0   ; há tecla premida?
-    JZ   espera_tecla   ; se nenhuma tecla for primida, repete
-    SHL  R1, 4   ; coloca linha no nibble high
-    OR   R1, R0   ; junta coluna (nibble low)
+espera_tecla:                                   ; neste ciclo espera-se até uma tecla ser premida
+    SHR  R1, 1                                  ; passa para a linha seguinte
+    CMP  R1, 0                                  ; verifica se ja passamos pelas linhas todas
+    JZ   restart_linhas                         ; voltamos ao inicio das linhas 
+    MOVB [R2], R1                               ; escrever no periférico de saída (linhas)
+    MOVB R0, [R3]                               ; ler do periférico de entrada (colunas)
+    MOV  R4, MASCARA                            ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+    AND  R0, R4                                 ; elimina bits para além dos bits 0-3
+    CMP  R0, 0                                  ; há tecla premida?
+    JZ   espera_tecla                           ; se nenhuma tecla for premida, repete
+    SHL  R1, 4                                  ; coloca linha no nibble high
+    OR   R1, R0                                 ; junta coluna (nibble low)
 
     POP  R4
     POP  R2
     POP  R0
     RET
 
-ha_tecla:              ; neste ciclo espera-se até NENHUMA tecla estar premida
+ha_tecla:                                       ; neste ciclo espera-se até NENHUMA tecla estar premida
     PUSH R8
     PUSH R7
 repeticao_tecla:
-    MOV  R7, MASCARA   ; [MASCARA]
-    MOVB R8, [R3]      ; ler do periférico de entrada (colunas)
-    AND  R8, R7        ; elimina bits para além dos bits 0-3
-    CMP  R8, 0         ; há tecla premida?
-    JNZ  repeticao_tecla     ; se ainda houver uma tecla premida, espera até não haver
+    MOV  R7, MASCARA                            
+    MOVB R8, [R3]                               ; ler do periférico de entrada (colunas)
+    AND  R8, R7                                 ; elimina bits para além dos bits 0-3
+    CMP  R8, 0                                  ; há tecla premida?
+    JNZ  repeticao_tecla                        ; se ainda houver uma tecla premida, espera até não haver
     POP  R7
     POP  R8
     RET
 ; ******************************************************************************
-; escolhe_rotina - Processo que executa a instrução associada à tecla primida
+; escolhe_rotina - Processo que executa a instrução associada à tecla premida
 ; ******************************************************************************
 escolhe_rotina:
     PUSH  R4
     PUSH  R5
 
     MOV  R4, 0081H       
-    CMP  R1, R4   ; verifica se a tecla primida é a c
-    JZ   inicia_jogo_verificação   ; se a tecla primida for c, executa inicia_jogo
-    CMP  R0, 0   ; o jogo ainda não está a correr?
-    JNZ  fases_jogo   ; se o jogo já começou
-    JMP  retorna_ciclo; se a tecla primida não está associada a nenhuma função volta a restart_linhas
+    CMP  R1, R4                                 ; verifica se a tecla premida é a c
+    JZ   inicia_jogo_verificação                ; se a tecla premida for c, executa inicia_jogo
+    CMP  R0, 0                                  ; o jogo ainda não está a correr?
+    JNZ  fases_jogo                             ; se o jogo já começou
+    JMP  retorna_ciclo                          ; se a tecla premida não está associada a nenhuma função volta ao ciclo
 
 inicia_jogo_verificação:
-    CMP  R0, 0   ; o jogo está a correr?
-    JZ  inicia_jogo   ; se o jogo não está a correr vamos pô-lo a correr 
-    JMP  retorna_ciclo  ; senão vamos esperar pela tecla c para o por a correr
-inicia_jogo:
-    MOV  R5, 2   ; som número 2
-    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 2
-    MOV  R5, 4   ; som número 4
-    MOV  [TERMINA_SOM_VIDEO], R5   ; termina o som número 4
-    MOV  R0, 1   ; coloca 1 no registo para sabermos se o jogo está a correr ou não
-    MOV  R5, 0   ; video número 0
-    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona um video para cenário de fundo
-    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do video de fundo do jogo
-    MOV  R5, 1   ; som número 1
-    MOV  [SELECIONA_SOM_VIDEO], R5   ; seleciona o som de fundo do jogo
-    MOV  [REPRODUZ_SOM_VIDEO], R5   ; inicia a reprodução do som de fundo
-    MOV  R6, 0   ; inicializa o contador da tecla 4 para mover o asteroide 
-    MOV  R7, 0   ; inicializa o contador da tecla 5 para mover a sonda
-    JMP  retorna_ciclo   ; depois de iniciar o jogo volta a restart linhas 
+    CMP  R0, 0                                  ; o jogo está a correr?
+    JZ  inicia_jogo                             ; se o jogo não está a correr vamos pô-lo a correr 
+    JMP  retorna_ciclo                          ; senão vamos esperar pela tecla c para o por a correr
+inicia_jogo:                                    ; este ciclo inicia/ reinicia o jogo
+    MOV  R5, 2   
+    MOV  [TERMINA_SOM_VIDEO], R5                ; termina o som número 2
+    MOV  R5, 4                                  ; som número 4
+    MOV  [TERMINA_SOM_VIDEO], R5                ; termina o som número 4
+    MOV  R0, 1                                  ; coloca 1 no registo para sabermos se o jogo está a correr ou não
+    MOV  R5, 0                                  
+    MOV  [SELECIONA_SOM_VIDEO], R5              ; seleciona um video para cenário de fundo
+    MOV  [REPRODUZ_SOM_VIDEO], R5               ; inicia a reprodução do video de fundo do jogo
+    MOV  R5, 1   
+    MOV  [SELECIONA_SOM_VIDEO], R5              ; seleciona o som de fundo do jogo
+    MOV  [REPRODUZ_SOM_VIDEO], R5               ; inicia a reprodução do som de fundo
+    MOV  R6, 0                                  ; inicializa o contador da tecla 4 para mover o asteroide 
+    MOV  R7, 0                                  ; inicializa o contador da tecla 5 para mover a sonda
+    JMP  retorna_ciclo                          ; depois de iniciar o jogo volta a restart linhas 
     
  fases_jogo:
     MOV  R4, 0082H       
-    CMP  R1, R4                     ; verifica se a tecla primida é a d
-    JZ   suspende_jogo              ; se a tecla primida for d, executa suspende_jogo
+    CMP  R1, R4                                 ; verifica se a tecla premida é a d
+    JZ   suspende_jogo                          ; se a tecla premida for d, executa suspende_jogo
+    
     MOV  R4, 0084H      
-    CMP  R1, R4                     ; verifica se a tecla primida é a e
-    JZ   termina_jogo               ; se a tecla primida for e, executa termina_jogo
+    CMP  R1, R4                                 ; verifica se a tecla premida é a e
+    JZ   termina_jogo                           ; se a tecla premida for e, executa termina_jogo
+    
     MOV  R4, 0021H
-    CMP  R1, R4                     ; verifica se a tecla premida é a 4
-    JZ   mover_asteroide_bom_fase
+    CMP  R1, R4                                 ; verifica se a tecla premida é a 4
+    JZ   mover_asteroide_bom_fase               ; se a tecla premida for 4, mover_asteroide_bom_fase
+    
     MOV  R4, 0022H
-    CMP  R1, R4                  ; verifica se a tecla premida é a 5
-    JZ   mover_sonda_fase       ; se a tecla primida for e, executa mover_sonda_fase
+    CMP  R1, R4                                 ; verifica se a tecla premida é a 5
+    JZ   mover_sonda_fase                       ; se a tecla premida for 5, executa mover_sonda_fase
+    
     MOV R4, 0041H
-    CMP R1, R4
-    JZ energia_mais_fase
+    CMP R1, R4                                  ; verifica se a tecla premida é  8
+    JZ energia_mais_fase                        ; se a tecla premida for a 8, executa energia_mais_fase 
+    
     MOV R4, 0042H
-    CMP R1, R4
-    JZ energia_menos_fase
-    JMP  retorna_ciclo
+    CMP R1, R4                                  ; verifica se a tecla premida é a 9
+    JZ energia_menos_fase                       ; se a tecla premida for a 9, executa energia_menos_fase
+
+    JMP  retorna_ciclo                          ; se não for nenhuma destas volta a ciclo, porque a tecla não tem nenhuma função associada
 suspende_jogo:
-    CMP  R0, 2   ; o jogo já começou e está parado?
-    JZ   continua_jogo   ;   prosseguir com o jogo
+    CMP  R0, 2                                  ; o jogo já começou e está parado?
+    JZ   continua_jogo                          ; prosseguir com o jogo
     MOV  R5, 1
-    MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o video de fundo do jogo
+    MOV  [SUSPENDE_SOM_VIDEO], R5               ; pausa o video de fundo do jogo(1)
     MOV  R5, 0
-    MOV  [SUSPENDE_SOM_VIDEO], R5  ; pausa o som de fundo do jogo
+    MOV  [SUSPENDE_SOM_VIDEO], R5               ; pausa o som de fundo do jogo(0)
     MOV  R5, 2
-    MOV  [SELECIONA_CENARIO_FRONTAL], R5 ; coloca cenario frontal de pausa do jogo
-    MOV  R0, 2   ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
+    MOV  [SELECIONA_CENARIO_FRONTAL], R5        ; coloca cenario frontal de pausa do jogo(2)
+    MOV  R0, 2                                  ; coloca o valor 2 no R0, simbolizando o facto de o jogo já ter começado, mas estar parado
     JMP  retorna_ciclo
 
 continua_jogo:
-    MOV  R5, 2   ; quando o jogo está parado e terminamos temos que apagar o cenário frontal
-    MOV  [APAGA_CENARIO_FRONTAL], R5 
+    MOV  R5, 2                                 
+    MOV  [APAGA_CENARIO_FRONTAL], R5            ; quando o jogo está parado e o terminamos, apagamos o cenário frontal(2)
     MOV  R5, 0
-    MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o video de fundo do jogo
+    MOV  [CONTINUA_SOM_VIDEO], R5               ; continua o video de fundo do jogo(0)
     MOV  R5, 1
-    MOV  [CONTINUA_SOM_VIDEO], R5  ; continua o som de fundo do jogo
-    MOV  R0, 3   ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
+    MOV  [CONTINUA_SOM_VIDEO], R5               ; continua o som de fundo do jogo(1)
+    MOV  R0, 3                                  ; coloca novamente R0 a 1 uma vez que depois deste ciclo o jogo volta a correr
     JMP  retorna_ciclo
 
 termina_jogo:
@@ -856,11 +874,45 @@ apaga_desenha_pixeis_sonda:
 mais_energia:
     MOV  R4, DISPLAYS
     ADD R5, 01H
-    MOV [R4], R5
+    MOV R6, R5
+    CALL hex_para_dec
+    MOV [R4], R6
     JMP  ciclo
 
 menos_energia:
     MOV  R4, DISPLAYS
     SUB R5, 01H
-    MOV [R4], R5
+    MOV R6, R5
+    CALL hex_para_dec
+    MOV [R4], R6
     JMP  ciclo
+
+hex_para_dec:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+
+    MOV R0, 100
+    MOV R1, 10
+    MOV R2, 0
+MOV R4, R6
+transformação:
+    MOV R3, R4
+    DIV R3, R0
+    MOD R4, R0
+    DIV R0, R1
+    SHL R2, 4
+    OR  R2, R3
+    CMP R0, 0
+    JNZ transformação
+
+retorna_ciclo_transforma:
+    MOV R6, R2
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET 
