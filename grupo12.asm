@@ -277,7 +277,7 @@ energia_menos_escolha:
     JMP  ciclo
 
 ; ******************************************************************************************************************************************************
-; teclado - Processo que detecta quando se carrega numa tecla do teclado.
+; teclado - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
 teclado:
     PUSH R0
