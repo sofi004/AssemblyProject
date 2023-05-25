@@ -526,7 +526,7 @@ desenha_nave:
 
 desenha_pixels_nave:                            ; desenha os pixels da nave a partir da tabela
     MOV R5, [R2]                                ; obtém a cor do próximo pixel da nave
-    MOV [DEFINE_LINHA], R0          detecta quando se carrega numa tecla do teclado.            ; seleciona a linha
+    MOV [DEFINE_LINHA], R0                      ; seleciona a linha
     MOV [DEFINE_COLUNA], R1                     ; seleciona a coluna
     MOV [DEFINE_PIXEL], R5                      ; altera a cor do pixel na linha e coluna selecionadas
     ADD R2, 2                                   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
