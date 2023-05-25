@@ -858,7 +858,7 @@ mais_energia:
     MOV  R4, DISPLAYS
     ADD R5, 01H
     MOV R6, R5
-    CALL hex_to_dec
+    CALL hex_para_dec
     MOV [R4], R6
     JMP  ciclo
 
@@ -866,7 +866,7 @@ menos_energia:
     MOV  R4, DISPLAYS
     SUB R5, 01H
     MOV R6, R5
-    CALL hex_to_dec
+    CALL hex_para_dec
     MOV [R4], R6
     JMP  ciclo
 
