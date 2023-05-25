@@ -207,6 +207,9 @@ ciclo:
     JMP  ciclo                                  
 
 desenhar:
+    MOV  R5, 0100H                              ; inicializa o valor de R5 a 100H para colocar no display
+    MOV  [R4], R5                               ; inicializa o display a 100
+    MOV  R5, 0064H                              ; 64 em hexadecimal é 100 é decimal
     MOV R9, 1
     MOV [SELECIONA_ECRÃ], R9                    ; seleciona o ecrã número 1
     CALL asteroide_bom                          ; desenha o asteroide bom
