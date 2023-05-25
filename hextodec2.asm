@@ -881,11 +881,10 @@ hex_para_dec:
     MOV R0, 100
     MOV R1, 10
     MOV R2, 0
-
+MOV R4, R6
 transformação:
-    MOV R3, R6
+    MOV R3, R4
     DIV R3, R0
-    MOV R4, R6
     MOD R4, R0
     DIV R0, R1
     SHL R2, 4
