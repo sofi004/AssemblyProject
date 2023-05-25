@@ -242,6 +242,7 @@ energia_menos_escolha:
     CMP  R1, R9
     JNZ ciclo
     JMP menos_energia
+    JMP  ciclo
 
 ; ******************************************************************************
 ; teclado - Processo que detecta quando se carrega numa tecla do teclado.
@@ -856,11 +857,46 @@ apaga_desenha_pixeis_sonda:
 mais_energia:
     MOV  R4, DISPLAYS
     ADD R5, 01H
-    MOV [R4], R5
+    MOV R6, R5
+    CALL hex_to_dec
+    MOV [R4], R6
     JMP  ciclo
 
 menos_energia:
     MOV  R4, DISPLAYS
     SUB R5, 01H
-    MOV [R4], R5
+    MOV R6, R5
+    CALL hex_to_dec
+    MOV [R4], R6
     JMP  ciclo
+
+hex_para_dec:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+
+    MOV R0, 100
+    MOV R1, 10
+    MOV R2, 0
+
+transformação:
+    MOV R3, R6
+    DIV R3, R0
+    MOV R4, R6
+    MOD R4, R0
+    DIV R0, R1
+    SHL R2, 4
+    OR  R2, R3
+    CMP R0, 0
+    JNZ transformação
+
+retorna_ciclo_transforma:
+    MOV R6, R2
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET 
