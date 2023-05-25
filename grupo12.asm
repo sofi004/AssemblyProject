@@ -519,22 +519,22 @@ desenha_nave:
     MOV R4, [R2]                                ; obtem a altura da asteroide bom
     ADD R2, 2                                   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
-desenha_pixels_nave:
-    MOV R5, [R2]
-    MOV [DEFINE_LINHA], R0
-    MOV [DEFINE_COLUNA], R1
-    MOV [DEFINE_PIXEL], R5
-    ADD R2, 2
-    ADD R1, 1
-    SUB R3, 1
-    JNZ desenha_pixels_nave
+desenha_pixels_nave:                            ; desenha os pixels da nave a partir da tabela
+    MOV R5, [R2]                                ; obtém a cor do próximo pixel da nave
+    MOV [DEFINE_LINHA], R0                      ; seleciona a linha
+    MOV [DEFINE_COLUNA], R1                     ; seleciona a coluna
+    MOV [DEFINE_PIXEL], R5                      ; altera a cor do pixel na linha e coluna selecionadas
+    ADD R2, 2                                   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD R1, 1                                   ; próxima coluna
+    SUB R3, 1                                   ; menos uma coluna para tratar
+    JNZ desenha_pixels_nave                     ; continua até percorrer toda a largura do objeto
 
-CMP R0, R6
-JZ retorna_ciclo_nave
-ADD R0, 1
-MOV R1, COLUNA_NAVE
-MOV R3, LARGURA_NAVE                            ;contador de colunas ao maximo
-JMP desenha_pixels_nave
+CMP R0, R6                                      ; verifica se chegou ao fim do desenho
+JZ retorna_ciclo_nave                           ; se sim, acaba o desenho da nave e vai para o ciclo que devolve os valores dos registos usados
+ADD R0, 1                                       ; para desenhar a próxima linha
+MOV R1, COLUNA_NAVE                             ; volta a desenhar na primeira coluna
+MOV R3, LARGURA_NAVE                            ; contador de colunas ao maximo
+JMP desenha_pixels_nave                         ; salto para desenhar a próxima linha toda
 
 retorna_ciclo_nave:
     POP  R6
@@ -559,11 +559,11 @@ ecra_nave:
     PUSH  R6
 
 posicão_ecra_nave:
-    MOV R0, LINHA_ECRA_NAVE
-    MOV R1, COLUNA_ECRA_NAVE
-    ADD R6, R0
-    ADD R6, ALTURA_ECRA_NAVE
-    SUB R6, 1
+    MOV R0, LINHA_ECRA_NAVE                     ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
+    MOV R1, COLUNA_ECRA_NAVE                    ; coluna onde vai ser desenhado o primeiro pixel do ecra da nave
+    ADD R6, R0                                  ; 
+    ADD R6, ALTURA_ECRA_NAVE                    ; soma a altura da nave com a sua primeira linha
+    SUB R6, 1                                   
 
 desenha_ecra_nave:
     MOV R2, DEF_ECRA_NAVE_2                     ; endereço da tabela que define o asteroide bom
@@ -572,22 +572,22 @@ desenha_ecra_nave:
     MOV R4, [R2]                                ; obtem a altura da asteroide bom
     ADD R2, 2                                   ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
-desenha_pixels_ecra_nave:
-    MOV R5, [R2]
-    MOV [DEFINE_LINHA], R0
-    MOV [DEFINE_COLUNA], R1
-    MOV [DEFINE_PIXEL], R5
-    ADD R2, 2
-    ADD R1, 1
-    SUB R3, 1
-    JNZ desenha_pixels_ecra_nave
+desenha_pixels_ecra_nave:                       ; desenha os pixels da nave a partir da tabela
+    MOV R5, [R2]                                ; obtém a cor do próximo pixel da nave
+    MOV [DEFINE_LINHA], R0                      ; seleciona a linha
+    MOV [DEFINE_COLUNA], R1                     ; seleciona a coluna
+    MOV [DEFINE_PIXEL], R5                      ; altera a cor do pixel na linha e coluna selecionadas
+    ADD R2, 2                                   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD R1, 1                                   ; próxima coluna
+    SUB R3, 1                                   ; menos uma coluna para tratar
+    JNZ desenha_pixels_ecra_nave                ; continua até percorrer toda a largura do objeto
 
-CMP R0, R6
-JZ retorna_ciclo_nave_ecra
-ADD R0, 1
-MOV R1, COLUNA_ECRA_NAVE
-MOV R3, LARGURA_ECRA_NAVE                       ;contador de colunas ao maximo
-JMP desenha_pixels_ecra_nave
+CMP R0, R6                                      ; verifica se chegou ao fim do desenho
+JZ retorna_ciclo_nave_ecra                      ; se sim, acaba o desenho da nave e vai para o ciclo que devolve os valores dos registos usados
+ADD R0, 1                                       ; para desenhar a próxima linha
+MOV R1, COLUNA_ECRA_NAVE                        ; volta a desenhar na primeira coluna
+MOV R3, LARGURA_ECRA_NAVE                       ; contador de colunas ao maximo
+JMP desenha_pixels_ecra_nave                    ; salto para desenhar a próxima linha toda
 
 retorna_ciclo_nave_ecra:
     POP  R6
@@ -608,14 +608,14 @@ sonda:
     PUSH  R2
 
 posicão_sonda:
-    MOV R0, LINHA_SONDA
-    MOV R1, COLUNA_SONDA
-    MOV R2, COR_PIXEL_ROXO
+    MOV R0, LINHA_SONDA                         ; linha onde vai ser desenhado o primeiro pixel da sonda
+    MOV R1, COLUNA_SONDA                        ; coluna onde vai ser desenhado o primeiro pixel da sonda
+    MOV R2, COR_PIXEL_ROXO                      ; guardamos em R2 a cor do pixel que iremos desenhar
 
 desenha_pixel_sonda:
-    MOV [DEFINE_LINHA], R0
-    MOV [DEFINE_COLUNA], R1
-    MOV [DEFINE_PIXEL], R2
+    MOV [DEFINE_LINHA], R0                      ; seleciona a linha
+    MOV [DEFINE_COLUNA], R1                     ; seleciona a coluna
+    MOV [DEFINE_PIXEL], R2                      ; altera a cor do pixel na linha e coluna selecionadas
 
 retorna_ciclo_sonda:
     POP  R2
