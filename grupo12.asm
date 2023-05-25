@@ -198,8 +198,6 @@ ciclo:
     JZ move_asteroide                           ; move-se o asteroide uma linha e coluna para baixo
     CMP R0, 5                                   ; a tecla 5 foi premida?
     JZ move_sonda                               ; move-se a sonda uma linha para cima 
-    CMP R5, 0                                   ; o display apresenta 0?
-    JZ acabou_energia                           ; termina o jogo, muda de cenário de fundo
     MOV R9, 8                                   ; mete-se 8 num registo, porque cmp só dá para usar diretamente com números até 7
     CMP R0, R9                                  ; a tecla 8 foi premida?
     JZ energia_mais_escolha                     ; aumenta-se o número no display uma unidade
@@ -265,13 +263,17 @@ energia_mais_escolha:
     CMP  R1, R9                                 ; a tecla 8 está realmente a ser premida?
     JNZ ciclo                                   ; se a tecla 8 não estiver a ser premida estão volta-se a ciclo
     CALL mais_energia                            ; aumenta o número no display uma unidade
+    CMP R5, 0                                   ; o display apresenta 0?
+    JZ acabou_energia                           ; termina o jogo, muda de cenário de fundo
     JMP  ciclo
 
 energia_menos_escolha:
     MOV  R9, 0042H                              
     CMP  R1, R9                                 ; a tecla 9 está realmente a ser premida?
     JNZ ciclo                                   ; se a tecla 9 não estiver a ser premida estão volta-se a ciclo
-    CALL menos_energia                           ; diminui o número no display uma unidade
+    CALL menos_energia                          ; diminui o número no display uma unidade
+    CMP R5, 0                                   ; o display apresenta 0?
+    JZ acabou_energia                           ; termina o jogo, muda de cenário de fundo
     JMP  ciclo
 
 ; ******************************************************************************************************************************************************
@@ -303,6 +305,9 @@ espera_tecla:                                   ; neste ciclo espera-se até uma
     POP  R0
     RET
 
+; ******************************************************************************************************************************************************
+; ha_tecla - Processo que espera que se pare de clicar na tecla
+; ******************************************************************************************************************************************************
 ha_tecla:                                       ; neste ciclo espera-se até NENHUMA tecla estar premida
     PUSH R8
     PUSH R7
@@ -521,7 +526,7 @@ desenha_nave:
 
 desenha_pixels_nave:                            ; desenha os pixels da nave a partir da tabela
     MOV R5, [R2]                                ; obtém a cor do próximo pixel da nave
-    MOV [DEFINE_LINHA], R0                      ; seleciona a linha
+    MOV [DEFINE_LINHA], R0          detecta quando se carrega numa tecla do teclado.            ; seleciona a linha
     MOV [DEFINE_COLUNA], R1                     ; seleciona a coluna
     MOV [DEFINE_PIXEL], R5                      ; altera a cor do pixel na linha e coluna selecionadas
     ADD R2, 2                                   ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
@@ -637,19 +642,19 @@ mover_asteroide_bom:
     PUSH R8 
 
 contador_tecla_4:
-    ADD R6, 1
-    MOV R5, R6
-    SUB R5, 1
+    ADD R6, 1                                   ; R6 é o número de vezes que a tecla 4 já foi premida desde que o jogo começou            
+    MOV R5, R6                                  ; R6 é portanto a linha e a coluna onde pretendemos começar a desenhar o asteroide
+    SUB R5, 1                                   ; R5 é o valor da linha e coluna onde temos o asteroide e donde o queremos apagar
 
 
 ; apaga o asteroide da ultima posição
 posição_inicio_move_asteroide_bom:
-    MOV  R1, LINHA_ASTEROIDE_BOM
-    ADD  R1, R5
-    MOV  R2, COLUNA_ASTEROIDE_BOM
-    ADD R2,R5
-    ADD R7, R1
-    ADD R7, ALTURA_ASTEROIDE
+    MOV R1, LINHA_ASTEROIDE_BOM                 ; primeira linha do asteroide bom no momento de inicialização é 0
+    ADD R1, R5                                  ; R1 fica com o valor da primeira linha do asteroide, no momento em que o queremos deslocar
+    MOV R2, COLUNA_ASTEROIDE_BOM                ; primeira coluna do asteroide bom no momento de inicialização é 0
+    ADD R2,R5                                   ; R2 fica com o valor da primeira coluna do asteroide, no momento em que o queremos deslocar
+    ADD R7, R1                                  
+    ADD R7, ALTURA_ASTEROIDE                    ; R7 vai servir exclusivamente para sabermos se já se apagou todo o asteroide
 
 apaga_asteroide_bom:
 	MOV	R4, DEF_ASTEROIDE_BOM		            ; endereço da tabela que define o boneco
@@ -657,14 +662,14 @@ apaga_asteroide_bom:
 	ADD	R4, 2			 
     MOV R0, [R4]                                ; obtem a altura do boneco
     
-apaga_pixels_asteroide_bom:       		    ; desenha os pixels do boneco a partir da tabela
+apaga_pixels_asteroide_bom:       		        ; desenha os pixels do boneco a partir da tabela
 	MOV	R3, 0			                        ; obtém a cor do próximo pixel do boneco
 	MOV  [DEFINE_LINHA], R1	                    ; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	                ; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	                    ; altera a cor do pixel na linha e coluna selecionadas
     ADD  R2, 1                                  ; próxima coluna
     SUB  R8, 1			                        ; menos uma coluna para tratar
-    JNZ  apaga_pixels_asteroide_bom        ; continua até percorrer toda a largura do objeto
+    JNZ  apaga_pixels_asteroide_bom             ; continua até percorrer toda a largura do objeto
 
     
     CMP R1, R7                                  ;verifica se chegou ao fim do desenho
@@ -679,10 +684,10 @@ apaga_pixels_asteroide_bom:       		    ; desenha os pixels do boneco a partir d
 
 ; desenha o asteroide no novo local
 posicão_move_asteroide_bom:
-    MOV R0, LINHA_ASTEROIDE_BOM
-    ADD R0, R6
-    MOV R1, COLUNA_ASTEROIDE_BOM
-    ADD R1, R6
+    MOV R0, LINHA_ASTEROIDE_BOM                 ; primeira linha do asteroide bom no momento de inicialização é 0
+    ADD R0, R6                                  ; R0 fica com o valor da linha onde queremos começar a desenhar o asteroide
+    MOV R1, COLUNA_ASTEROIDE_BOM                ; primeira coluna do asteroide bom no momento de inicialização é 0
+    ADD R1, R6                                  ; R1 fica com o valor da coluna onde queremos começar a desenhar o asteroide
     MOV R7, 0
     ADD R7, R0   
     ADD R7, ALTURA_ASTEROIDE                    ; soma da altura do asteroide com a linha do asteroide bom
