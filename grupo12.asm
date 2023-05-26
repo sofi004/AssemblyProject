@@ -219,22 +219,26 @@ desenhar:
     MOV    R5, 0064H                            ; 64 em hexadecimal é 100 é decimal
     MOV    R9, 1
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 1
+    MOV    R11, 1                               ; para indicar que é para desenhar
     MOV    R8, LINHA_ASTEROIDE_BOM
     MOV    R10, COLUNA_ASTEROIDE_BOM
     MOV    R9, DEF_ASTEROIDE_BOM
     CALL   desenha                              ; desenha o asteroide bom
     MOV    R9, 0                                   
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 0
+    MOV    R11, 1                               ; para indicar que é para desenhar
     MOV    R8, LINHA_NAVE
     MOV    R10, COLUNA_NAVE
     MOV    R9, DEF_NAVE
     CALL   desenha                              ; desenha a nave
+    MOV    R11, 1                               ; para indicar que é para desenhar
     MOV    R8, LINHA_ECRA_NAVE
     MOV    R10, COLUNA_ECRA_NAVE
     MOV    R9, DEF_ECRA_NAVE_2
     CALL   desenha		                        ; desenha o ecrã da nave
     MOV    R9, 2                                   
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 2
+    MOV    R11, 1                               ; para indicar que é para desenhar
     MOV    R8, LINHA_SONDA
     MOV    R10, COLUNA_SONDA
     MOV    R9, DEF_SONDA
@@ -286,7 +290,7 @@ energia_mais:
     CMP    R1, R9                               ; a tecla 8 está realmente a ser premida?
     JNZ    ciclo                                ; se a tecla 8 não estiver a ser premida estão volta-se a ciclo
     MOV    R9, 1                                ; porque quero que adicione 1
-    CALL   energia                         ; aumenta o número no display uma unidade
+    CALL   energia                              ; aumenta o número no display uma unidade
     CMP    R5, 0                                ; o display apresenta 0?
     JZ     acabou_energia                       ; termina o jogo, muda de cenário de fundo
     JMP    ciclo
@@ -508,6 +512,7 @@ percorre_tabela:
 
 desenha_pixels:                                 ; desenha os pixels do boneco a partir da tabela
     MOV    R5, [R2]                             ; obtém a cor do próximo pixel do boneco
+    MUL    R5, R11                              ; define se a função apaga ou desenha
     MOV    [DEFINE_LINHA], R0                   ; seleciona a linha
     MOV    [DEFINE_COLUNA], R1                  ; seleciona a coluna
     MOV    [DEFINE_PIXEL], R5                   ; altera a cor do pixel na linha e coluna selecionadas
