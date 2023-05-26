@@ -336,6 +336,8 @@ espera_tecla:                                   ; neste ciclo espera-se até uma
 ha_tecla:                                       ; neste ciclo espera-se até NENHUMA tecla estar premida
     PUSH   R8
     PUSH   R7
+    PUSH   R3
+    MOV    R3, TEC_COL                          ; endereço do periférico das colunas
 repeticao_tecla:
     MOV    R8, 0
     MOV    R7, MASCARA                            
@@ -343,6 +345,7 @@ repeticao_tecla:
     AND    R8, R7                               ; elimina bits para além dos bits 0-3
     CMP    R8, 0                                ; há tecla premida?
     JNZ    repeticao_tecla                      ; se ainda houver uma tecla premida, espera até não haver
+    POP    R3
     POP    R7
     POP    R8
     RET
