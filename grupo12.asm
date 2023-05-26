@@ -285,6 +285,7 @@ energia_mais_escolha:
     MOV    R9, 0041H
     CMP    R1, R9                               ; a tecla 8 está realmente a ser premida?
     JNZ    ciclo                                ; se a tecla 8 não estiver a ser premida estão volta-se a ciclo
+    MOV    R9, 1                                ; porque quero que adicione 1
     CALL   mais_energia                         ; aumenta o número no display uma unidade
     CMP    R5, 0                                ; o display apresenta 0?
     JZ     acabou_energia                       ; termina o jogo, muda de cenário de fundo
@@ -294,7 +295,8 @@ energia_menos_escolha:
     MOV    R9, 0042H                              
     CMP    R1, R9                               ; a tecla 9 está realmente a ser premida?
     JNZ    ciclo                                ; se a tecla 9 não estiver a ser premida estão volta-se a ciclo
-    CALL   menos_energia                        ; diminui o número no display uma unidade
+    MOV    R9, -1                               ; porque quero que diminua 1
+    CALL   energia                              ; diminui o número no display uma unidade
     CMP    R5, 0                                ; o display apresenta 0?
     JZ     acabou_energia                       ; termina o jogo, muda de cenário de fundo
     JMP    ciclo
@@ -452,10 +454,14 @@ termina_jogo:
 ; quando não queremos que sejam desenhados o asteroide, a nave e a sonda nos respetivos locais de inicialização
 
 mover_sonda_fase:
+    CMP    R0, 2
+    JZ     ciclo                                ; se estiver em estado de pausa não move a sonda
     MOV    R0, 5                                ; muda a fase do jogo para 5 indicando que a tecla 5 foi premida              ;
     JMP    retorna_ciclo
 
 mover_asteroide_bom_fase:
+    CMP    R0, 2
+    JZ     ciclo                                ; se estiver em estado de pausa não move o asteroide
     MOV    R0, 4                                ; muda a fase do jogo para 4 indicando que a tecla 4 foi premida
     JMP    retorna_ciclo
 
@@ -669,9 +675,9 @@ apaga_desenha_pixels_sonda:
     RET
 
 ; ******************************************************************************************************************************************************
-; mais_energia- processo que altera o valor no display de energia, incrementando-o
+; energia- processo que altera o valor no display de energia
 ; ******************************************************************************************************************************************************
-mais_energia:
+energia:
     PUSH   R6
     MOV    R4, DISPLAYS                         ; endereço dos displays
     ADD    R5, 01H                              ; incrementa R5, valor hexadecimal do decimal representado no display
@@ -680,18 +686,7 @@ mais_energia:
     MOV    [R4], R6                             ; escreve o valor no display
     POP    R6
     RET
-; ******************************************************************************************************************************************************
-; menos_energia - processo que altera o valor no display de energia, decrementando-o
-; ******************************************************************************************************************************************************
-menos_energia:
-    PUSH   R6
-    MOV    R4, DISPLAYS                         ; endereço dos displays
-    SUB    R5, 01H                              ; decrementa R5, valor hexadecimal do decimal representado no display
-    MOV    R6, R5                               ; faz uma cópia de R5 para R6
-    CALL   hex_para_dec                         ; rotina que converte o hexadecimal em decimal 
-    MOV    [R4], R6                             ; escreve o valor no display
-    POP    R6
-    RET
+
 ; ******************************************************************************************************************************************************
 ; hex_para_dec- processo que converte um número hexadecimal, no respetivo decimal
 ; ******************************************************************************************************************************************************
