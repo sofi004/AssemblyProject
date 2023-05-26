@@ -680,7 +680,7 @@ apaga_desenha_pixels_sonda:
 energia:
     PUSH   R6
     MOV    R4, DISPLAYS                         ; endereço dos displays
-    ADD    R5, 01H                              ; incrementa R5, valor hexadecimal do decimal representado no display
+    ADD    R5, R9                               ; incrementa R5, valor hexadecimal do decimal representado no display
     MOV    R6, R5                               ; faz uma cópia de R5 para R6
     CALL   hex_para_dec                         ; rotina que converte o hexadecimal em decimal
     MOV    [R4], R6                             ; escreve o valor no display
