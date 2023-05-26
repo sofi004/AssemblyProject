@@ -324,10 +324,10 @@ espera_tecla:                                   ; neste ciclo espera-se até uma
     JZ     espera_tecla                         ; se nenhuma tecla for premida, repete
     SHL    R1, 4                                ; coloca linha no nibble high
     OR     R1, R0                               ; junta coluna (nibble low)
-    POP  R3
-    POP  R4
-    POP  R2
-    POP  R0
+    POP    R3
+    POP    R4
+    POP    R2
+    POP    R0
     RET
 
 ; ******************************************************************************************************************************************************
@@ -351,7 +351,6 @@ repeticao_tecla:
 escolhe_rotina:
     PUSH   R4
     PUSH   R5
-
     MOV    R4, 0081H       
     CMP    R1, R4                               ; verifica se a tecla premida é a c
     JZ     inicia_jogo_verificação              ; se a tecla premida for c, executa inicia_jogo
@@ -480,6 +479,7 @@ desenha:
     PUSH   R4
     PUSH   R5
     PUSH   R6
+    PUSH   R7
 
 posicão_desenho:
     MOV    R0, R8                               ; coloca no registo R0 o número da linha do primeiro pixel, do asteroide bom, a ser desenhado
@@ -490,6 +490,7 @@ posicão_desenho:
 percorre_tabela:
     MOV    R2, R9                               ; endereço da tabela que define o asteroide bom
     MOV    R3, [R2]                             ; obtem a largura do asteroide bom
+    MOV    R7, R4
     ADD    R2, 2                                ; obtem  o endereço da altura do asteroide bom
     MOV    R4, [R2]                             ; obtem a altura da asteroide bom
     ADD    R6, R4                               ; soma da altura do asteroide com a sua primeira linha
@@ -507,11 +508,12 @@ desenha_pixels:                                 ; desenha os pixels do boneco a 
     CMP    R0, R6                               ; verifica se chegou ao fim do desenho
     JZ     retorna_ciclo_desenho
     ADD    R0, 1                                ; passa para desenhar na proxima linha
-    MOV    R1, COLUNA_ASTEROIDE_BOM             ; volta a desenhar na primeira coluna
-    MOV    R3, LARGURA_ASTEROIDE                ; contador de colunas ao maximo
+    MOV    R1, R10                              ; volta a desenhar na primeira coluna
+    MOV    R3, R7                               ; contador de colunas ao maximo
     JMP    desenha_pixels
 
 retorna_ciclo_desenho:
+    POP    R7
     POP    R6
     POP    R5
     POP    R4
