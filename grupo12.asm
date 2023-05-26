@@ -43,6 +43,7 @@ MOSTRA_ECRÃ  EQU COMANDOS + 06H                 ; mostra o ecrã especificado
 ESCONDE_ECRÃ  EQU COMANDOS + 08H                ; esconde o ecrã especificado
 MUTE  EQU COMANDOS + 4CH                        ; corta o volume de todos os sons ou videos a reproduzir
 DESMUTE EQU  COMANDOS + 52Ħ                     ; retoma o volume de todos os sons ou videos a reproduzir 
+REPRODUZ_SOM_VIDEO_CICLO EQU COMANDOS + 5CH     ; reproduz um som/ video em ciclo
 
 ; ******************************************************************************************************************************************************
 ; * Paleta
@@ -352,10 +353,10 @@ inicia_jogo:
     MOV    R0, 1                                ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV    R5, 0                                  
     MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona um video para cenário de fundo
-    MOV    [REPRODUZ_SOM_VIDEO], R5             ; inicia a reprodução do video de fundo do jogo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5             ; inicia a reprodução do video de fundo do jogo
     MOV    R5, 1   
     MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona o som de fundo do jogo
-    MOV    [REPRODUZ_SOM_VIDEO], R5             ; inicia a reprodução do som de fundo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5             ; inicia a reprodução do som de fundo
     MOV    R6, 0                                ; inicializa o contador da tecla 4 para mover o asteroide 
     MOV    R7, 0                                ; inicializa o contador da tecla 5 para mover a sonda
     JMP    retorna_ciclo                        ; depois de iniciar o jogo volta a restart linhas 
