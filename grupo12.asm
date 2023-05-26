@@ -117,7 +117,12 @@ DEF_NAVE:	                                    ; tabela que define a nave (cor, l
                 COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE,
                 COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE, COR_PIXEL_TRANSPARENTE,
                 COR_PIXEL_TRANSPARENTE,COR_PIXEL_TRANSPARENTE, COR_PIXEL_VERMELHO
-		
+
+DEF_SONDA:                                      ; tabela que define o asteroide bom (cor, largura, altura, pixels)
+    WORD        LARGURA_SONDA
+    WORD        ALTURA_SONDA
+    WORD        COR_PIXEL_ROXO
+
 DEF_ECRA_NAVE_1:
     WORD        LARGURA_ECRA_NAVE
     WORD        ALTURA_ECRA_NAVE
@@ -178,8 +183,6 @@ inicio:
 ; ******************************************************************************************************************************************************
     MOV    SP, SP_init
     MOV    R0, 0                                ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
-    MOV    R2, TEC_LIN                          ; endereço do periférico das linhas
-    MOV    R3, TEC_COL                          ; endereço do periférico das colunas
     MOV    R4, DISPLAYS                         ; endereço do periférico dos displays
     MOV    R5, 0100H                            ; inicializa o valor de R5 a 100H para colocar no display
     MOV    [R4], R5                             ; inicializa o display a 100
@@ -214,15 +217,26 @@ desenhar:
     MOV    R5, 0064H                            ; 64 em hexadecimal é 100 é decimal
     MOV    R9, 1
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 1
+    MOV    R8, LINHA_ASTEROIDE_BOM
+    MOV    R10, COLUNA_ASTEROIDE_BOM
     MOV    R9, DEF_ASTEROIDE_BOM
-    CALL   asteroide_bom                        ; desenha o asteroide bom
+    CALL   desenha                              ; desenha o asteroide bom
     MOV    R9, 0                                   
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 0
-    CALL   nave                                 ; desenha a nave
-    CALL   ecra_nave		                    ; desenha o ecrã da nave
+    MOV    R8, LINHA_NAVE
+    MOV    R10, COLUNA_NAVE
+    MOV    R9, DEF_NAVE
+    CALL   desenha                              ; desenha a nave
+    MOV    R8, LINHA_ECRA_NAVE
+    MOV    R10, COLUNA_ECRA_NAVE
+    MOV    R9, DEF_ECRA_NAVE_2
+    CALL   desenha		                        ; desenha o ecrã da nave
     MOV    R9, 2                                   
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 2
-    CALL   sonda                                ; desenha a sonda
+    MOV    R8, LINHA_SONDA
+    MOV    R10, COLUNA_SONDA
+    MOV    R9, DEF_SONDA
+    CALL   desenha                              ; desenha a sonda
     JMP    ciclo
 
 move_asteroide:
@@ -236,6 +250,7 @@ move_asteroide:
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 1
     CALL   mover_asteroide_bom                  ; move-se o asteroide uma linha e coluna para baixo
     JMP    ciclo
+
 move_sonda:
     MOV    R9, 0022H
     CMP    R1, R9                               ; a tecla 5 está realmente a ser premida?
@@ -289,7 +304,9 @@ teclado:
     PUSH   R0
     PUSH   R2
     PUSH   R4
-
+    PUSH   R3
+    MOV    R2, TEC_LIN                          ; endereço do periférico das linhas
+    MOV    R3, TEC_COL                          ; endereço do periférico das colunas
 restart_linhas:
     MOV    R1, LINHA                            ; coloca 16 = 10000 em binário no registo 1
 
@@ -305,7 +322,7 @@ espera_tecla:                                   ; neste ciclo espera-se até uma
     JZ     espera_tecla                         ; se nenhuma tecla for premida, repete
     SHL    R1, 4                                ; coloca linha no nibble high
     OR     R1, R0                               ; junta coluna (nibble low)
-
+    POP  R3
     POP  R4
     POP  R2
     POP  R0
@@ -354,10 +371,10 @@ inicia_jogo:
     MOV    R0, 1                                ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV    R5, 0                                  
     MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona um video para cenário de fundo
-    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5             ; inicia a reprodução do video de fundo do jogo
+MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5           ; inicia a reprodução do video de fundo do jogo
     MOV    R5, 1   
     MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona o som de fundo do jogo
-    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5             ; inicia a reprodução do som de fundo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5       ; inicia a reprodução do som de fundo
     MOV    R6, 0                                ; inicializa o contador da tecla 4 para mover o asteroide 
     MOV    R7, 0                                ; inicializa o contador da tecla 5 para mover a sonda
     JMP    retorna_ciclo                        ; depois de iniciar o jogo volta a restart linhas 
@@ -451,9 +468,9 @@ retorna_ciclo:
     RET 
 
 ; ******************************************************************************************************************************************************
-; asteroide_bom - Processo que desenha o asteroide bom 
+; desenha - Processo que desenha com base em tabelas 
 ; ******************************************************************************************************************************************************
-asteroide_bom:
+desenha:
     PUSH   R0
     PUSH   R1
     PUSH   R2
@@ -462,21 +479,21 @@ asteroide_bom:
     PUSH   R5
     PUSH   R6
 
-posicão_asteroide_bom:
-    MOV    R0, LINHA_ASTEROIDE_BOM              ; coloca no registo R0 o número da linha do primeiro pixel, do asteroide bom, a ser desenhado
-    MOV    R1, COLUNA_ASTEROIDE_BOM             ; coloca no registo R1 o número da coluna do primeiro pixel, do asteroide bom, a ser desenhado
+posicão_desenho:
+    MOV    R0, R8                               ; coloca no registo R0 o número da linha do primeiro pixel, do asteroide bom, a ser desenhado
+    MOV    R1, R10                              ; coloca no registo R1 o número da coluna do primeiro pixel, do asteroide bom, a ser desenhado
     ADD    R6, R0   
-    ADD    R6, ALTURA_ASTEROIDE                 ; soma da altura do asteroide com a sua primeira linha
     SUB    R6, 1                                ; subtrai 1 à soma 
 
-desenha_asteroide_bom:
-    MOV    R2, R9                ; endereço da tabela que define o asteroide bom
+percorre_tabela:
+    MOV    R2, R9                               ; endereço da tabela que define o asteroide bom
     MOV    R3, [R2]                             ; obtem a largura do asteroide bom
     ADD    R2, 2                                ; obtem  o endereço da altura do asteroide bom
     MOV    R4, [R2]                             ; obtem a altura da asteroide bom
+    ADD    R6, R4                               ; soma da altura do asteroide com a sua primeira linha
     ADD    R2, 2                                ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
-desenha_pixels_asteroide_bom:                   ; desenha os pixels do boneco a partir da tabela
+desenha_pixels:                                 ; desenha os pixels do boneco a partir da tabela
     MOV    R5, [R2]                             ; obtém a cor do próximo pixel do boneco
     MOV    [DEFINE_LINHA], R0                   ; seleciona a linha
     MOV    [DEFINE_COLUNA], R1                  ; seleciona a coluna
@@ -484,151 +501,19 @@ desenha_pixels_asteroide_bom:                   ; desenha os pixels do boneco a 
     ADD    R2, 2                                ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD    R1, 1                                ; próxima coluna
     SUB    R3, 1                                ; menos uma coluna para tratar
-    JNZ    desenha_pixels_asteroide_bom         ; continua até percorrer toda a largura do objeto
-
+    JNZ    desenha_pixels                       ; continua até percorrer toda a largura do objeto
     CMP    R0, R6                               ; verifica se chegou ao fim do desenho
-    JZ     retorna_ciclo_asteroide_bom
+    JZ     retorna_ciclo_desenho
     ADD    R0, 1                                ; passa para desenhar na proxima linha
     MOV    R1, COLUNA_ASTEROIDE_BOM             ; volta a desenhar na primeira coluna
     MOV    R3, LARGURA_ASTEROIDE                ; contador de colunas ao maximo
-    JMP    desenha_pixels_asteroide_bom
+    JMP    desenha_pixels
 
-retorna_ciclo_asteroide_bom:
+retorna_ciclo_desenho:
     POP    R6
     POP    R5
     POP    R4
     POP    R3
-    POP    R2
-    POP    R1
-    POP    R0
-    RET
-
-
-; ******************************************************************************************************************************************************
-; nave - Processo que desenha a nave
-; ******************************************************************************************************************************************************
-nave:
-    PUSH   R0
-    PUSH   R1
-    PUSH   R2
-    PUSH   R3
-    PUSH   R4
-    PUSH   R5
-    PUSH   R6
-
-posicão_nave:
-    MOV    R0, LINHA_NAVE                       ; coloca no registo R0 o número da linha do primeiro pixel, da nave, a ser desenhado
-    MOV    R1, COLUNA_NAVE                      ; coloca no registo R1 o número da coluna do primeiro pixel, da nave, a ser desenhado
-    ADD    R6, R0
-    ADD    R6, ALTURA_NAVE                      ; soma a altura da nave com a sua primeira linha
-    SUB    R6, 1                                ; subtrai 1 à soma
-
-desenha_nave:
-    MOV    R2, DEF_NAVE                         ; endereço da tabela que define o asteroide bom
-    MOV    R3, [R2]                             ; obtem a largura do asteroide bom
-    ADD    R2, 2                                ; obtem  o endereço da altura do asteroide bom
-    MOV    R4, [R2]                             ; obtem a altura da asteroide bom
-    ADD    R2, 2                                ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
-
-desenha_pixels_nave:                            ; desenha os pixels da nave a partir da tabela
-    MOV    R5, [R2]                             ; obtém a cor do próximo pixel da nave
-    MOV    [DEFINE_LINHA], R0                   ; seleciona a linha
-    MOV    [DEFINE_COLUNA], R1                  ; seleciona a coluna
-    MOV    [DEFINE_PIXEL], R5                   ; altera a cor do pixel na linha e coluna selecionadas
-    ADD    R2, 2                                ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
-    ADD    R1, 1                                ; próxima coluna
-    SUB    R3, 1                                ; menos uma coluna para tratar
-    JNZ    desenha_pixels_nave                  ; continua até percorrer toda a largura do objeto
-
-    CMP    R0, R6                               ; verifica se chegou ao fim do desenho
-    JZ     retorna_ciclo_nave                   ; se sim, acaba o desenho da nave e vai para o ciclo que devolve os valores dos registos usados
-    ADD    R0, 1                                ; para desenhar a próxima linha
-    MOV    R1, COLUNA_NAVE                      ; volta a desenhar na primeira coluna
-    MOV    R3, LARGURA_NAVE                     ; contador de colunas ao maximo
-    JMP    desenha_pixels_nave                  ; salto para desenhar a próxima linha toda
-
-retorna_ciclo_nave:
-    POP    R6
-    POP    R5
-    POP    R4
-    POP    R3
-    POP    R2
-    POP    R1
-    POP    R0
-    RET
-
-; ******************************************************************************************************************************************************
-; ecra_nave - Processo que desenha o ecra da nave
-; ******************************************************************************************************************************************************
-ecra_nave:
-    PUSH   R0
-    PUSH   R1
-    PUSH   R2
-    PUSH   R3
-    PUSH   R4
-    PUSH   R5
-    PUSH   R6
-
-posicão_ecra_nave:
-    MOV    R0, LINHA_ECRA_NAVE                  ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
-    MOV    R1, COLUNA_ECRA_NAVE                 ; coluna onde vai ser desenhado o primeiro pixel do ecra da nave
-    ADD    R6, R0                               
-    ADD    R6, ALTURA_ECRA_NAVE                 ; soma a altura da nave com a sua primeira linha
-    SUB    R6, 1                                   
-
-desenha_ecra_nave:
-    MOV    R2, DEF_ECRA_NAVE_2                  ; endereço da tabela que define o asteroide bom
-    MOV    R3, [R2]                             ; obtem a largura do asteroide bom
-    ADD    R2, 2                                ; obtem  o endereço da altura do asteroide bom
-    MOV    R4, [R2]                             ; obtem a altura da asteroide bom
-    ADD    R2, 2                                ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
-
-desenha_pixels_ecra_nave:                       ; desenha os pixels da nave a partir da tabela
-    MOV    R5, [R2]                             ; obtém a cor do próximo pixel da nave
-    MOV    [DEFINE_LINHA], R0                   ; seleciona a linha
-    MOV    [DEFINE_COLUNA], R1                  ; seleciona a coluna
-    MOV    [DEFINE_PIXEL], R5                   ; altera a cor do pixel na linha e coluna selecionadas
-    ADD    R2, 2                                ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
-    ADD    R1, 1                                ; próxima coluna
-    SUB    R3, 1                                ; menos uma coluna para tratar
-    JNZ    desenha_pixels_ecra_nave             ; continua até percorrer toda a largura do objeto
-
-    CMP    R0, R6                               ; verifica se chegou ao fim do desenho
-    JZ     retorna_ciclo_nave_ecra              ; se sim, acaba o desenho da nave e vai para o ciclo que devolve os valores dos registos usados
-    ADD    R0, 1                                ; para desenhar a próxima linha
-    MOV    R1, COLUNA_ECRA_NAVE                 ; volta a desenhar na primeira coluna
-    MOV    R3, LARGURA_ECRA_NAVE                ; contador de colunas ao maximo
-    JMP    desenha_pixels_ecra_nave             ; salto para desenhar a próxima linha toda
-
-retorna_ciclo_nave_ecra:
-    POP    R6
-    POP    R5
-    POP    R4
-    POP    R3
-    POP    R2
-    POP    R1
-    POP    R0
-    RET
-
-; ******************************************************************************************************************************************************
-; sonda - Processo que desenha a sonda
-; ******************************************************************************************************************************************************
-sonda:
-    PUSH   R0
-    PUSH   R1
-    PUSH   R2
-
-posicão_sonda:
-    MOV    R0, LINHA_SONDA                      ; linha onde vai ser desenhado o primeiro pixel da sonda
-    MOV    R1, COLUNA_SONDA                     ; coluna onde vai ser desenhado o primeiro pixel da sonda
-    MOV    R2, COR_PIXEL_ROXO                   ; guardamos em R2 a cor do pixel que iremos desenhar
-
-desenha_pixel_sonda:
-    MOV    [DEFINE_LINHA], R0                   ; seleciona a linha
-    MOV    [DEFINE_COLUNA], R1                  ; seleciona a coluna
-    MOV    [DEFINE_PIXEL], R2                   ; altera a cor do pixel na linha e coluna selecionadas
-
-retorna_ciclo_sonda:
     POP    R2
     POP    R1
     POP    R0
@@ -678,13 +563,13 @@ apaga_pixels_asteroide_bom:       		        ; desenha os pixels do boneco a part
     JNZ    apaga_pixels_asteroide_bom           ; continua até percorrer toda a largura do objeto
 
     
-    CMP    R1, R7                               ;verifica se chegou ao fim do desenho
+    CMP    R1, R7                               ; verifica se chegou ao fim do desenho
     JZ     posicão_move_asteroide_bom
 
-    ADD    R1, 1                                ;passa a apagar na proxima linha
-    MOV    R2, COLUNA_ASTEROIDE_BOM             ;volta a apagar na primeira coluna
+    ADD    R1, 1                                ; passa a apagar na proxima linha
+    MOV    R2, COLUNA_ASTEROIDE_BOM             ; volta a apagar na primeira coluna
     ADD    R2, R5
-    MOV    R8, LARGURA_ASTEROIDE                ;contador de colunas ao maximo
+    MOV    R8, LARGURA_ASTEROIDE                ; contador de colunas ao maximo
     JMP    apaga_pixels_asteroide_bom
 
 
