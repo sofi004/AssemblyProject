@@ -63,6 +63,8 @@ LINHA_ASTEROIDE_BOM EQU 0                       ; linha onde vai ser desenhado o
 COLUNA_ASTEROIDE_BOM EQU 0                      ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
 LARGURA_ASTEROIDE  EQU 5                        ; largura do asteroide
 ALTURA_ASTEROIDE  EQU 5                         ; altura do asteroide
+LARGURA_SONDA EQU 1                             ; largura da sonda
+ALTURA_SONDA EQU 1                              ; altura da sonda
 LINHA_SONDA EQU 26                              ; linha onde vai ser desenhado o primeiro pixel da sonda
 COLUNA_SONDA EQU 32                             ; coluna onde vai ser desenhado o primeiro pixel da sonda
 COLUNA_NAVE EQU 25                              ; coluna onde vai ser desenhado o primeiro pixel da nave
@@ -709,8 +711,7 @@ transformação:
     JNZ    transformação
 
 retorna_ciclo_transforma:
-    MOV    R6, R2
-              
+    MOV    R6, R2        
     POP    R4
     POP    R3
     POP    R2
