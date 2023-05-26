@@ -214,6 +214,7 @@ desenhar:
     MOV    R5, 0064H                            ; 64 em hexadecimal é 100 é decimal
     MOV    R9, 1
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 1
+    MOV    R9, DEF_ASTEROIDE_BOM
     CALL   asteroide_bom                        ; desenha o asteroide bom
     MOV    R9, 0                                   
     MOV    [SELECIONA_ECRÃ], R9                 ; seleciona o ecrã número 0
@@ -469,7 +470,7 @@ posicão_asteroide_bom:
     SUB    R6, 1                                ; subtrai 1 à soma 
 
 desenha_asteroide_bom:
-    MOV    R2, DEF_ASTEROIDE_BOM                ; endereço da tabela que define o asteroide bom
+    MOV    R2, R9                ; endereço da tabela que define o asteroide bom
     MOV    R3, [R2]                             ; obtem a largura do asteroide bom
     ADD    R2, 2                                ; obtem  o endereço da altura do asteroide bom
     MOV    R4, [R2]                             ; obtem a altura da asteroide bom
