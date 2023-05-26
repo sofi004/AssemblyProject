@@ -554,84 +554,34 @@ mover_asteroide_bom:
     PUSH   R4
     PUSH   R5
     PUSH   R7 
-    PUSH   R8 
+    PUSH   R8
+    PUSH   R9
+    PUSH   R10
+    PUSH   R11 
 
 contador_tecla_4:
     ADD    R6, 1                                ; R6 é o número de vezes que a tecla 4 já foi premida desde que o jogo começou            
     MOV    R5, R6                               ; R6 é portanto a linha e a coluna onde pretendemos começar a desenhar o asteroide
     SUB    R5, 1                                ; R5 é o valor da linha e coluna onde temos o asteroide e donde o queremos apagar
-
-
 ; apaga o asteroide da ultima posição
-posição_inicio_move_asteroide_bom:
-    MOV    R1, LINHA_ASTEROIDE_BOM              ; primeira linha do asteroide bom no momento de inicialização é 0
-    ADD    R1, R5                               ; R1 fica com o valor da primeira linha do asteroide, no momento em que o queremos deslocar
-    MOV    R2, COLUNA_ASTEROIDE_BOM             ; primeira coluna do asteroide bom no momento de inicialização é 0
-    ADD    R2, R5                               ; R2 fica com o valor da primeira coluna do asteroide, no momento em que o queremos deslocar
-    ADD    R7, R1                                  
-    ADD    R7, ALTURA_ASTEROIDE                 ; R7 vai servir exclusivamente para sabermos se já se apagou todo o asteroide
 
-apaga_asteroide_bom:
-	MOV	   R4, DEF_ASTEROIDE_BOM		        ; endereço da tabela que define o boneco
-	MOV	   R8, [R4]			                    ; obtém a largura do boneco
-	ADD	   R4, 2			 
-    MOV    R0, [R4]                             ; obtem a altura do boneco
-    
-apaga_pixels_asteroide_bom:       		        ; desenha os pixels do boneco a partir da tabela
-	MOV	   R3, 0			                    ; obtém a cor do próximo pixel do boneco
-	MOV    [DEFINE_LINHA], R1	                ; seleciona a linha
-	MOV    [DEFINE_COLUNA], R2	                ; seleciona a coluna
-	MOV    [DEFINE_PIXEL], R3	                ; altera a cor do pixel na linha e coluna selecionadas
-    ADD    R2, 1                                ; próxima coluna
-    SUB    R8, 1			                    ; menos uma coluna para tratar
-    JNZ    apaga_pixels_asteroide_bom           ; continua até percorrer toda a largura do objeto
-
-    
-    CMP    R1, R7                               ; verifica se chegou ao fim do desenho
-    JZ     posicão_move_asteroide_bom
-
-    ADD    R1, 1                                ; passa a apagar na proxima linha
-    MOV    R2, COLUNA_ASTEROIDE_BOM             ; volta a apagar na primeira coluna
-    ADD    R2, R5
-    MOV    R8, LARGURA_ASTEROIDE                ; contador de colunas ao maximo
-    JMP    apaga_pixels_asteroide_bom
-
+    MOV    R11, 0
+    MOV    R8, LINHA_ASTEROIDE_BOM              ; primeira linha do asteroide bom no momento de inicialização é 0
+    ADD    R8, R5                               ; R1 fica com o valor da primeira linha do asteroide, no momento em que o queremos deslocar
+    MOV    R10, COLUNA_ASTEROIDE_BOM
+    ADD    R10, R5
+    MOV    R9, DEF_ASTEROIDE_BOM
+    CALL   desenha
 
 ; desenha o asteroide no novo local
-posicão_move_asteroide_bom:
-    MOV    R0, LINHA_ASTEROIDE_BOM              ; primeira linha do asteroide bom no momento de inicialização é 0
-    ADD    R0, R6                               ; R0 fica com o valor da linha onde queremos começar a desenhar o asteroide
-    MOV    R1, COLUNA_ASTEROIDE_BOM             ; primeira coluna do asteroide bom no momento de inicialização é 0
-    ADD    R1, R6                               ; R1 fica com o valor da coluna onde queremos começar a desenhar o asteroide
-    MOV    R7, 0
-    ADD    R7, R0
-    ADD    R7, ALTURA_ASTEROIDE                 ; soma da altura do asteroide com a linha do asteroide bom
-    SUB    R7, 1                                ; subtrai 1 à soma da altura do asteroide com a linha do asteroide bom
 
-desenha_move_asteroide_bom:
-    MOV    R2, DEF_ASTEROIDE_BOM                ; endereço da tabela que define o asteroide bom
-    MOV    R3, [R2]                             ; obtem a largura do asteroide bom
-    ADD    R2, 2                                ; obtem  o endereço da altura do asteroide bom
-    MOV    R4, [R2]                             ; obtem a altura da asteroide bom
-    ADD    R2, 2                                ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
-
-desenha_move_pixels_asteroide_bom:              ; desenha os pixels do boneco a partir da tabela
-    MOV    R8, [R2]                             ; obtém a cor do próximo pixel do boneco
-    MOV    [DEFINE_LINHA], R0                   ; seleciona a linha
-    MOV    [DEFINE_COLUNA], R1                  ; seleciona a coluna
-    MOV    [DEFINE_PIXEL], R8                   ; altera a cor do pixel na linha e coluna selecionadas
-    ADD    R2, 2                                ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
-    ADD    R1, 1                                ; próxima coluna
-    SUB    R3, 1                                ; menos uma coluna para tratar
-    JNZ    desenha_move_pixels_asteroide_bom    ; continua até percorrer toda a largura do objeto
-
-    CMP    R0, R7                               ; verifica se chegou ao fim do desenho
-    JZ     retorna_ciclo_move_asteroide_bom
-    ADD    R0, 1                                ; passa para desenhar na proxima linha
-    MOV    R1, COLUNA_ASTEROIDE_BOM             ; volta a desenhar na primeira coluna
-    ADD    R1, R6
-    MOV    R3, LARGURA_ASTEROIDE                ; contador de colunas ao maximo
-    JMP    desenha_move_pixels_asteroide_bom
+    MOV    R11, 1
+    MOV    R8, LINHA_ASTEROIDE_BOM              ; primeira linha do asteroide bom no momento de inicialização é 0
+    ADD    R8, R6                               ; R1 fica com o valor da primeira linha do asteroide, no momento em que o queremos deslocar
+    MOV    R10, COLUNA_ASTEROIDE_BOM
+    ADD    R10, R6
+    MOV    R9, DEF_ASTEROIDE_BOM
+    CALL   desenha
 
 retorna_ciclo_move_asteroide_bom:
     POP    R8
