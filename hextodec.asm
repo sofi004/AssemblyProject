@@ -858,17 +858,6 @@ mais_energia:
     PUSH R0
     PUSH R1
     PUSH R2
-    
-    MOV R11, 100
-
-    MOV R2, 100
-    MOV R3, 100H
-
-    CMP R11, R2
-
-    JZ display
-    
-
     MOV R2, 10
     MOV  R4, DISPLAYS
     ADD R5, 01H
@@ -880,8 +869,6 @@ mais_energia:
     MOV R2, 0H
     ADD R2, R1 
     ADD R0, R2
-    
-display:
     MOV [R4], R0
     POP R2
     POP R1
