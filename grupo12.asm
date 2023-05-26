@@ -503,6 +503,7 @@ desenha:
 posicão_desenho:
     MOV    R0, R8                               ; coloca no registo R0 o número da linha do primeiro pixel, do asteroide bom, a ser desenhado
     MOV    R1, R10                              ; coloca no registo R1 o número da coluna do primeiro pixel, do asteroide bom, a ser desenhado
+    MOV    R6, 0
     ADD    R6, R0   
     SUB    R6, 1                                ; subtrai 1 à soma 
 
