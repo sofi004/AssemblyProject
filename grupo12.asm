@@ -585,6 +585,9 @@ contador_tecla_4:
     CALL   desenha
 
 retorna_ciclo_move_asteroide_bom:
+    POP    R11
+    POP    R10
+    POP    R9
     POP    R8
     POP    R7
     POP    R5
