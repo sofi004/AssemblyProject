@@ -14,6 +14,7 @@
 ; * TECLA E -  termina o jogo 
 ; * [DISPLAY] = 0H - acabou-se a energia, muda-se o cenário de fundo e acaba-se o jogo
 ; * Quando o jogo se reinicia os displays voltam a apresentar 100 e os desenhos às suas posições iniciais
+; * Enquanto o jogo está em pausa nada funciona, nem o display
 ; ******************************************************************************************************************************************************
 
 ; ******************************************************************************************************************************************************
@@ -470,10 +471,14 @@ mover_asteroide_bom_fase:
     JMP    retorna_ciclo
 
 energia_mais_fase:
+    CMP    R0, 2
+    JZ     retorna_ciclo                        ; se estiver em estado de pausa não aumenta o valor no display
     MOV    R0, 8                                ; muda a fase do jogo para 8 indicando que a tecla 8 foi premida
     JMP    retorna_ciclo
 
 energia_menos_fase:
+    CMP    R0, 2
+    JZ     retorna_ciclo                        ; se estiver em estado de pausa não diminui o valor no display
     MOV    R0, 9                                ; muda a fase do jogo para 9 indicando que a tecla 9 foi premida
     JMP    retorna_ciclo
 
