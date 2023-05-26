@@ -494,9 +494,9 @@ posicão_desenho:
 percorre_tabela:
     MOV    R2, R9                               ; endereço da tabela que define o asteroide bom
     MOV    R3, [R2]                             ; obtem a largura do asteroide bom
+    MOV    R7, R3
     ADD    R2, 2                                ; obtem  o endereço da altura do asteroide bom
     MOV    R4, [R2]                             ; obtem a altura da asteroide bom
-    MOV    R7, R4
     ADD    R6, R4                               ; soma da altura do asteroide com a sua primeira linha
     ADD    R2, 2                                ; obtem o endereço da cor do primeiro pixel do asteroide bom (2 porque a largura é uma word)
 
