@@ -200,7 +200,7 @@ ciclo:
     CALL   escolhe_rotina                       ;escolhe a rotina a usar tendo em conta a tecla premida
     CALL   ha_tecla                             ; esperamos que nenhuma tecla esteja a ser premida
     CMP    R0, 1                                ; o jogo está a correr?
-    JMP     desenhar                             ; se o jogo está a correr desenhamos a nave, os asteroides e a sonda   
+    JZ     desenhar                             ; se o jogo está a correr desenhamos a nave, os asteroides e a sonda   
     CMP    R0, 4                                ; a tecla 4 foi premida?
     JZ     move_asteroide                       ; move-se o asteroide uma linha e coluna para baixo
     CMP    R0, 5                                ; a tecla 5 foi premida?
