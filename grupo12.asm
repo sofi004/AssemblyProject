@@ -822,10 +822,11 @@ transformação:
     JNZ    transformação
 
 retorna_ciclo_transforma:
-    MOV R6, R2          
-    POP R4
-    POP R3
-    POP R2
-    POP R1
-    POP R0
+    MOV    R6, R2
+              
+    POP    R4
+    POP    R3
+    POP    R2
+    POP    R1
+    POP    R0
     RET 
