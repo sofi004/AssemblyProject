@@ -337,6 +337,7 @@ ha_tecla:                                       ; neste ciclo espera-se até NEN
     PUSH   R8
     PUSH   R7
 repeticao_tecla:
+    MOV    R8, 0
     MOV    R7, MASCARA                            
     MOVB   R8, [R3]                             ; ler do periférico de entrada (colunas)
     AND    R8, R7                               ; elimina bits para além dos bits 0-3
