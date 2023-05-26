@@ -242,6 +242,8 @@ desenhar:
     JMP    ciclo
 
 move_asteroide:
+    CMP    R0, 2
+    JZ     ciclo                                ; se estiver em estado de pausa não move o asteroide
     MOV    R9, 0021H                              
     CMP    R1, R9                               ; a tecla 4 está realmente a ser premida?
     JNZ    ciclo                                ; se a tecla 4 não estiver a ser premida estão volta-se a ciclo
@@ -254,6 +256,8 @@ move_asteroide:
     JMP    ciclo
 
 move_sonda:
+    CMP    R0, 2
+    JZ     ciclo                                ; se estiver em estado de pausa não move a sonda
     MOV    R9, 0022H
     CMP    R1, R9                               ; a tecla 5 está realmente a ser premida?
     JNZ    ciclo                                ; se a tecla 5 não estiver a ser premida estão volta-se a ciclo
@@ -454,14 +458,10 @@ termina_jogo:
 ; quando não queremos que sejam desenhados o asteroide, a nave e a sonda nos respetivos locais de inicialização
 
 mover_sonda_fase:
-    CMP    R0, 2
-    JZ     ciclo                                ; se estiver em estado de pausa não move a sonda
     MOV    R0, 5                                ; muda a fase do jogo para 5 indicando que a tecla 5 foi premida              ;
     JMP    retorna_ciclo
 
 mover_asteroide_bom_fase:
-    CMP    R0, 2
-    JZ     ciclo                                ; se estiver em estado de pausa não move o asteroide
     MOV    R0, 4                                ; muda a fase do jogo para 4 indicando que a tecla 4 foi premida
     JMP    retorna_ciclo
 
