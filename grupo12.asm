@@ -491,8 +491,10 @@ retorna_ciclo:
 ; desenha - Processo que desenha com base em tabelas 
 ; ******************************************************************************************************************************************************
 desenha:
-    PUSH   R0
     PUSH   R1
+    PUSH   R8
+    PUSH   R10
+    PUSH   R11
     PUSH   R2
     PUSH   R3
     PUSH   R4
@@ -501,10 +503,8 @@ desenha:
     PUSH   R7
 
 posicão_desenho:
-    MOV    R0, R8                               ; coloca no registo R0 o número da linha do primeiro pixel, do asteroide bom, a ser desenhado
-    MOV    R1, R10                              ; coloca no registo R1 o número da coluna do primeiro pixel, do asteroide bom, a ser desenhado
     MOV    R6, 0
-    ADD    R6, R0   
+    ADD    R6, R8   
     SUB    R6, 1                                ; subtrai 1 à soma 
 
 percorre_tabela:
@@ -519,16 +519,16 @@ percorre_tabela:
 desenha_pixels:                                 ; desenha os pixels do boneco a partir da tabela
     MOV    R5, [R2]                             ; obtém a cor do próximo pixel do boneco
     MUL    R5, R11                              ; define se a função apaga ou desenha
-    MOV    [DEFINE_LINHA], R0                   ; seleciona a linha
+    MOV    [DEFINE_LINHA], R8                   ; seleciona a linha
     MOV    [DEFINE_COLUNA], R1                  ; seleciona a coluna
     MOV    [DEFINE_PIXEL], R5                   ; altera a cor do pixel na linha e coluna selecionadas
     ADD    R2, 2                                ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD    R1, 1                                ; próxima coluna
     SUB    R3, 1                                ; menos uma coluna para tratar
     JNZ    desenha_pixels                       ; continua até percorrer toda a largura do objeto
-    CMP    R0, R6                               ; verifica se chegou ao fim do desenho
+    CMP    R8, R6                               ; verifica se chegou ao fim do desenho
     JZ     retorna_ciclo_desenho
-    ADD    R0, 1                                ; passa para desenhar na proxima linha
+    ADD    R8, 1                                ; passa para desenhar na proxima linha
     MOV    R1, R10                              ; volta a desenhar na primeira coluna
     MOV    R3, R7                               ; contador de colunas ao maximo
     JMP    desenha_pixels
@@ -540,19 +540,16 @@ retorna_ciclo_desenho:
     POP    R4
     POP    R3
     POP    R2
+    POP    R11
+    POP    R10
+    POP    R8
     POP    R1
-    POP    R0
     RET
 
 ; ******************************************************************************************************************************************************
 ; mover_asteroide_bom - Processo que move o asteroide bom
 ; ******************************************************************************************************************************************************
 mover_asteroide_bom:
-    PUSH   R0
-    PUSH   R1
-    PUSH   R2
-    PUSH   R3
-    PUSH   R4
     PUSH   R5
     PUSH   R7 
     PUSH   R8
@@ -589,13 +586,7 @@ retorna_ciclo_move_asteroide_bom:
     POP    R10
     POP    R9
     POP    R8
-    POP    R7
     POP    R5
-    POP    R4
-    POP    R3
-    POP    R2
-    POP    R1
-    POP    R0
     RET
 
 ; ******************************************************************************************************************************************************
