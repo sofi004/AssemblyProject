@@ -207,10 +207,10 @@ ciclo:
     JZ     move_sonda                           ; move-se a sonda uma linha para cima 
     MOV    R9, 8                                ; mete-se 8 num registo, porque cmp só dá para usar diretamente com números até 7
     CMP    R0, R9                               ; a tecla 8 foi premida?
-    JZ     energia_mais_escolha                 ; aumenta-se o número no display uma unidade
+    JZ     energia_mais                         ; aumenta-se o número no display uma unidade
     MOV    R9, 9                                ; mete-se 9 num registo, porque cmp só dá para usar diretamente com números até 7
     CMP    R0, R9                               ; a tecla 9 foi premida?
-    JZ     energia_menos_escolha                ; diminui-se o número no display uma unidade
+    JZ     energia_menos                        ; diminui-se o número no display uma unidade
     JMP    ciclo                                  
 
 desenhar:
@@ -281,17 +281,17 @@ acabou_energia:
     MOV    R0, 0                                ; no caso em que o jogo foi terminado coloca-se R0 a 0, porque o jogo não está a correr
     JMP    ciclo
 
-energia_mais_escolha:
+energia_mais:
     MOV    R9, 0041H
     CMP    R1, R9                               ; a tecla 8 está realmente a ser premida?
     JNZ    ciclo                                ; se a tecla 8 não estiver a ser premida estão volta-se a ciclo
     MOV    R9, 1                                ; porque quero que adicione 1
-    CALL   mais_energia                         ; aumenta o número no display uma unidade
+    CALL   energia                         ; aumenta o número no display uma unidade
     CMP    R5, 0                                ; o display apresenta 0?
     JZ     acabou_energia                       ; termina o jogo, muda de cenário de fundo
     JMP    ciclo
 
-energia_menos_escolha:
+energia_menos:
     MOV    R9, 0042H                              
     CMP    R1, R9                               ; a tecla 9 está realmente a ser premida?
     JNZ    ciclo                                ; se a tecla 9 não estiver a ser premida estão volta-se a ciclo
