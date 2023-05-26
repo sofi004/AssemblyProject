@@ -266,7 +266,7 @@ energia_mais_escolha:
     MOV  R9, 0041H
     CMP  R1, R9                                 ; a tecla 8 está realmente a ser premida?
     JNZ ciclo                                   ; se a tecla 8 não estiver a ser premida estão volta-se a ciclo
-    CALL mais_energia                            ; aumenta o número no display uma unidade
+    CALL mais_energia                           ; aumenta o número no display uma unidade
     CMP R5, 0                                   ; o display apresenta 0?
     JZ acabou_energia                           ; termina o jogo, muda de cenário de fundo
     JMP  ciclo
@@ -745,25 +745,25 @@ mover_sonda:
     PUSH R6
 
 contador_tecla_5:
-    ADD R7, 1
+    ADD R7, 1                                   ; R7 é o número de vezes que a tecla 5 já foi premida desde que o jogo começou
     MOV R5, R7
     SUB R5, 1
 
 posição_apagar_desenhar_sonda:
-    MOV  R1, LINHA_SONDA
-    SUB  R1, R5
-    MOV  R2, COLUNA_SONDA
-    MOV  R3, 0
-    MOV  R4, COR_PIXEL_ROXO
-    MOV  R6, LINHA_SONDA
-    SUB  R6, R7
+    MOV  R1, LINHA_SONDA                        ; linha da sonda no momento de inicialização
+    SUB  R1, R5                                 ; linha da sonda no momento em que a queremos deslocar
+    MOV  R2, COLUNA_SONDA                       ; coluna da sonda no momento de inicialização
+    MOV  R3, 0                                  ; responsavel por apagar a sonda
+    MOV  R4, COR_PIXEL_ROXO                     ; responsavel por desenhar a sonda a roxo
+    MOV  R6, LINHA_SONDA                        ; linha da sonda no momento de inicialização
+    SUB  R6, R7                                 ; linha da sonda onde queremos desenhar a sonda
     
 apaga_desenha_pixels_sonda: 
 	MOV  [DEFINE_LINHA], R1	                    ; seleciona a linha
 	MOV  [DEFINE_COLUNA], R2	                ; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3	                    ; altera a cor do pixel na linha e coluna selecionadas
     MOV  [DEFINE_LINHA], R6	                    ; seleciona a linha
-    MOV  [DEFINE_PIXEL], R4
+    MOV  [DEFINE_PIXEL], R4                     ; altera a cor do pixel na linha e coluna selecionadas
 
     POP R6
     POP R5
@@ -807,17 +807,17 @@ hex_para_dec:
     PUSH R3
     PUSH R4
 
-    MOV R0, 100
-    MOV R1, 10
-    MOV R2, 0
-MOV R4, R6
+    MOV R0, 100                                 ; define R0 como 100, que é usado como uma constante na transformação
+    MOV R1, 10                                  ; define R1 como 10, que é usado como uma constante na transformação
+    MOV R2, 0                                   ; inicializa R2 como 0, que será usado para acumular os dígitos convertidos
+    MOV R4, R6                                  ; move o valor de R6 para R4, para guardar o valor original de R6
 transformação:
-    MOV R3, R4
-    DIV R3, R0
-    MOD R4, R0
-    DIV R0, R1
-    SHL R2, 4                                   ; R2 é utilizado como mascara
-    OR  R2, R3
+    MOV R3, R4                                  ; move o valor de R4 para R3 para preservar o valor original
+    DIV R3, R0                                  ; divide o valor de R3 por R0 para obter o quociente da divisão
+    MOD R4, R0                                  ; calcula o resto da divisão de R4 por R0
+    DIV R0, R1                                  ; divide o valor de R0 por R1 para atualizar o valor de R0 para a próxima iteração
+    SHL R2, 4                                   ; desloca o conteúdo de R2 em 4 bits para a esquerda, R2 é utilizado como mascara
+    OR  R2, R3                                  ; combina o conteúdo de R2 e R3, acumulando os dígitos convertidos
     CMP R0, 0                                   ; verifica se cada um dos digitos do número hexadecimal já foram convertidos
     JNZ transformação
 
