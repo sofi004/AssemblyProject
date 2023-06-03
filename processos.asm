@@ -76,18 +76,42 @@ COLUNA_ECRA_NAVE EQU 29                         ; coluna onde vai ser desenhado 
 LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
+JOGO_NAO_INICIADO EQU 0
+JOGO_A_CORRER EQU 1
+JOGO_PAUSADO EQU 2
+
+
 
 ; ######################################################################################################################################################
 ; * ZONA DE DADOS 
 ; ######################################################################################################################################################
 PLACE  1000H
+STACK 100H			                            ; espaço reservado para a pilha do processo "programa principal"
+    SPinit_principal:		                    ; este é o endereço com que o SP deste processo deve ser inicializado
 STACK  100H                                     ; espaço reservado para a pilha 200H bytes, 100H words
-	SP_init:	
+	SPinit_teclado:	
+STACK  100H
+    SPinit_desenhos:
+STACK 100H
+    SPinit_display:
+STACK 100H
+    SPinit_painelnave:
+
     				
 ; Tabela das rotinas de interrupção
 tab:
-	WORD rot_int_0			                    ; rotina de atendimento da interrupção 0
+	WORD rot_int_display			                    ; rotina de atendimento da interrupção 
 
+evento_init_display:
+    LOCK 0
+evento_tecla_carregada:
+    LOCK 0
+evento_init_jogo:
+    LOCK 0
+
+tecla_premida WORD 0
+
+jogo_estado WORD JOGO_NAO_INICIADO
 DEF_ASTEROIDE_BOM:                              ; tabela que define o asteroide bom (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE   
     WORD        ALTURA_ASTEROIDE 
@@ -176,3 +200,162 @@ DEF_ECRA_NAVE_7:
 ; * Código
 ; ******************************************************************************************************************************************************
 PLACE   0                                       ; o código tem de começar em 0000H
+inicio:
+    MOV    SP, SPinit_principal
+    MOV    BTE, tab 
+    MOV    [APAGA_AVISO], R1                    ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
+    MOV    [APAGA_ECRÃ], R1                     ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+	MOV	   R1, 0                                ; cenário de fundo número 0
+    MOV    [SELECIONA_CENARIO_FUNDO], R1        ; seleciona o cenário de fundo
+    MOV    R9, 2                                ; som número 2
+    MOV    [SELECIONA_SOM_VIDEO], R9            ; seleciona um som para a intro do jogo
+    MOV    [REPRODUZ_SOM_VIDEO], R9             ; inicia a reprodução do som da intro
+    EI0
+    EI
+
+; ******************************************************************************************************************************************************
+; inicializações
+; ******************************************************************************************************************************************************
+
+    MOV    R0, 0                                ; inicializa R0 a 0 para simbolizar que o jogo ainda não está a correr
+    MOV    R4, DISPLAYS                         ; endereço do periférico dos displays
+    MOV    R5, 0100H                            ; inicializa o valor de R5 a 100H para colocar no display
+    MOV    [R4], R5                             ; inicializa o display a 100
+    MOV    R5, 0064H                            ; 64 em hexadecimal é 100 é decimal
+    MOV    R6, 0                                ; inicializa o contador da tecla 4 para mover o asteroide 
+    MOV    R7, 0                                ; inicializa o contador da tecla 5 para mover a sonda
+    CALL   teclado                              ; verifica se alguma tecla foi carregada
+    CALL   ha_tecla                             ; esperamos que nenhuma tecla esteja a ser premida
+
+; ******************************************************************************************************************************************************
+; corpo principal do programa
+; ******************************************************************************************************************************************************
+
+
+verifica_init_jogo:
+    MOV    R0, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada
+    MOV    R4, 0081H       
+    MOV    R1, [tecla_premida]                  ; movemos a tecla premida no teclado para o R1
+    CMP    R1, R4                               ; verifica se a tecla premida é a c
+    JZ     testa_C                              ; se a tecla premida for c, executa inicia_jogo
+    CMP    R1, 0082H                            ; o jogo ainda não está a correr?
+    JZ     testa_D                              ; se o jogo já começou
+ciclo: 
+
+    CMP    R0, 1                                ; o jogo está a correr?
+    JZ     desenhar_lock                             ; se o jogo está a correr desenhamos a nave, os asteroides e a sonda   
+    CMP    R0, 4                                ; a tecla 4 foi premida?
+    JZ     move_asteroide_lock                       ; move-se o asteroide uma linha e coluna para baixo
+    CMP    R0, 5                                ; a tecla 5 foi premida?
+    JZ     move_sonda_lock                           ; move-se a sonda uma linha para cima 
+    MOV    R9, 8                                ; mete-se 8 num registo, porque cmp só dá para usar diretamente com números até 7
+    CMP    R0, R9                               ; a tecla 8 foi premida?
+    JZ     energia_mais_lock                         ; aumenta-se o número no display uma unidade
+    MOV    R9, 9                                ; mete-se 9 num registo, porque cmp só dá para usar diretamente com números até 7
+    CMP    R0, R9                               ; a tecla 9 foi premida?
+    JZ     energia_menos_lock                        ; diminui-se o número no display uma unidade
+    JMP    ciclo                                  
+
+testa_C:
+    MOV    R0, [jogo_estado]          
+    CMP    R0, JOGO_NAO_INICIADO                ; o jogo está a correr?
+    JZ     init_jogo_lock
+    JMP    fim_proc_principal
+init_jogo_lock:
+    MOV    [evento_init_jogo], R0               ; colocamos o lock a "verde" para a seguir iniciar jogo
+ testa_D:
+    MOV    R4, 0082H     
+    CMP    R1, R4                               ; verifica se a tecla premida é a d
+    JZ     suspende_jogo                        ; se a tecla premida for d, executa suspende_jogo
+
+testa_E:
+    MOV    R4, 0084H    
+    CMP    R1, R4                               ; verifica se a tecla premida é a e
+    JZ     termina_jogo                         ; se a tecla premida for e, executa termina_jogo
+
+fim_proc_principal:
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+; ******************************************************************************************************************************************************
+; teclado - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
+PROCESS SPinit_teclado
+
+teclado:
+    MOV    R2, TEC_LIN                          ; endereço do periférico das linhas
+    MOV    R3, TEC_COL                          ; endereço do periférico das colunas
+restart_linhas:
+    MOV    R1, LINHA                            ; coloca 16 = 10000 em binário no registo 1
+
+espera_tecla:                                   ; neste ciclo espera-se até uma tecla ser premida
+    WAIT
+    SHR    R1, 1                                ; passa para a linha seguinte
+    CMP    R1, 0                                ; verifica se ja passamos pelas linhas todas
+    JZ     restart_linhas                       ; voltamos ao inicio das linhas 
+    MOVB   [R2], R1                             ; escrever no periférico de saída (linhas)
+    MOVB   R0, [R3]                             ; ler do periférico de entrada (colunas)
+    MOV    R4, MASCARA                          ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+    AND    R0, R4                               ; elimina bits para além dos bits 0-3
+    CMP    R0, 0                                ; há tecla premida?
+    JZ     espera_tecla                         ; se nenhuma tecla for premida, repete
+    SHL    R1, 4                                ; coloca linha no nibble high
+    OR     R1, R0                               ; junta coluna (nibble low)
+    MOV    [tecla_premida], R1                  ; guardamos a tecla premida na memória
+    MOV    [evento_tecla_carregada], R0            ; coloca o nosso 
+
+repeticao_tecla:
+    YIELD
+    MOV    R8, 0
+    MOV    R7, MASCARA                            
+    MOVB   R8, [R3]                             ; ler do periférico de entrada (colunas)
+    AND    R8, R7                               ; elimina bits para além dos bits 0-3
+    CMP    R8, 0                                ; há tecla premida?
+    JNZ    repeticao_tecla                      ; se ainda houver uma tecla premida, espera até não haver
+    JMP	   espera_tecla                         ; PERIGO SE PROGRAMA NAO FUNCIONAR TIRAR ESTA LINHA
+
+; ******************************************************************************************************************************************************
+; Restos dos processos.
+; ******************************************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+; ******************************************************************************************************************************************************
+; ha_tecla - Processo que espera que se pare de clicar na tecla
+; ******************************************************************************************************************************************************
+
