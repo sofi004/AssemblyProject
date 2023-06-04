@@ -282,11 +282,6 @@ rot_int_boneco:
     retorna_int:
     RFE
 
-boneco_unlock:
-    MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve)
-    JMP retorna_int
-
-
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
@@ -450,5 +445,8 @@ retorna_ciclo_transforma:
     POP    R0
     RET 
 
+boneco_unlock:
+    MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve)
+    JMP retorna_int
 
 
