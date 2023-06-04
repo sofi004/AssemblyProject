@@ -50,10 +50,10 @@ JOGO_A_CORRER EQU 1
 JOGO_PAUSADO EQU 2
 TECLA_C EQU 0081H
 TECLA_D EQU 0082H
-TECLA_E EQU 0083H
+TECLA_E EQU 0084H
 TECLA_0 EQU 0011H
 TECLA_1 EQU 0012H
-TECLA_2 EQU 0013H
+TECLA_2 EQU 0014H
 
 ; ******************************************************************************************************************************************************
 ; * Paleta
