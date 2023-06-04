@@ -212,9 +212,8 @@ inicio:
 
 MOV R6, 0100H
 MOV R0, DISPLAYS
-atualiza_display:
-    MOVB [R0], R6
-
+MOVB [R0], R6
+MOV R6, 0064H 
 verifica_teclaC:
     MOV    R1, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada   
     MOV    R4, TECLA_C    
