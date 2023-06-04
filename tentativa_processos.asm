@@ -222,7 +222,7 @@ verifica_teclaC:
     JNZ    verifica_teclaD
     SUB R6, 1
     CALL hex_para_dec
-    JMP atualiza_display
+    JMP verifica_teclaC
 
 verifica_teclaD:
     MOV    R4, TECLA_D
@@ -230,7 +230,7 @@ verifica_teclaD:
     JNZ   verifica_teclaE
     SUB R6, 1
     CALL hex_para_dec
-    JMP atualiza_display
+    JMP verifica_teclaC
 
 verifica_teclaE:
     MOV    R4, TECLA_E
@@ -238,7 +238,7 @@ verifica_teclaE:
     JNZ   verifica_tecla0
     SUB R6, 1
     CALL hex_para_dec
-    JMP atualiza_display
+    JMP verifica_teclaC
 
 verifica_tecla0:
     MOV    R4, TECLA_0
@@ -246,7 +246,7 @@ verifica_tecla0:
     JNZ  verifica_tecla1
     SUB R6, 1
     CALL hex_para_dec
-    JMP atualiza_display
+    JMP verifica_teclaC
 
 verifica_tecla1:
     MOV    R4, TECLA_1
@@ -254,7 +254,7 @@ verifica_tecla1:
     JNZ  verifica_tecla2
     SUB R6, 1
     CALL hex_para_dec
-    JMP atualiza_display
+    JMP verifica_teclaC
 
 verifica_tecla2:
     MOV    R4, TECLA_2
@@ -262,7 +262,7 @@ verifica_tecla2:
     JNZ  verifica_teclaC
     SUB R6, 1
     CALL hex_para_dec
-    JMP atualiza_display
+    JMP verifica_teclaC
    
 ; **********************************************************************
 ; ROT_INT_BONECO - 	Rotina de atendimento da interrupção 0
@@ -411,6 +411,7 @@ hex_para_dec:
     PUSH   R2
     PUSH   R3
     PUSH   R4
+    PUSH   R6
 
     MOV    R0, 100                              ; define R0 como 100, que é usado como uma constante na transformação
     MOV    R1, 10                               ; define R1 como 10, que é usado como uma constante na transformação
@@ -427,7 +428,9 @@ transformação:
     JNZ    transformação
 
 retorna_ciclo_transforma:
-    MOV    R6, R2        
+    MOV    R6, DISPLAYS
+    MOV    [R6], R2
+    POP    R6   
     POP    R4
     POP    R3
     POP    R2
