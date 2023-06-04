@@ -208,7 +208,7 @@ inicio:
     EI
 
     CALL   teclado                              ; verifica se alguma tecla foi carregada
-    CALL   ha_tecla                             ; esperamos que nenhuma tecla esteja a ser premida
+    CALL   boneco                               ; esperamos que nenhuma tecla esteja a ser premida
 
 MOV R2, 100
 MOV R0, DISPLAYS
@@ -216,38 +216,44 @@ atualiza_display:
     MOVB [R0], R2
 
 verifica_teclaC:
-    MOV    R1, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada       
-    CMP    R1, TECLA_C                          ; a tecla premida é a c?
+    MOV    R1, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada   
+    MOV    R4, TECLA_C    
+    CMP    R1, R4                               ; a tecla premida é a c?
     JNZ    verifica_teclaD
     SUB R2, 1
     JMP atualiza_display
 
 verifica_teclaD:
-    CMP   R1, TECLA_D
+    MOV    R4, TECLA_D
+    CMP   R1, R4
     JNZ   verifica_teclaE
     SUB R2, 1
     JMP atualiza_display
 
 verifica_teclaE:
-    CMP   R1, TECLA_E
+    MOV    R4, TECLA_E
+    CMP   R1, R4
     JNZ   verifica_tecla0
     SUB R2, 1
     JMP atualiza_display
 
 verifica_tecla0:
-    CMP  R1, TECLA_0
+    MOV    R4, TECLA_0
+    CMP  R1, R4
     JNZ  verifica_tecla1
     SUB R2, 1
     JMP atualiza_display
 
 verifica_tecla1:
-    CMP  R1, TECLA_1
+    MOV    R4, TECLA_1
+    CMP  R1, R4
     JNZ  verifica_tecla2
     SUB R2, 1
     JMP atualiza_display
 
 verifica_tecla2:
-    CMP  R1, TECLA_2
+    MOV    R4, TECLA_2
+    CMP  R1, R4
     JNZ  verifica_teclaC
     SUB R2, 1
     JMP atualiza_display
