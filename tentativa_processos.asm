@@ -106,6 +106,8 @@ evento_tecla_carregada:                         ; LOCK para o teclado comunicar 
 tab:
 	WORD rot_int_boneco			                ; rotina de atendimento da interrupção 0
 
+jogo_estado: WORD 0
+
 DEF_ASTEROIDE_BOM:                              ; tabela que define o asteroide bom (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE   
     WORD        ALTURA_ASTEROIDE 
@@ -207,8 +209,8 @@ inicio:
     EI0
     EI
 
-    CALL   teclado                              ; verifica se alguma tecla foi carregada
-    CALL   boneco                               ; esperamos que nenhuma tecla esteja a ser premida
+    CALL   teclado                              
+    CALL   boneco                               
 
 MOV R6, 0100H
 MOV R0, DISPLAYS
@@ -219,6 +221,8 @@ verifica_teclaC:
     MOV    R4, TECLA_C    
     CMP    R1, R4                               ; a tecla premida é a c?
     JNZ    verifica_teclaD
+    MOV    R3, 1
+    MOV    [jogo_estado], R3
     SUB R6, 1
     CALL hex_para_dec
     JMP verifica_teclaC
@@ -271,8 +275,17 @@ verifica_tecla2:
 ;			        o registo usado, bem como o seu valor, é irrelevante
 ; **********************************************************************
 rot_int_boneco:
-	MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve) 
-	RFE
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   boneco_unlock
+    retorna_int:
+    RFE
+
+boneco_unlock:
+    MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve)
+    JMP retorna_int
+
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
@@ -341,8 +354,8 @@ ciclo_boneco:
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Desenha/Apaga um boneco na linha e coluna indicadas
 ;			             com a forma e cor definidas na tabela indicada.
-; Argumentos:   R8 - linha
-;               R10 - coluna
+; Argumentos:   R8 - linha inicial
+;               R10 - coluna inicial
 ;               R9 - tabela que define o boneco
 ;               R11 - 1(para desenhar), 0(para apagar)
 ;
