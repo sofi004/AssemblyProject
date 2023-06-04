@@ -204,15 +204,15 @@ inicio:
     MOV    R9, 2                                ; som número 2
     MOV    [SELECIONA_SOM_VIDEO], R9            ; seleciona um som para a intro do jogo
     MOV    [REPRODUZ_SOM_VIDEO], R9             ; inicia a reprodução do som da intro
+    MOV R6, 0100H
+    MOV R0, DISPLAYS
+    MOVB [R0], R6
     EI0
     EI
 
     CALL   teclado                              ; verifica se alguma tecla foi carregada
     CALL   boneco                               ; esperamos que nenhuma tecla esteja a ser premida
 
-MOV R6, 0100H
-MOV R0, DISPLAYS
-MOVB [R0], R6
 MOV R6, 0064H 
 verifica_teclaC:
     MOV    R1, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada   
