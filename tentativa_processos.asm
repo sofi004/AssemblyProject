@@ -210,7 +210,7 @@ inicio:
     CALL   teclado                              ; verifica se alguma tecla foi carregada
     CALL   boneco                               ; esperamos que nenhuma tecla esteja a ser premida
 
-MOV R2, 100
+MOV R2, 0100H
 MOV R0, DISPLAYS
 atualiza_display:
     MOVB [R0], R2
