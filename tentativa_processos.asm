@@ -210,52 +210,58 @@ inicio:
     CALL   teclado                              ; verifica se alguma tecla foi carregada
     CALL   boneco                               ; esperamos que nenhuma tecla esteja a ser premida
 
-MOV R2, 0100H
+MOV R6, 0100H
 MOV R0, DISPLAYS
 atualiza_display:
-    MOVB [R0], R2
+    MOVB [R0], R6
 
 verifica_teclaC:
     MOV    R1, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada   
     MOV    R4, TECLA_C    
     CMP    R1, R4                               ; a tecla premida é a c?
     JNZ    verifica_teclaD
-    SUB R2, 1
+    SUB R6, 1
+    CALL hex_para_dec
     JMP atualiza_display
 
 verifica_teclaD:
     MOV    R4, TECLA_D
     CMP   R1, R4
     JNZ   verifica_teclaE
-    SUB R2, 1
+    SUB R6, 1
+    CALL hex_para_dec
     JMP atualiza_display
 
 verifica_teclaE:
     MOV    R4, TECLA_E
     CMP   R1, R4
     JNZ   verifica_tecla0
-    SUB R2, 1
+    SUB R6, 1
+    CALL hex_para_dec
     JMP atualiza_display
 
 verifica_tecla0:
     MOV    R4, TECLA_0
     CMP  R1, R4
     JNZ  verifica_tecla1
-    SUB R2, 1
+    SUB R6, 1
+    CALL hex_para_dec
     JMP atualiza_display
 
 verifica_tecla1:
     MOV    R4, TECLA_1
     CMP  R1, R4
     JNZ  verifica_tecla2
-    SUB R2, 1
+    SUB R6, 1
+    CALL hex_para_dec
     JMP atualiza_display
 
 verifica_tecla2:
     MOV    R4, TECLA_2
     CMP  R1, R4
     JNZ  verifica_teclaC
-    SUB R2, 1
+    SUB R6, 1
+    CALL hex_para_dec
     JMP atualiza_display
    
 ; **********************************************************************
@@ -397,3 +403,37 @@ retorna_ciclo_desenho:
     RET
 
 ; ******************************************************************************************************************************************************
+; hex_para_dec- processo que converte um número hexadecimal, no respetivo decimal
+; ******************************************************************************************************************************************************
+hex_para_dec:
+    PUSH   R0
+    PUSH   R1
+    PUSH   R2
+    PUSH   R3
+    PUSH   R4
+
+    MOV    R0, 100                              ; define R0 como 100, que é usado como uma constante na transformação
+    MOV    R1, 10                               ; define R1 como 10, que é usado como uma constante na transformação
+    MOV    R2, 0                                ; inicializa R2 como 0, que será usado para acumular os dígitos convertidos
+    MOV    R4, R6                               ; move o valor de R6 para R4, para guardar o valor original de R6
+transformação:
+    MOV    R3, R4                               ; move o valor de R4 para R3 para preservar o valor original
+    DIV    R3, R0                               ; divide o valor de R3 por R0 para obter o quociente da divisão
+    MOD    R4, R0                               ; calcula o resto da divisão de R4 por R0
+    DIV    R0, R1                               ; divide o valor de R0 por R1 para atualizar o valor de R0 para a próxima iteração
+    SHL    R2, 4                                ; desloca o conteúdo de R2 em 4 bits para a esquerda, R2 é utilizado como mascara
+    OR     R2, R3                               ; combina o conteúdo de R2 e R3, acumulando os dígitos convertidos
+    CMP    R0, 0                                ; verifica se cada um dos digitos do número hexadecimal já foram convertidos
+    JNZ    transformação
+
+retorna_ciclo_transforma:
+    MOV    R6, R2        
+    POP    R4
+    POP    R3
+    POP    R2
+    POP    R1
+    POP    R0
+    RET 
+
+
+
