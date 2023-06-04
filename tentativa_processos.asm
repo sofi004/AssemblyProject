@@ -328,8 +328,8 @@ ciclo_boneco:
 						                        ; Como não há valor a transmitir, o registo pode ser um qualquer
     MOV R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
-	ADD	R8, R7			                        ; para desenhar objeto na coluna seguinte (direita ou esquerda)
-    ADD	R8, R7			                        ; para desenhar objeto na coluna seguinte (direita ou esquerda)
+	ADD	R8, R7			                        ; para desenhar objeto na linha seguinte 
+    ADD	R10, R7			                        ; para desenhar objeto na coluna seguinte 
 	JMP	ciclo_boneco	                        ; esta "rotina" nunca retorna porque nunca termina
 						                        ; Se se quisesse terminar o processo, era deixar o processo chegar a um RET
 
