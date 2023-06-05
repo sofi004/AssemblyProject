@@ -69,8 +69,13 @@ COR_PIXEL_AZUL_CLARO  EQU 0F0FFH                ;cor do pixel: azul em ARGB
 ; ******************************************************************************************************************************************************
 ; * Definição dos desenhos
 ; ******************************************************************************************************************************************************
-LINHA_ASTEROIDE_BOM EQU 0                       ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
-COLUNA_ASTEROIDE_BOM EQU 0                      ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
+LINHA_ASTEROIDE EQU 0                       ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
+COLUNA_ASTEROIDE0 EQU 0                      ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
+COLUNA_ASTEROIDE1 EQU 25
+COLUNA_ASTEROIDE2 EQU 30
+COLUNA_ASTEROIDE3 EQU 35
+COLUNA_ASTEROIDE4 EQU 60
+
 LARGURA_ASTEROIDE  EQU 5                        ; largura do asteroide
 ALTURA_ASTEROIDE  EQU 5                         ; altura do asteroide
 LARGURA_SONDA EQU 1                             ; largura da sonda
@@ -85,16 +90,19 @@ COLUNA_ECRA_NAVE EQU 29                         ; coluna onde vai ser desenhado 
 LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
+TAMANHO_PILHA		EQU  100H      ; tamanho de cada pilha, em words
+N_BONECOS			EQU  5		; número de bonecos (até 4)
+
 
 ; ######################################################################################################################################################
 ; * ZONA DE DADOS 
 ; ######################################################################################################################################################
 PLACE  1000H
-STACK 100H			                            ; espaço reservado para a pilha do processo "programa principal"
+STACK TAMANHO_PILHA			                            ; espaço reservado para a pilha do processo "programa principal"
     SPinit_principal:		                    ; este é o endereço com que o SP deste processo deve ser inicializado
-STACK  100H                                     ; espaço reservado para a pilha 200H bytes, 100H words
+STACK  TAMANHO_PILHA                                     ; espaço reservado para a pilha 200H bytes, 100H words
 	SPinit_teclado:	
-STACK  100H                                     ; espaço reservado para a pilha do processo "boneco"
+STACK  TAMANHO_PILHA * N_BONECOS                           ; espaço reservado para a pilha do processo "boneco"
     SPinit_boneco:
 
 evento_init_boneco:                             ; LOCK para a rotina de interrupção comunicar ao processo boneco que a interrupção ocorreu
@@ -107,6 +115,21 @@ tab:
 	WORD rot_int_boneco			                ; rotina de atendimento da interrupção 0
 
 jogo_estado: WORD 0
+posicao_asteroides:
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE0
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE1
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE2   
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE3
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE4 
+    
+
+
+sentido_movimento_coluna_asteroide:
+    WORD 1
+    WORD -1
+    WORD 0
+    WORD 1
+    WORD -1
 
 DEF_ASTEROIDE_BOM:                              ; tabela que define o asteroide bom (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE   
@@ -210,7 +233,12 @@ inicio:
     EI
 
     CALL   teclado                              
-    CALL   boneco                               
+    MOV    R11, N_BONECOS
+    loop_asteroide:
+        SUB R11, 1
+        CALL   boneco  
+        CMP R11, 0
+        JNZ loop_asteroide                             
 
 MOV R6, 0100H
 MOV R0, DISPLAYS
@@ -370,26 +398,42 @@ PROCESS SPinit_boneco	; indicação de que a rotina que se segue é um processo,
 						; com indicação do valor para inicializar o SP
 boneco:					; processo que implementa o comportamento do boneco
 
-	MOV	R7, 1			; valor inicial a somar à coluna do boneco, para o movimentar
+    MOV R1, TAMANHO_PILHA
+    MUL R1, R11
+    SUB SP, R1
+
+    MOV R10, R11
+    SHL R10, 2
+
+    MOV R9, posicao_asteroides
+    ADD R9, R10                     ; endereço da tabela de posicao + nº asteroide * 4
+    MOV R8, [R9]                    ; R8 guarda linha
+    ADD R9, 2
+    MOV R10, [R9]                   ; R10 guarda coluna
+
+    MOV R9, sentido_movimento_coluna_asteroide      ; endereço da tabela de sentido dos asteroides
+    MOV R6, R11                     ; coloca o nº do boneco em R6
+    SHL R6, 1	                    ; multiplica por 2 pois estamos a tratar de WORDS
+    MOV R7, [R9 + R6]               ; guarda o incremento por coluna
+    MOV R5, 1                       ; incremento da linha
 	
-	; desenha o boneco na sua posição inicial
-    MOV  R8, LINHA_ASTEROIDE_BOM			    ; linha do boneco
-	MOV	 R10, COLUNA_ASTEROIDE_BOM              ; coluna do boneco 
+	; cena aleatoria escolher entre asteroide bom e mau
+
 	MOV	 R9, DEF_ASTEROIDE_BOM		            ; endereço da tabela que define o boneco
 
 ciclo_boneco:
     MOV	R3, [evento_init_boneco]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
     MOV R11, 0
-	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
+	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
 
 	
 						                        ; Quando bloqueia, passa o controlo para outro processo
 						                        ; Como não há valor a transmitir, o registo pode ser um qualquer
-    ADD	R8, R7			                        ; para desenhar objeto na linha seguinte 
+    ADD	R8, R5			                        ; para desenhar objeto na linha seguinte 
     ADD	R10, R7			                        ; para desenhar objeto na coluna seguinte 
-	;JMP ciclo_boneco	                        ; esta "rotina" nunca retorna porque nunca termina
+
     MOV R11, 1
-	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
+	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
     JMP ciclo_boneco
 						                        ; Se se quisesse terminar o processo, era deixar o processo chegar a um RET
 
