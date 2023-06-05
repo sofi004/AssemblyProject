@@ -104,15 +104,22 @@ STACK  TAMANHO_PILHA                                     ; espaço reservado par
 	SPinit_teclado:	
 STACK  TAMANHO_PILHA * N_BONECOS                           ; espaço reservado para a pilha do processo "boneco"
     SPinit_boneco:
+STACK TAMANHO_PILHA
+        SPinit_painelnave:
 
 evento_init_boneco:                             ; LOCK para a rotina de interrupção comunicar ao processo boneco que a interrupção ocorreu
     LOCK 0 
 evento_tecla_carregada:                         ; LOCK para o teclado comunicar aos restantes processos que tecla detetou
     LOCK 0
+evento_init_nave:
+    LOCK 0
     				
 ; Tabela das rotinas de interrupção
 tab:
 	WORD rot_int_boneco			                ; rotina de atendimento da interrupção 0
+    WORD 0
+    WORD 0
+    WORD rot_int_painel_nave
 
 jogo_estado: WORD 0
 posicao_asteroides:
@@ -177,7 +184,7 @@ DEF_ECRA_NAVE_1:
     WORD        LARGURA_ECRA_NAVE
     WORD        ALTURA_ECRA_NAVE
     WORD        COR_PIXEL_CINZENTO, COR_PIXEL_VERMELHO, COR_PIXEL_VERDE, COR_PIXEL_CINZENTO, COR_PIXEL_VERDE, COR_PIXEL_CINZENTO, COR_PIXEL_CINZENTO
-    WORD        COR_PIXEL_VERDE, COR_PIXEL_CINZENTO, COR_PIXEL_VERMELHO, COR_PIXEL_VERDE
+    WORD        COR_PIXEL_VERDE, COR_PIXEL_CINZENTO, COR_PIXEL_VERMELHO, COR_PIXEL_VERDE,COR_PIXEL_VERMELHO,COR_PIXEL_VERDE,COR_PIXEL_AZUL_CLARO
     
 DEF_ECRA_NAVE_2:
     WORD        LARGURA_ECRA_NAVE
@@ -230,10 +237,12 @@ inicio:
     MOV    [SELECIONA_SOM_VIDEO], R9            ; seleciona um som para a intro do jogo
     MOV    [REPRODUZ_SOM_VIDEO], R9             ; inicia a reprodução do som da intro
     EI0
+    EI3
     EI
+    CALL    painel_nave
+    CALL    teclado                              
+    MOV     R11, N_BONECOS
 
-    CALL   teclado                              
-    MOV    R11, N_BONECOS
     loop_asteroide:
         SUB R11, 1
         CALL   boneco  
@@ -253,6 +262,13 @@ verifica_teclaC:
     MOV    [jogo_estado], R3
     SUB    R6, 1
     CALL   hex_para_dec
+    MOV    R11, 1                               ; para indicar que é para desenhar
+    
+    MOV    R8, LINHA_NAVE
+    MOV    R10, COLUNA_NAVE
+    MOV    R9, DEF_NAVE
+    CALL   desenha_apaga_boneco
+    
     JMP    verifica_teclaC
 
 verifica_teclaD:
@@ -328,6 +344,7 @@ retorna_ciclo_transforma:
     POP    R1
     POP    R0
     RET 
+
    
 ; **********************************************************************
 ; ROT_INT_BONECO - 	Rotina de atendimento da interrupção 0
@@ -350,6 +367,21 @@ rot_int_boneco:
     boneco_unlock:
     MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve)
     JMP retorna_int
+
+rot_int_painel_nave:
+    PUSH R3
+    PUSH R7
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   nave_unlock
+    retorna_int_nave:
+    POP R7
+    POP R3
+    RFE
+    nave_unlock:
+    MOV	[evento_init_nave], R0	; desbloqueia processo painel_nave (qualquer registo serve)
+    JMP retorna_int_nave
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
@@ -402,6 +434,8 @@ boneco:					; processo que implementa o comportamento do boneco
     MUL R1, R11
     SUB SP, R1
 
+    MOV R4, R11         ;registo para usar na seleçao do ecra
+
     MOV R10, R11
     SHL R10, 2
 
@@ -423,6 +457,32 @@ boneco:					; processo que implementa o comportamento do boneco
 
 ciclo_boneco:
     MOV	R3, [evento_init_boneco]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
+
+    CMP R4, 2
+    JZ seleciona_ecra0
+    CMP R4, 4
+    JZ seleciona_ecra1
+    CMP R4, 1
+    JZ seleciona_ecra1
+    CMP R4, 3
+    JZ seleciona_ecra2
+    CMP R4, 0
+    JZ seleciona_ecra2
+    seleciona_ecra0:
+        MOV R2, 0
+        MOV [SELECIONA_ECRÃ], R2
+        JMP ecra_selecionado
+    seleciona_ecra1:
+        MOV R2, 1
+        MOV [SELECIONA_ECRÃ], R2
+        JMP ecra_selecionado
+    seleciona_ecra2:
+        MOV R2, 2
+        MOV [SELECIONA_ECRÃ], R2
+        JMP ecra_selecionado
+
+    ecra_selecionado:
+    
     MOV R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
 
@@ -501,7 +561,30 @@ retorna_ciclo_desenho:
     RET
 
 
+; ******************************************************************************************************************************************************
+; PAINEL_INSTRUMENTOS_NAVE - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
 
+PROCESS SPinit_painelnave
 
+painel_nave:
+    CALL restart_loop
+painel_nave_loop:
+    MOV R0, [evento_init_nave]          ; verificação lock
+    MOV R8, LINHA_ECRA_NAVE
+    MOV R10, COLUNA_ECRA_NAVE
+    MOV R11, 0
+    CALL desenha_apaga_boneco
+    MOV R11, 1
+    CALL desenha_apaga_boneco
+    SUB R1, 1
+    MOV R10, 32H
+    ADD R9, R10
+    CMP R1, 0
+    JZ restart_loop
+    JMP painel_nave_loop
 
-
+restart_loop:
+    MOV R9, DEF_ECRA_NAVE_1
+    MOV R1, 7
+    RET
