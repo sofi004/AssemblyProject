@@ -312,16 +312,18 @@ espera_tecla:                                   ; neste ciclo espera-se até uma
     SHL    R1, 4                                ; coloca linha no nibble high
     OR     R1, R0                               ; junta coluna (nibble low)
     MOV    [evento_tecla_carregada], R1         ; informa quem estiver bloqueado neste LOCK que uma tecla foi carregada 
+    
 
 repeticao_tecla:
-    YIELD
+    WAIT
     MOV    R8, 0
     MOV    R7, MASCARA                            
     MOVB   R8, [R3]                             ; ler do periférico de entrada (colunas)
     AND    R8, R7                               ; elimina bits para além dos bits 0-3
     CMP    R8, 0                                ; há tecla premida?
     JNZ    repeticao_tecla                      ; se ainda houver uma tecla premida, espera até não haver
-    JMP	   espera_tecla                         ; PERIGO SE PROGRAMA NAO FUNCIONAR TIRAR ESTA LINHA
+    RET
+
 
 ; **********************************************************************
 ; BONECO - Processo que desenha um boneco e o move horizontalmente, com
@@ -331,24 +333,28 @@ repeticao_tecla:
 PROCESS SPinit_boneco	; indicação de que a rotina que se segue é um processo,
 						; com indicação do valor para inicializar o SP
 boneco:					; processo que implementa o comportamento do boneco
+
 	MOV	R7, 1			; valor inicial a somar à coluna do boneco, para o movimentar
 	
 	; desenha o boneco na sua posição inicial
     MOV  R8, LINHA_ASTEROIDE_BOM			    ; linha do boneco
 	MOV	 R10, COLUNA_ASTEROIDE_BOM              ; coluna do boneco 
 	MOV	 R9, DEF_ASTEROIDE_BOM		            ; endereço da tabela que define o boneco
+
 ciclo_boneco:
-    MOV R11, 1
+    MOV	R3, [evento_init_boneco]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
+    MOV R11, 0
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
 
-	MOV	R3, [evento_init_boneco]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
+	
 						                        ; Quando bloqueia, passa o controlo para outro processo
 						                        ; Como não há valor a transmitir, o registo pode ser um qualquer
-    MOV R11, 0
-	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
-	ADD	R8, R7			                        ; para desenhar objeto na linha seguinte 
+    ADD	R8, R7			                        ; para desenhar objeto na linha seguinte 
     ADD	R10, R7			                        ; para desenhar objeto na coluna seguinte 
-	JMP	ciclo_boneco	                        ; esta "rotina" nunca retorna porque nunca termina
+	;JMP ciclo_boneco	                        ; esta "rotina" nunca retorna porque nunca termina
+    MOV R11, 1
+	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
+    JMP ciclo_boneco
 						                        ; Se se quisesse terminar o processo, era deixar o processo chegar a um RET
 
 ; ******************************************************************************************************************************************************
