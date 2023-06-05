@@ -568,9 +568,11 @@ retorna_ciclo_desenho:
 PROCESS SPinit_painelnave
 
 painel_nave:
+    MOV R2,0
     JMP restart_loop
 painel_nave_loop:
     MOV R0, [evento_init_nave]          ; verificação lock
+    MOV [SELECIONA_ECRÃ], R2
     MOV R8, LINHA_ECRA_NAVE
     MOV R10, COLUNA_ECRA_NAVE
     MOV R11, 0
