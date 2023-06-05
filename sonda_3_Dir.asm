@@ -45,6 +45,7 @@ ESCONDE_ECRÃ  EQU COMANDOS + 08H                ; esconde o ecrã especificado
 MUTE  EQU COMANDOS + 4CH                        ; corta o volume de todos os sons ou videos a reproduzir
 DESMUTE EQU  COMANDOS + 52Ħ                     ; retoma o volume de todos os sons ou videos a reproduzir 
 REPRODUZ_SOM_VIDEO_CICLO EQU COMANDOS + 5CH     ; reproduz um som/ video em ciclo
+ATRASO_SONDA EQU 4000H                           ; atraso da sonda
 
 ; ******************************************************************************************************************************************************
 ; * Paleta
@@ -609,27 +610,31 @@ mover_sonda:
     PUSH   R5
     PUSH   R6
 
-contador_tecla_5:
-    ADD    R7, 1                                ; R7 é o número de vezes que a tecla 5 já foi premida desde que o jogo começou
-    MOV    R5, R7
-    SUB    R5, 1
-
 posição_apagar_desenhar_sonda:
-    MOV    R1, LINHA_SONDA                      ; linha da sonda no momento de inicialização
-    SUB    R1, R5                               ; linha da sonda no momento em que a queremos deslocar
-    MOV    R2, COLUNA_SONDA                     ; coluna da sonda no momento de inicialização
+    MOV    R1, 20                               ; linha da sonda no momento de inicialização
+    MOV    R2, 20                               ; coluna da sonda no momento de inicialização
     MOV    R3, 0                                ; responsavel por apagar a sonda
     MOV    R4, COR_PIXEL_ROXO                   ; responsavel por desenhar a sonda a roxo
-    MOV    R6, LINHA_SONDA                      ; linha da sonda no momento de inicialização
-    SUB    R6, R7                               ; linha da sonda onde queremos desenhar a sonda
     
-apaga_desenha_pixels_sonda: 
+desenha_pixels_sonda: 
 	MOV    [DEFINE_LINHA], R1	                ; seleciona a linha
 	MOV    [DEFINE_COLUNA], R2	                ; seleciona a coluna
-	MOV    [DEFINE_PIXEL], R3	                ; altera a cor do pixel na linha e coluna selecionadas
-    MOV    [DEFINE_LINHA], R6	                ; seleciona a linha
-    MOV    [DEFINE_PIXEL], R4                   ; altera a cor do pixel na linha e coluna selecionadas
+	MOV    [DEFINE_PIXEL], R4	                ; altera a cor do pixel na linha e coluna selecionadas
+    MOV    R6, ATRASO_SONDA
 
+
+atraso_sonda:
+    SUB    R6, 1
+    JNZ    atraso_sonda
+
+apaga_pixel_sonda:
+    MOV    [DEFINE_PIXEL], R3
+    SUB    R1,1
+    MOV    [DEFINE_LINHA], R1
+    CMP    R1,0
+    JNZ    desenha_pixels_sonda
+
+fim_sonda:
     POP    R6
     POP    R5
     POP    R4
