@@ -568,7 +568,7 @@ retorna_ciclo_desenho:
 PROCESS SPinit_painelnave
 
 painel_nave:
-    CALL restart_loop
+    JMP restart_loop
 painel_nave_loop:
     MOV R0, [evento_init_nave]          ; verificação lock
     MOV R8, LINHA_ECRA_NAVE
@@ -577,14 +577,15 @@ painel_nave_loop:
     CALL desenha_apaga_boneco
     MOV R11, 1
     CALL desenha_apaga_boneco
-    SUB R1, 1
-    MOV R10, 32H
+    MOV R10, 32d
     ADD R9, R10
+    SUB R1, 1
     CMP R1, 0
     JZ restart_loop
     JMP painel_nave_loop
 
+
 restart_loop:
     MOV R9, DEF_ECRA_NAVE_1
     MOV R1, 7
-    RET
+    JMP painel_nave_loop
