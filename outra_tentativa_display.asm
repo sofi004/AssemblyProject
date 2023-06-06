@@ -250,7 +250,8 @@ inicio:
     EI3
     EI
     CALL    painel_nave
-    CALL    teclado                              
+    CALL    teclado
+    CALL    display_tempo                              
     MOV     R11, N_BONECOS
 
     loop_asteroide:
