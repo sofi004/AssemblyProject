@@ -322,15 +322,19 @@ verifica_tecla2:
 
 
 inicia_jogo:
-    PUSH R5
     MOV    R5, 5                                ; som número 4
     MOV    [TERMINA_SOM_VIDEO], R5              ; este ciclo inicia/ reinicia o jogo
     MOV    R5, 2   
     MOV    [TERMINA_SOM_VIDEO], R5              ; termina o som número 2
     MOV    R5, 4                                ; som número 4
     MOV    [TERMINA_SOM_VIDEO], R5              ; termina o som número 4
+    MOV    R0, 1                                ; coloca 1 no registo para sabermos se o jogo está a correr ou não
     MOV    R5, 0                                  
     MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona um video para cenário de fundo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5           ; inicia a reprodução do video de fundo do jogo
+    MOV    R5, 1   
+    MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona o som de fundo do jogo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5       ; inicia a reprodução do som de fundo
     POP R5
     RET
 
