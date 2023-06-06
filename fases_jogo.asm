@@ -355,7 +355,7 @@ continua_jogo:
     MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o video de fundo do jogo(0)
     MOV    R6, 1
     MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o som de fundo do jogo(1)
-
+    JMP    verifica_teclaC
 
 suspende_jogo:
     MOV    R6, 1
@@ -364,7 +364,7 @@ suspende_jogo:
     MOV    [SUSPENDE_SOM_VIDEO], R6             ; pausa o som de fundo do jogo(0)
     MOV    R6, 2
     MOV    [SELECIONA_CENARIO_FRONTAL], R6      ; coloca cenario frontal de pausa do jogo(2)
-    
+    JMP    verifica_teclaC
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
