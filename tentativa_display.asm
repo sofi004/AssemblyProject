@@ -609,7 +609,7 @@ display:
 display_sonda:
     MOV R6, [valor_display]
     SUB R6, 5
-    MOV [valor_display], R6~
+    MOV [valor_display], R6
     CALL hex_para_dec
     MOV    R3, NENHUMA_SONDA
     MOV    [sonda_estado], R3
