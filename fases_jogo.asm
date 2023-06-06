@@ -306,6 +306,10 @@ verifica_teclaE:
     MOV    R4, TECLA_E
     CMP   R1, R4
     JNZ   verifica_tecla0
+    MOV    R4, [jogo_estado]
+    MOV    R1, JOGO_NAO_INICIADO
+    CMP    R4, R1
+    JNZ    termina_jogo
     JMP verifica_teclaC
 
 verifica_tecla0:
