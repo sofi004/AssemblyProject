@@ -98,6 +98,8 @@ STACK TAMANHO_PILHA
 
 STACK TAMANHO_PILHA
     SPinit_display:
+STACK TAMANHO_PILHA
+    SPinit_sonda:
 
 evento_init_boneco:                             ; LOCK para a rotina de interrupção comunicar ao processo boneco que a interrupção ocorreu
     LOCK 0 
@@ -106,6 +108,8 @@ evento_tecla_carregada:                         ; LOCK para o teclado comunicar 
 evento_init_nave:
     LOCK 0
 evento_init_display:
+    LOCK 0
+evento_init_sonda:
     LOCK 0
 
 ; Tabela das rotinas de interrupção
@@ -134,7 +138,6 @@ posicao_asteroides:
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE3
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE4 
     
-
 
 sentido_movimento_coluna_asteroide:
     WORD 1
@@ -374,7 +377,7 @@ repeticao_tecla:
     AND    R8, R7                               ; elimina bits para além dos bits 0-3
     CMP    R8, 0                                ; há tecla premida?
     JNZ    repeticao_tecla                      ; se ainda houver uma tecla premida, espera até não haver
-    RET
+    JMP    espera_tecla
 
 
 ; **********************************************************************
@@ -485,15 +488,17 @@ painel_nave_loop:
     JZ restart_loop
     JMP painel_nave_loop
 
+    restart_loop:
+    MOV R9, DEF_ECRA_NAVE_1
+    MOV R1, 7
+    JMP painel_nave_loop
+
 
 ; ******************************************************************************************************************************************************
 ; SONDA - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
 
-restart_loop:
-    MOV R9, DEF_ECRA_NAVE_1
-    MOV R1, 7
-    JMP painel_nave_loop
+
 
 
 
