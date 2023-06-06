@@ -238,6 +238,7 @@ inicio:
     MOV    [APAGA_ECRÃ], R1                     ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
 	MOV	   R1, 0                                ; cenário de fundo número 0
     MOV    [SELECIONA_CENARIO_FUNDO], R1        ; seleciona o cenário de fundo
+    MOV    [jogo_estado], R1
     MOV    R9, 2                                ; som número 2
     MOV    [SELECIONA_SOM_VIDEO], R9            ; seleciona um som para a intro do jogo
     MOV    [REPRODUZ_SOM_VIDEO], R9             ; inicia a reprodução do som da intro
@@ -246,6 +247,7 @@ inicio:
     MOV   [R0], R6
     MOV     R0, 0064H
     MOV [valor_display], R0 
+
     EI0
     EI2
     EI3
@@ -266,11 +268,11 @@ verifica_teclaC:
     MOV    R4, TECLA_C    
     CMP    R1, R4                               ; a tecla premida é a c?
     JNZ    verifica_teclaD
-    MOV R6, 0100H
-    MOV R0, DISPLAYS
-    MOV [R0], R6
-    MOV R0, 0064H
-    MOV [valor_display], R0
+    MOV    R6, 0100H
+    MOV    R0, DISPLAYS
+    MOV    [R0], R6
+    MOV    R0, 0064H
+    MOV    [valor_display], R0
     MOV    R6, [jogo_estado]
     MOV    R3, JOGO_A_CORRER
     MOV    [jogo_estado], R3
@@ -281,7 +283,7 @@ verifica_teclaC:
     CALL   desenha_apaga_boneco
     MOV    R3, JOGO_NAO_INICIADO
     CMP    R3, R6
-    JZ   inicia_jogo
+    JZ     inicia_jogo
     JMP    verifica_teclaC
 
 verifica_teclaD:
@@ -483,6 +485,10 @@ painel_nave_loop:
     JZ restart_loop
     JMP painel_nave_loop
 
+
+; ******************************************************************************************************************************************************
+; SONDA - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
 
 restart_loop:
     MOV R9, DEF_ECRA_NAVE_1
