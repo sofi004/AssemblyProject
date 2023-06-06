@@ -79,8 +79,8 @@ COLUNA_ECRA_NAVE EQU 29                         ; coluna onde vai ser desenhado 
 LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
-TAMANHO_PILHA		EQU  100H      ; tamanho de cada pilha, em words
-N_BONECOS			EQU  5		; número de bonecos (até 4)
+TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
+N_BONECOS			EQU  5		                ; número de bonecos 
 
 
 ; ######################################################################################################################################################
@@ -255,7 +255,7 @@ inicio:
     MOV     R11, N_BONECOS
 
     loop_asteroide:
-        SUB R11, 1
+        SUB R11, 1                              ; subtrai-mos logo por causa da pilha
         CALL   boneco  
         CMP R11, 0
         JNZ loop_asteroide                             
@@ -368,23 +368,24 @@ boneco:					; processo que implementa o comportamento do boneco
 ;********
 ;Parte da criaçao do processo, em que apontamos o SP para a parte da pilha a usar
 ;********
-    MOV R1, TAMANHO_PILHA
-    MUL R1, R11
-    SUB SP, R1
+    MOV R1, TAMANHO_PILHA       ; tamanho de cada pilha (100H)
+    MUL R1, R11                 ; multiplica pelo numero do asteroide
+    SUB SP, R1                  ; subtrai a pilha total (100H*5) ao numero do asteroide * 100 
 
-    MOV R4, R11         ;registo para usar na seleçao do ecra
+    MOV R4, R11                 ;registo para usar na seleçao do ecra
+    ADD R4, 1                   ; adiciona 2 porque no 0 tá a nave e no 1 ta o display
 
-    MOV R10, R11
-    SHL R10, 2
+    MOV R10, R11                ; guarda o numero do asteroide para usar pra posiçao
+    SHL R10, 2                  ; multiplica por 4 pois a tabela vai de 4 em 4 (2 words por asteroide)
 
-    MOV R9, posicao_asteroides
+    MOV R9, posicao_asteroides      ; endereço da tabela que guarda a posiçao dos asteroides na memoria
     ADD R9, R10                     ; endereço da tabela de posicao + nº asteroide * 4
     MOV R8, [R9]                    ; R8 guarda linha
-    ADD R9, 2
-    MOV R10, [R9]                   ; R10 guarda coluna
+    ADD R9, 2                                   ; word seguinte, primeiro guardamos linha, na a seguir a coluna
+    MOV R10, [R9]                               ; R10 guarda coluna
 
-    MOV R9, sentido_movimento_coluna_asteroide      ; endereço da tabela de sentido dos asteroides
-    MOV R6, R11                     ; coloca o nº do boneco em R6
+    MOV R9, sentido_movimento_coluna_asteroide  ; endereço da tabela de sentido dos asteroides
+    MOV R6, R11                                 ; coloca o nº do boneco em R6
     SHL R6, 1	                    ; multiplica por 2 pois estamos a tratar de WORDS
     MOV R7, [R9 + R6]               ; guarda o incremento por coluna
     MOV R5, 1                       ; incremento da linha
@@ -396,30 +397,7 @@ boneco:					; processo que implementa o comportamento do boneco
 ciclo_boneco:
     MOV	R3, [evento_init_boneco]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
 
-    CMP R4, 2
-    JZ seleciona_ecra0
-    CMP R4, 4
-    JZ seleciona_ecra1
-    CMP R4, 1
-    JZ seleciona_ecra1
-    CMP R4, 3
-    JZ seleciona_ecra2
-    CMP R4, 0
-    JZ seleciona_ecra2
-    seleciona_ecra0:
-        MOV R2, 0
-        MOV [SELECIONA_ECRÃ], R2
-        JMP ecra_selecionado
-    seleciona_ecra1:
-        MOV R2, 1
-        MOV [SELECIONA_ECRÃ], R2
-        JMP ecra_selecionado
-    seleciona_ecra2:
-        MOV R2, 2
-        MOV [SELECIONA_ECRÃ], R2
-        JMP ecra_selecionado
-
-    ecra_selecionado:
+    MOV [SELECIONA_ECRÃ], R4                    ; seleciona o ecrã
     
     MOV R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
@@ -458,10 +436,10 @@ display_tempo:
 PROCESS SPinit_painelnave
 
 painel_nave:
-    MOV R2,0
+    MOV R2, 0
     JMP restart_loop
 painel_nave_loop:
-    MOV R0, [evento_init_nave]          ; verificação lock
+    MOV R0, [evento_init_nave]          ; verificaçADD R4, 2                                   ; adiciona 2 porque no 0 tá a nave e no 1 ta o displayão lock
     MOV [SELECIONA_ECRÃ], R2
     MOV R8, LINHA_ECRA_NAVE
     MOV R10, COLUNA_ECRA_NAVE
