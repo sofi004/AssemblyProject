@@ -366,6 +366,21 @@ suspende_jogo:
     MOV    [SELECIONA_CENARIO_FRONTAL], R6      ; coloca cenario frontal de pausa do jogo(2)
     JMP    verifica_teclaC
 
+termina_jogo:
+    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
+    MOV    R6, 2
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
+    MOV    R6, 1                      
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 1
+    MOV    R6, 0   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
+    MOV    R6, 1   
+    MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
+    MOV    R6, 4   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+    JMP    verifica_teclaC
+
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
