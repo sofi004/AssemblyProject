@@ -264,7 +264,7 @@ inicio:
     CALL    painel_nave
     CALL    teclado
     CALL    display_tempo                              
-    MOV     R11, N_BONECOS
+    MOV     R11, N_ASTEROIDES
 
     loop_asteroide:
         SUB R11, 1                              ; subtrai-mos logo por causa da pilha
