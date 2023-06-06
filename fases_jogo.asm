@@ -271,7 +271,8 @@ verifica_teclaC:
     MOV R0, 0064H
     MOV [valor_display], R0
     MOV    R3, JOGO_NAO_INICIADO
-    CMP    R3, [jogo_estado]
+    MOV    R6, [jogo_estado]
+    CMP    R3, R6
     CALL   inicia_jogo
     MOV    R3, JOGO_A_CORRER
     MOV    [jogo_estado], R3
