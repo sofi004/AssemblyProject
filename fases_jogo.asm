@@ -265,12 +265,15 @@ verifica_teclaC:
     MOV    R4, TECLA_C    
     CMP    R1, R4                               ; a tecla premida é a c?
     JNZ    verifica_teclaD
-    MOV R6, 0100H
-    MOV R0, DISPLAYS
-    MOV [R0], R6
-    MOV R0, 0064H
-    MOV [valor_display], R0
-    MOV    R6, [jogo_estado]
+    MOV    R4, [jogo_estado] 
+    MOV    R1, JOGO_A_CORRER
+    CMP    R4, R1
+    JZ     verifica_teclaD
+    MOV    R6, 0100H
+    MOV    R0, DISPLAYS
+    MOV    [R0], R6
+    MOV    R0, 0064H
+    MOV    [valor_display], R0
     MOV    R3, JOGO_A_CORRER
     MOV    [jogo_estado], R3
     MOV    R11, 1                               ; para indicar que é para desenhar
@@ -279,8 +282,8 @@ verifica_teclaC:
     MOV    R9, DEF_NAVE
     CALL   desenha_apaga_boneco
     MOV    R3, JOGO_NAO_INICIADO
-    CMP    R3, R6
-    JZ   inicia_jogo
+    CMP    R3, R4
+    JZ     inicia_jogo
     JMP    verifica_teclaC
 
 verifica_teclaD:
