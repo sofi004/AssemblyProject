@@ -271,15 +271,17 @@ verifica_teclaC:
     MOV [R0], R6
     MOV R0, 0064H
     MOV [valor_display], R0
-    MOV    R3, 1
+    MOV    R6, [jogo_estado]
+    MOV    R3, JOGO_A_CORRER
     MOV    [jogo_estado], R3
     MOV    R11, 1                               ; para indicar que é para desenhar
-    
     MOV    R8, LINHA_NAVE
     MOV    R10, COLUNA_NAVE
     MOV    R9, DEF_NAVE
     CALL   desenha_apaga_boneco
-    
+    MOV    R3, JOGO_NAO_INICIADO
+    CMP    R3, R6
+    JZ   inicia_jogo
     JMP    verifica_teclaC
 
 verifica_teclaD:
@@ -317,6 +319,21 @@ verifica_tecla2:
     MOV    R3, 2
     MOV    [sonda_estado], R3
     JMP verifica_teclaC
+
+inicia_jogo:
+    MOV    R6, 5                                ; som número 4
+    MOV    [TERMINA_SOM_VIDEO], R6              ; este ciclo inicia/ reinicia o jogo
+    MOV    R6, 2   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 2
+    MOV    R6, 4                                ; som número 4
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 4
+    MOV    R6, 0                                  
+    MOV    [SELECIONA_SOM_VIDEO], R6           ; seleciona um video para cenário de fundo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6           ; inicia a reprodução do video de fundo do jogo
+    MOV    R6, 1   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som de fundo do jogo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
+    JMP    verifica_teclaC
 
    
 
