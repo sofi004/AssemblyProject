@@ -111,10 +111,11 @@ evento_init_display:
 ; Tabela das rotinas de interrupção
 tab:
 	WORD rot_int_boneco			                ; rotina de atendimento da interrupção 0
-    WORD 0
+    WORD rot_int_sonda
     WORD rot_int_display
     WORD rot_int_painel_nave
 
+valor_aleatorio: WORD 1
 jogo_estado: WORD JOGO_NAO_INICIADO             ; o estado 0 simboliza que o jogo ainda não começou
                                                 ; o estado 1 simboliza que o jogo está a correr
                                                 ; o estado 2 simboliza que o jogo está em pausa
@@ -390,9 +391,20 @@ boneco:					; processo que implementa o comportamento do boneco
     MOV R7, [R9 + R6]               ; guarda o incremento por coluna
     MOV R5, 1                       ; incremento da linha
 	
-	; cena aleatoria escolher entre asteroide bom e mau
 
+
+	; cena aleatoria escolher entre asteroide bom e mau
+    MOV R1, [valor_aleatorio]                   
+    CMP R1, 0
+    JZ escolhe_asteroide_bom                    ; se valor aleatorio é 0 vem asteroide bom
+    JMP escolhe_asteroide_mau                   ; se valor aleaotorio 1 ou 2 vem asteroide mau
+
+    escolhe_asteroide_bom:
 	MOV	 R9, DEF_ASTEROIDE_BOM		            ; endereço da tabela que define o boneco
+    JMP ciclo_boneco
+
+    escolhe_asteroide_mau:
+	MOV	 R9, DEF_ASTEROIDE_MAU		            ; endereço da tabela que define o boneco
 
 ciclo_boneco:
     MOV	R3, [evento_init_boneco]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
@@ -637,3 +649,38 @@ rot_int_painel_nave:
     nave_unlock:
     MOV	[evento_init_nave], R0	; desbloqueia processo painel_nave (qualquer registo serve)
     JMP retorna_int_nave
+
+
+rot_int_sonda:
+    PUSH R1
+    PUSH R2
+    MOV R1, [valor_aleatorio]
+    CMP R1, 0
+    JZ mete_1
+    CMP R1, 1
+    JZ mete_2
+    JMP mete_0
+
+
+    mete_1:
+    MOV R2, 1
+    MOV [valor_aleatorio], R2
+    JMP fim_rot_int_sonda
+    mete_0:
+    MOV R2, 0
+    MOV [valor_aleatorio], R2
+    mete_2:
+    MOV R2, 2
+    MOV [valor_aleatorio], R2
+
+    fim_rot_int_sonda:
+    POP R2
+    POP R1
+    RFE
+    
+    
+     
+
+
+
+
