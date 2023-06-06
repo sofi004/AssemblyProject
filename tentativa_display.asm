@@ -628,7 +628,8 @@ display_tempo:
 
 display_explosão_mineravel:
     MOV R6, [valor_display]
-    ADD R6, 25
+    MOV R7, 25
+    ADD R6, R7
     MOV [valor_display], R6
     CALL hex_para_dec
     MOV    R3, NENHUMA_EXPLOSÃO_MIN
