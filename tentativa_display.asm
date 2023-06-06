@@ -240,9 +240,11 @@ inicio:
     MOV    R9, 2                                ; som número 2
     MOV    [SELECIONA_SOM_VIDEO], R9            ; seleciona um som para a intro do jogo
     MOV    [REPRODUZ_SOM_VIDEO], R9             ; inicia a reprodução do som da intro
-    MOV R6, 0100H
-    MOV R0, DISPLAYS
-    MOVB [R0], R6 
+    MOV     R6, 0100H
+    MOV     R0, DISPLAYS
+    MOVB    [R0], R6
+    MOV R0, 0064H
+    MOV [valor_display], R0 
     EI0
     EI2
     EI3
