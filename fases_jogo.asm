@@ -426,7 +426,7 @@ repeticao_tecla:
     AND    R8, R7                               ; elimina bits para além dos bits 0-3
     CMP    R8, 0                                ; há tecla premida?
     JNZ    repeticao_tecla                      ; se ainda houver uma tecla premida, espera até não haver
-    RET
+    JMP  espera_tecla
 
 
 ; **********************************************************************
