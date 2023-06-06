@@ -91,7 +91,7 @@ LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o
 LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
 TAMANHO_PILHA		EQU  100H      ; tamanho de cada pilha, em words
-N_BONECOS			EQU  5		; número de bonecos (até 4)
+N_ASTEROIDES			EQU  5		; número de bonecos (até 4)
 
 
 ; ######################################################################################################################################################
@@ -102,7 +102,7 @@ STACK TAMANHO_PILHA			                            ; espaço reservado para a pil
     SPinit_principal:		                    ; este é o endereço com que o SP deste processo deve ser inicializado
 STACK  TAMANHO_PILHA                                     ; espaço reservado para a pilha 200H bytes, 100H words
 	SPinit_teclado:	
-STACK  TAMANHO_PILHA * N_BONECOS                           ; espaço reservado para a pilha do processo "boneco"
+STACK  TAMANHO_PILHA * N_ASTEROIDES                           ; espaço reservado para a pilha do processo "boneco"
     SPinit_boneco:
 STACK TAMANHO_PILHA
         SPinit_painelnave:
@@ -241,7 +241,7 @@ inicio:
     EI
     CALL    painel_nave
     CALL    teclado                              
-    MOV     R11, N_BONECOS
+    MOV     R11, N_ASTEROIDES
 
     loop_asteroide:
         SUB R11, 1
