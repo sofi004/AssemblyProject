@@ -264,8 +264,6 @@ verifica_teclaC:
     JNZ    verifica_teclaD
     MOV    R3, 1
     MOV    [jogo_estado], R3
-    SUB    R6, 1
-    CALL   hex_para_dec
     MOV    R11, 1                               ; para indicar que é para desenhar
     
     MOV    R8, LINHA_NAVE
