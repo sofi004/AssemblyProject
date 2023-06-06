@@ -359,6 +359,8 @@ continua_jogo:
     MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o video de fundo do jogo(0)
     MOV    R6, 1
     MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o som de fundo do jogo(1)
+    MOV    R6, JOGO_A_CORRER
+    MOV    [jogo_estado], R6
     JMP    verifica_teclaC
 
 suspende_jogo:
@@ -368,6 +370,8 @@ suspende_jogo:
     MOV    [SUSPENDE_SOM_VIDEO], R6             ; pausa o som de fundo do jogo(0)
     MOV    R6, 2
     MOV    [SELECIONA_CENARIO_FRONTAL], R6      ; coloca cenario frontal de pausa do jogo(2)
+    MOV    R6, JOGO_PAUSADO
+    MOV    [jogo_estado], R6
     JMP    verifica_teclaC
 
 termina_jogo:
@@ -383,6 +387,8 @@ termina_jogo:
     MOV    R6, 4   
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+    MOV    R6, JOGO_NAO_INICIADO
+    MOV    [jogo_estado], R6
     JMP    verifica_teclaC
 
 ; ******************************************************************************************************************************************************
