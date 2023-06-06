@@ -80,7 +80,12 @@ LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o
 LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
 TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
-N_BONECOS			EQU  5		                ; número de bonecos 
+N_ASTEROIDES			EQU  5		                ; número de bonecos
+N_MAX_SONDAS      EQU 3                         ; num max sondas
+LINHA_INICIAL_SONDA EQU 26                     ; linha inicial da sonda
+COLUNA_INICIAL_SONDA EQU 32                    ; coluna inicial da sonda
+
+
 
 
 ; ######################################################################################################################################################
@@ -91,14 +96,14 @@ STACK TAMANHO_PILHA			                    ; espaço reservado para a pilha do pr
     SPinit_principal:		                    ; este é o endereço com que o SP deste processo deve ser inicializado
 STACK  TAMANHO_PILHA                            ; espaço reservado para a pilha 200H bytes, 100H words
 	SPinit_teclado:	
-STACK  TAMANHO_PILHA * N_BONECOS                ; espaço reservado para a pilha do processo "boneco"
+STACK  TAMANHO_PILHA * N_ASTEROIDES                ; espaço reservado para a pilha do processo "boneco"
     SPinit_boneco:
 STACK TAMANHO_PILHA
     SPinit_painelnave:
 
 STACK TAMANHO_PILHA
     SPinit_display:
-STACK TAMANHO_PILHA
+STACK TAMANHO_PILHA * N_MAX_SONDAS
     SPinit_sonda:
 
 evento_init_boneco:                             ; LOCK para a rotina de interrupção comunicar ao processo boneco que a interrupção ocorreu
@@ -123,13 +128,16 @@ valor_aleatorio: WORD 1
 jogo_estado: WORD JOGO_NAO_INICIADO             ; o estado 0 simboliza que o jogo ainda não começou
                                                 ; o estado 1 simboliza que o jogo está a correr
                                                 ; o estado 2 simboliza que o jogo está em pausa
-sonda_estado: WORD NENHUMA_SONDA                ; o estado 0, 1 e 2 sibolizam respetivamente que que as teclas 0, 1 e 2 foram premidas
-                                                ; o estado 4 simboliza que nenhuma destas teclas foi premida
-                                                ; o estado 5 simboliza que ainda não foi feita a decrementação de 5% ao valor apresentado no display
+incremento_horizontal_sonda: WORD 0             ; variável que guarda o incremento horizontal da sonda
 valor_display: WORD 0064H                       ; valor em hexadecimal que está no display
 mineravel_estado:  WORD NENHUMA_EXPLOSÃO_MIN    ; o estado 0 simboliza que nenhum asteroide mineravel explodio,
                                                 ; ou que explodio, mas já foi adicionada no display a energia correspondente à explosão
                                                 ; o estado 1 simboliza que ainda não foi feita a incrementação de 25% ao valor apresentado no display
+
+posicao_sondas:
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
 
 posicao_asteroides:
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE0
@@ -252,13 +260,14 @@ inicio:
     MOV [valor_display], R0 
 
     EI0
+    EI1
     EI2
     EI3
     EI
     CALL    painel_nave
     CALL    teclado
     CALL    display_tempo                              
-    MOV     R11, N_BONECOS
+    MOV     R11, N_ASTEROIDES
 
     loop_asteroide:
         SUB R11, 1                              ; subtrai-mos logo por causa da pilha
@@ -303,26 +312,29 @@ verifica_teclaE:
 
 verifica_tecla0:
     MOV    R4, TECLA_0
-    CMP  R1, R4
+    CMP  R1, R4 
     JNZ  verifica_tecla1
-    MOV    R3, 0
-    MOV    [sonda_estado], R3
+    MOV  R3, -1
+    MOV  [incremento_horizontal_sonda], R3
+    CALL incremento_sonda
     JMP verifica_teclaC
 
 verifica_tecla1:
     MOV    R4, TECLA_1
     CMP  R1, R4
     JNZ  verifica_tecla2
-    MOV    R3, 1
-    MOV    [sonda_estado], R3
+    MOV  R3, 0
+    MOV  [incremento_horizontal_sonda], R3
+    CALL incremento_sonda
     JMP verifica_teclaC
 
 verifica_tecla2:
     MOV    R4, TECLA_2
     CMP  R1, R4
     JNZ  verifica_teclaC
-    MOV    R3, 2
-    MOV    [sonda_estado], R3
+    MOV  R3, 1
+    MOV  [incremento_horizontal_sonda], R3
+    CALL incremento_sonda
     JMP verifica_teclaC
 
 inicia_jogo:
@@ -352,9 +364,10 @@ teclado:
     MOV    R3, TEC_COL                          ; endereço do periférico das colunas
 restart_linhas:
     MOV    R1, LINHA                            ; coloca 16 = 10000 em binário no registo 1
+    WAIT
 
 espera_tecla:                                   ; neste ciclo espera-se até uma tecla ser premida
-    WAIT
+    
     SHR    R1, 1                                ; passa para a linha seguinte
     CMP    R1, 0                                ; verifica se ja passamos pelas linhas todas
     JZ     restart_linhas                       ; voltamos ao inicio das linhas 
@@ -377,7 +390,7 @@ repeticao_tecla:
     AND    R8, R7                               ; elimina bits para além dos bits 0-3
     CMP    R8, 0                                ; há tecla premida?
     JNZ    repeticao_tecla                      ; se ainda houver uma tecla premida, espera até não haver
-    JMP    espera_tecla
+    JMP    restart_linhas
 
 
 ; **********************************************************************
@@ -498,9 +511,42 @@ painel_nave_loop:
 ; SONDA - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
 
+PROCESS SPinit_sonda
 
+incremento_sonda:
+    MOV R0, [incremento_horizontal_sonda]
+    MOV R5, R0
+    MOV R1, R0                            ; movemos para R1 para poder modificar o incremento
+    ADD R1, 1                             ; adicionar 2 para apontar para a "centena" correta da pilha
+    MOV R3, TAMANHO_PILHA
+    MUL R1, R3                            ; R1 passa a ter o enderço da pilha
+    SUB SP, R1                            ; a sonda com este incremento fica com a respetiva pilha
 
+seleciona_posicao_tabela:
+    ADD R0, 1
+    SHL R0, 2
+    MOV R9, posicao_sondas
+    ADD R9, R0
+    MOV R8, [R9]                           ; guarda linha inicial da sonda em R8
+    ADD R9, 2
+    MOV R10, [R9]                        ; guarda coluna inicial da sonda em R10
+    MOV R9, DEF_SONDA                     ; guarda em R9  o endereço que define o desenho da sonda
 
+move_sonda:
+    MOV	R3, [evento_init_sonda]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
+    MOV R4, 0
+    MOV [SELECIONA_ECRÃ], R4                    ; seleciona o ecrã
+    
+    MOV R11, 0
+
+	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
+
+    SUB	R8, 1			                        ; para desenhar objeto na linha anterior 
+    ADD	R10, R5		                            ; para desenhar objeto na coluna seguinte 
+
+    MOV R11, 1
+	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
+    JMP move_sonda
 
 ; **************
 ; ROTINAS 
@@ -702,6 +748,7 @@ rot_int_sonda:
     MOV [valor_aleatorio], R2
 
     fim_rot_int_sonda:
+    MOV [evento_init_sonda], R0
     POP R2
     POP R1
     RFE
