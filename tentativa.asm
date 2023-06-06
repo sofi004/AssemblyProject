@@ -639,7 +639,7 @@ acabou_energia:
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    R6, 0
     MOV    [jogo_estado], R6
-    JMP    verifica_teclaC
+    JMP    display_tempo
 
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Rotina Desenha/Apaga um boneco na linha e coluna indicadas
