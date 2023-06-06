@@ -635,6 +635,8 @@ acabou_energia:
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    R6, 0
     MOV    [jogo_estado], R6
+    MOV    R6, DISPLAYS
+    MOV    [R6], 0
     JMP    display_tempo
 
 ; ******************************************************************************************************************************************************
