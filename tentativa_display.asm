@@ -612,9 +612,9 @@ display_princ:
 
 
 display_sonda:
-    MOV R6, [valor_display]
-    SUB R6, 5
-    MOV [valor_display], R6
+    MOV R4, [valor_display]
+    SUB R4, 5
+    MOV [valor_display], R4
     CALL hex_para_dec
     MOV    R3, NENHUMA_SONDA
     MOV    [sonda_estado], R3
@@ -625,17 +625,17 @@ display_tempo:
     JNZ display_princ
     CMP R1, NENHUMA_EXPLOSÃO_MIN
     JNZ display_princ
-    MOV R6, [valor_display]
-    SUB R6, 3
-    MOV [valor_display], R6
+    MOV R4, [valor_display]
+    SUB R4, 3
+    MOV [valor_display], R4
     CALL hex_para_dec
     JMP display_princ
 
 display_explosão_mineravel:
-    MOV R6, [valor_display]
+    MOV R4, [valor_display]
     MOV R7, 25
-    ADD R6, R7
-    MOV [valor_display], R6
+    ADD R4, R7
+    MOV [valor_display], R4
     CALL hex_para_dec
     MOV    R3, NENHUMA_EXPLOSÃO_MIN
     MOV    [mineravel_estado], R3
