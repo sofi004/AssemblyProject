@@ -265,7 +265,8 @@ verifica_teclaC:
     MOV R6, 0100H
     MOV R0, DISPLAYS
     MOVB [R0], R6
-    MOV [valor_display], 0064H
+    MOV R0, 0064H
+    MOV [valor_display], R0
     MOV    R3, 1
     MOV    [jogo_estado], R3
     MOV    R11, 1                               ; para indicar que é para desenhar
