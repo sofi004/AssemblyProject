@@ -290,6 +290,7 @@ verifica_teclaD:
     MOV    R4, TECLA_D
     CMP   R1, R4
     JNZ   verifica_teclaE
+    MOV    R4, [jogo_estado]
     MOV    R1, JOGO_NAO_INICIADO
     CMP    R4, R1
     JZ     verifica_teclaE
