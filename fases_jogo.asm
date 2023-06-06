@@ -273,7 +273,7 @@ verifica_teclaC:
     MOV    R3, JOGO_NAO_INICIADO
     MOV    R6, [jogo_estado]
     CMP    R3, R6
-    CALL   inicia_jogo
+    JZ   inicia_jogo
     MOV    R3, JOGO_A_CORRER
     MOV    [jogo_estado], R3
     MOV    R11, 1                               ; para indicar que é para desenhar
@@ -322,21 +322,19 @@ verifica_tecla2:
 
 
 inicia_jogo:
-    MOV    R5, 5                                ; som número 4
-    MOV    [TERMINA_SOM_VIDEO], R5              ; este ciclo inicia/ reinicia o jogo
-    MOV    R5, 2   
-    MOV    [TERMINA_SOM_VIDEO], R5              ; termina o som número 2
-    MOV    R5, 4                                ; som número 4
-    MOV    [TERMINA_SOM_VIDEO], R5              ; termina o som número 4
-    MOV    R0, 1                                ; coloca 1 no registo para sabermos se o jogo está a correr ou não
-    MOV    R5, 0                                  
-    MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona um video para cenário de fundo
-    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5           ; inicia a reprodução do video de fundo do jogo
-    MOV    R5, 1   
-    MOV    [SELECIONA_SOM_VIDEO], R5            ; seleciona o som de fundo do jogo
-    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R5       ; inicia a reprodução do som de fundo
-    POP R5
-    RET
+    MOV    R6, 5                                ; som número 4
+    MOV    [TERMINA_SOM_VIDEO], R6              ; este ciclo inicia/ reinicia o jogo
+    MOV    R6, 2   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 2
+    MOV    R6, 4                                ; som número 4
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 4
+    MOV    R6, 0                                  
+    MOV    [SELECIONA_SOM_VIDEO], R6           ; seleciona um video para cenário de fundo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6           ; inicia a reprodução do video de fundo do jogo
+    MOV    R6, 1   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som de fundo do jogo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
+    JMP    verifica_teclaC
 
    
 
