@@ -262,6 +262,9 @@ verifica_teclaC:
     MOV    R4, TECLA_C    
     CMP    R1, R4                               ; a tecla premida é a c?
     JNZ    verifica_teclaD
+    MOV R6, 0100H
+    MOV R0, DISPLAYS
+    MOVB [R0], R6
     MOV    R3, 1
     MOV    [jogo_estado], R3
     MOV    R11, 1                               ; para indicar que é para desenhar
@@ -591,14 +594,14 @@ retorna_ciclo_desenho:
 ; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
 PROCESS SPinit_display
-
-display:
+display_princ:
     MOV R0, [evento_init_display]          ; verificação lock
+    MOV R1, [sonda_estado]
+    MOV R2, [mineravel_estado]
     MOV R1, [sonda_estado]
     CMP R1, DECREMENTAÇÃO_PENDENTE_5
     JZ display_sonda
-    MOV R2, [mineravel_estado]
-    CMP R1, EXPLOSÃO_MIN
+    CMP R2, EXPLOSÃO_MIN
     JZ display_explosão_mineravel
     JMP display_tempo
 
@@ -611,18 +614,18 @@ display_sonda:
     CALL hex_para_dec
     MOV    R3, NENHUMA_SONDA
     MOV    [sonda_estado], R3
-    JMP   display
+    JMP   display_princ
 
 display_tempo:
     CMP R1, NENHUMA_SONDA
-    JNZ display
+    JNZ display_princ
     CMP R1, NENHUMA_EXPLOSÃO_MIN
-    JNZ display
+    JNZ display_princ
     MOV R6, [valor_display]
     SUB R6, 3
     MOV [valor_display], R6
     CALL hex_para_dec
-    JMP display
+    JMP display_princ
 
 display_explosão_mineravel:
     MOV R6, [valor_display]
@@ -632,7 +635,7 @@ display_explosão_mineravel:
     CALL hex_para_dec
     MOV    R3, NENHUMA_EXPLOSÃO_MIN
     MOV    [mineravel_estado], R3
-    JMP display
+    JMP display_princ
     
 
 ; ******************************************************************************************************************************************************
