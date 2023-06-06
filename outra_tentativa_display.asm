@@ -539,6 +539,8 @@ display_tempo:
     SUB R6, 3
     MOV [valor_display], R6
     CALL hex_para_dec
+    CMP R6, 0
+    JLT acabou_energia
     JMP display_tempo
 
     
@@ -618,7 +620,22 @@ move_sonda:
 ; **************
 ; ROTINAS 
 ; **************
-
+acabou_energia:
+    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
+    MOV    R6, 2
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
+    MOV    R6, 1                      
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 1
+    MOV    R6, 0   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
+    MOV    R6, 3   
+    MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
+    MOV    R6, 5   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+    MOV    R6, 0
+    MOV    [jogo_estado], R6
+    JMP    display_tempo
 
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Rotina Desenha/Apaga um boneco na linha e coluna indicadas
