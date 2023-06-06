@@ -304,7 +304,7 @@ verifica_tecla1:
     JMP verifica_teclaC
 
 verifica_tecla2:
-    MOV    R4, TECLA_2~
+    MOV    R4, TECLA_2
     CMP  R1, R4
     JNZ  verifica_teclaC
     MOV    R3, 2
