@@ -794,6 +794,20 @@ rot_int_painel_nave:
 rot_int_sonda:
     PUSH R1
     PUSH R2
+    PUSH R3
+    PUSH R7
+
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   sonda_unlock
+    JMP continuar_int_sonda
+
+    sonda_unlock:
+    MOV	[evento_init_sonda], R0	; desbloqueia processo sonda (qualquer registo serve)
+    
+
+    continuar_int_sonda:
     MOV R1, [valor_aleatorio]
     CMP R1, 0
     JZ mete_1
@@ -814,7 +828,8 @@ rot_int_sonda:
     MOV [valor_aleatorio], R2
 
     fim_rot_int_sonda:
-    MOV [evento_init_sonda], R0
+    POP R7
+    POP R3
     POP R2
     POP R1
     RFE
