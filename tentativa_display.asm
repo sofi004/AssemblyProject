@@ -325,6 +325,7 @@ hex_para_dec:
     PUSH   R2
     PUSH   R3
     PUSH   R4
+    PUSH   R6
 
     MOV    R0, 100                              ; define R0 como 100, que é usado como uma constante na transformação
     MOV    R1, 10                               ; define R1 como 10, que é usado como uma constante na transformação
@@ -343,6 +344,7 @@ transformação:
 retorna_ciclo_transforma:
     MOV    R6, DISPLAYS
     MOV    [R6], R2  
+    POP    R6
     POP    R4
     POP    R3
     POP    R2
@@ -612,9 +614,9 @@ display_princ:
 
 
 display_sonda:
-    MOV R4, [valor_display]
-    SUB R4, 5
-    MOV [valor_display], R4
+    MOV R6, [valor_display]
+    SUB R6, 5
+    MOV [valor_display], R6
     CALL hex_para_dec
     MOV    R3, NENHUMA_SONDA
     MOV    [sonda_estado], R3
@@ -625,17 +627,17 @@ display_tempo:
     JNZ display_princ
     CMP R1, NENHUMA_EXPLOSÃO_MIN
     JNZ display_princ
-    MOV R4, [valor_display]
-    SUB R4, 3
-    MOV [valor_display], R4
+    MOV R6, [valor_display]
+    SUB R6, 3
+    MOV [valor_display], R6
     CALL hex_para_dec
     JMP display_princ
 
 display_explosão_mineravel:
-    MOV R4, [valor_display]
+    MOV R6, [valor_display]
     MOV R7, 25
-    ADD R4, R7
-    MOV [valor_display], R4
+    ADD R6, R7
+    MOV [valor_display], R6
     CALL hex_para_dec
     MOV    R3, NENHUMA_EXPLOSÃO_MIN
     MOV    [mineravel_estado], R3
