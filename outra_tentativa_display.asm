@@ -317,108 +317,7 @@ verifica_tecla2:
     MOV    [sonda_estado], R3
     JMP verifica_teclaC
 
-; ******************************************************************************************************************************************************
-; hex_para_dec- rotina que converte um número hexadecimal, no respetivo decimal
-; ******************************************************************************************************************************************************
-hex_para_dec:
-    PUSH   R0
-    PUSH   R1
-    PUSH   R2
-    PUSH   R3
-    PUSH   R4
-    PUSH   R6
-
-    MOV    R0, 100                              ; define R0 como 100, que é usado como uma constante na transformação
-    MOV    R1, 10                               ; define R1 como 10, que é usado como uma constante na transformação
-    MOV    R2, 0                                ; inicializa R2 como 0, que será usado para acumular os dígitos convertidos
-    MOV    R4, R6                               ; move o valor de R6 para R4, para guardar o valor original de R6
-transformação:
-    MOV    R3, R4                               ; move o valor de R4 para R3 para preservar o valor original
-    DIV    R3, R0                               ; divide o valor de R3 por R0 para obter o quociente da divisão
-    MOD    R4, R0                               ; calcula o resto da divisão de R4 por R0
-    DIV    R0, R1                               ; divide o valor de R0 por R1 para atualizar o valor de R0 para a próxima iteração
-    SHL    R2, 4                                ; desloca o conteúdo de R2 em 4 bits para a esquerda, R2 é utilizado como mascara
-    OR     R2, R3                               ; combina o conteúdo de R2 e R3, acumulando os dígitos convertidos
-    CMP    R0, 0                                ; verifica se cada um dos digitos do número hexadecimal já foram convertidos
-    JNZ    transformação
-
-retorna_ciclo_transforma:
-    MOV    R6, DISPLAYS
-    MOV    [R6], R2  
-    POP    R6
-    POP    R4
-    POP    R3
-    POP    R2
-    POP    R1
-    POP    R0
-    RET 
-
    
-; ******************************************************************************************************************************************************
-; ROT_INT_BONECO - 	Rotina de atendimento da interrupção 0
-;			        Faz simplesmente uma escrita no LOCK que o processo boneco lê.
-;			        Como basta indicar que a interrupção ocorreu (não há mais
-;			        informação a transmitir). Dependendo do estado do jogo,
-;                   a interrupção irá ou não desbloquear o lock.
-; ******************************************************************************************************************************************************
-rot_int_boneco:
-    PUSH R3
-    PUSH R7
-    MOV   R3, 1
-    MOV   R7, [jogo_estado]  
-	CMP  R7, R3
-    JZ   boneco_unlock
-    retorna_int:
-    POP R7
-    POP R3
-    RFE
-    boneco_unlock:
-    MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve)
-    JMP retorna_int
-
-; ******************************************************************************************************************************************************
-; ROT_INT_DISPLAY - Rotina de atendimento da interrupção 2
-;			        Faz simplesmente uma escrita no LOCK que o processo display lê.
-;			        Como basta indicar que a interrupção ocorreu (não há mais
-;			        informação a transmitir). Dependendo do estado do jogo,
-;                   a interrupção irá ou não desbloquear o lock.
-; ******************************************************************************************************************************************************
-rot_int_display:
-    PUSH R3
-    PUSH R7
-    MOV   R3, 1
-    MOV   R7, [jogo_estado]  
-	CMP  R7, R3
-    JZ   display_unlock
-    retorna_int_display:
-    POP R7
-    POP R3
-    RFE
-    display_unlock:
-    MOV	[evento_init_display], R0	; desbloqueia processo painel_nave (qualquer registo serve)
-    JMP retorna_int_display
-
-; ******************************************************************************************************************************************************
-; ROT_INT_PAINEL_NAVE - Rotina de atendimento da interrupção 3
-;			            Faz simplesmente uma escrita no LOCK que o processo painel_nave lê.
-;			            Como basta indicar que a interrupção ocorreu (não há mais
-;			            informação a transmitir). Dependendo do estado do jogo,
-;                       a interrupção irá ou não desbloquear o lock.
-; ******************************************************************************************************************************************************
-rot_int_painel_nave:
-    PUSH R3
-    PUSH R7
-    MOV   R3, 1
-    MOV   R7, [jogo_estado]  
-	CMP  R7, R3
-    JZ   nave_unlock
-    retorna_int_nave:
-    POP R7
-    POP R3
-    RFE
-    nave_unlock:
-    MOV	[evento_init_nave], R0	; desbloqueia processo painel_nave (qualquer registo serve)
-    JMP retorna_int_nave
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
@@ -466,7 +365,9 @@ repeticao_tecla:
 PROCESS SPinit_boneco	; indicação de que a rotina que se segue é um processo,
 						; com indicação do valor para inicializar o SP
 boneco:					; processo que implementa o comportamento do boneco
-
+;********
+;Parte da criaçao do processo, em que apontamos o SP para a parte da pilha a usar
+;********
     MOV R1, TAMANHO_PILHA
     MUL R1, R11
     SUB SP, R1
@@ -534,12 +435,66 @@ ciclo_boneco:
     JMP ciclo_boneco
 						                        ; Se se quisesse terminar o processo, era deixar o processo chegar a um RET
 
+
+
+; ******************************************************************************************************************************************************
+; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
+PROCESS SPinit_display
+display_tempo:
+    MOV R0, [evento_init_display]          ; verificação lock
+    MOV R6, [valor_display]
+    SUB R6, 3
+    MOV [valor_display], R6
+    CALL hex_para_dec
+    JMP display_tempo
+
+    
+
+; ******************************************************************************************************************************************************
+; PAINEL_NAVE - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
+
+PROCESS SPinit_painelnave
+
+painel_nave:
+    MOV R2,0
+    JMP restart_loop
+painel_nave_loop:
+    MOV R0, [evento_init_nave]          ; verificação lock
+    MOV [SELECIONA_ECRÃ], R2
+    MOV R8, LINHA_ECRA_NAVE
+    MOV R10, COLUNA_ECRA_NAVE
+    MOV R11, 0
+    CALL desenha_apaga_boneco
+    MOV R11, 1
+    CALL desenha_apaga_boneco
+    MOV R10, 32d
+    ADD R9, R10
+    SUB R1, 1
+    CMP R1, 0
+    JZ restart_loop
+    JMP painel_nave_loop
+
+
+restart_loop:
+    MOV R9, DEF_ECRA_NAVE_1
+    MOV R1, 7
+    JMP painel_nave_loop
+
+
+
+; **************
+; ROTINAS 
+; **************
+
+
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Rotina Desenha/Apaga um boneco na linha e coluna indicadas
 ;			             com a forma e cor definidas na tabela indicada.
 ; Argumentos:   R8 - linha inicial
 ;               R10 - coluna inicial
-;               R9 - tabela que define o boneco
+;               R9 - endereço da tabela que define o boneco
 ;               R11 - 1(para desenhar), 0(para apagar)
 ;
 ; ******************************************************************************************************************************************************
@@ -597,47 +552,110 @@ retorna_ciclo_desenho:
     POP    R0
     RET
 
-; ******************************************************************************************************************************************************
-; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
-; ******************************************************************************************************************************************************
-PROCESS SPinit_display
-display_tempo:
-    MOV R0, [evento_init_display]          ; verificação lock
-    MOV R6, [valor_display]
-    SUB R6, 3
-    MOV [valor_display], R6
-    CALL hex_para_dec
-    JMP display_tempo
-
-    
 
 ; ******************************************************************************************************************************************************
-; PAINEL_NAVE - Processo que deteta quando se carrega numa tecla do teclado.
+; hex_para_dec- rotina que converte um número hexadecimal, no respetivo decimal
 ; ******************************************************************************************************************************************************
+hex_para_dec:
+    PUSH   R0
+    PUSH   R1
+    PUSH   R2
+    PUSH   R3
+    PUSH   R4
+    PUSH   R6
 
-PROCESS SPinit_painelnave
+    MOV    R0, 100                              ; define R0 como 100, que é usado como uma constante na transformação
+    MOV    R1, 10                               ; define R1 como 10, que é usado como uma constante na transformação
+    MOV    R2, 0                                ; inicializa R2 como 0, que será usado para acumular os dígitos convertidos
+    MOV    R4, R6                               ; move o valor de R6 para R4, para guardar o valor original de R6
+transformação:
+    MOV    R3, R4                               ; move o valor de R4 para R3 para preservar o valor original
+    DIV    R3, R0                               ; divide o valor de R3 por R0 para obter o quociente da divisão
+    MOD    R4, R0                               ; calcula o resto da divisão de R4 por R0
+    DIV    R0, R1                               ; divide o valor de R0 por R1 para atualizar o valor de R0 para a próxima iteração
+    SHL    R2, 4                                ; desloca o conteúdo de R2 em 4 bits para a esquerda, R2 é utilizado como mascara
+    OR     R2, R3                               ; combina o conteúdo de R2 e R3, acumulando os dígitos convertidos
+    CMP    R0, 0                                ; verifica se cada um dos digitos do número hexadecimal já foram convertidos
+    JNZ    transformação
 
-painel_nave:
-    MOV R2,0
-    JMP restart_loop
-painel_nave_loop:
-    MOV R0, [evento_init_nave]          ; verificação lock
-    MOV [SELECIONA_ECRÃ], R2
-    MOV R8, LINHA_ECRA_NAVE
-    MOV R10, COLUNA_ECRA_NAVE
-    MOV R11, 0
-    CALL desenha_apaga_boneco
-    MOV R11, 1
-    CALL desenha_apaga_boneco
-    MOV R10, 32d
-    ADD R9, R10
-    SUB R1, 1
-    CMP R1, 0
-    JZ restart_loop
-    JMP painel_nave_loop
+retorna_ciclo_transforma:
+    MOV    R6, DISPLAYS
+    MOV    [R6], R2  
+    POP    R6
+    POP    R4
+    POP    R3
+    POP    R2
+    POP    R1
+    POP    R0
+    RET 
 
 
-restart_loop:
-    MOV R9, DEF_ECRA_NAVE_1
-    MOV R1, 7
-    JMP painel_nave_loop
+; ***********
+; ROTINAS DE INTERRUPÇÃO
+; ***********
+
+; ******************************************************************************************************************************************************
+; ROT_INT_BONECO - 	Rotina de atendimento da interrupção 0
+;			        Faz simplesmente uma escrita no LOCK que o processo boneco lê.
+;			        Como basta indicar que a interrupção ocorreu (não há mais
+;			        informação a transmitir). Dependendo do estado do jogo,
+;                   a interrupção irá ou não desbloquear o lock.
+; ******************************************************************************************************************************************************
+rot_int_boneco:
+    PUSH R3
+    PUSH R7
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   boneco_unlock
+    retorna_int:
+    POP R7
+    POP R3
+    RFE
+    boneco_unlock:
+    MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve)
+    JMP retorna_int
+
+; ******************************************************************************************************************************************************
+; ROT_INT_DISPLAY - Rotina de atendimento da interrupção 2
+;			        Faz simplesmente uma escrita no LOCK que o processo display lê.
+;			        Como basta indicar que a interrupção ocorreu (não há mais
+;			        informação a transmitir). Dependendo do estado do jogo,
+;                   a interrupção irá ou não desbloquear o lock.
+; ******************************************************************************************************************************************************
+rot_int_display:
+    PUSH R3
+    PUSH R7
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   display_unlock
+    retorna_int_display:
+    POP R7
+    POP R3
+    RFE
+    display_unlock:
+    MOV	[evento_init_display], R0	; desbloqueia processo painel_nave (qualquer registo serve)
+    JMP retorna_int_display
+
+; ******************************************************************************************************************************************************
+; ROT_INT_PAINEL_NAVE - Rotina de atendimento da interrupção 3
+;			            Faz simplesmente uma escrita no LOCK que o processo painel_nave lê.
+;			            Como basta indicar que a interrupção ocorreu (não há mais
+;			            informação a transmitir). Dependendo do estado do jogo,
+;                       a interrupção irá ou não desbloquear o lock.
+; ******************************************************************************************************************************************************
+rot_int_painel_nave:
+    PUSH R3
+    PUSH R7
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   nave_unlock
+    retorna_int_nave:
+    POP R7
+    POP R3
+    RFE
+    nave_unlock:
+    MOV	[evento_init_nave], R0	; desbloqueia processo painel_nave (qualquer registo serve)
+    JMP retorna_int_nave
