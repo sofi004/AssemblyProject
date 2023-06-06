@@ -290,6 +290,15 @@ verifica_teclaD:
     MOV    R4, TECLA_D
     CMP   R1, R4
     JNZ   verifica_teclaE
+    MOV    R1, JOGO_NAO_INICIADO
+    CMP    R4, R1
+    JZ     verifica_teclaE
+    MOV    R1, JOGO_PAUSADO
+    CMP    R4, R1
+    JZ     continua_jogo
+    MOV    R1, JOGO_A_CORRER
+    CMP    R4, R1
+    JZ     suspende_jogo
     JMP verifica_teclaC
 
 verifica_teclaE:
@@ -338,7 +347,23 @@ inicia_jogo:
     MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
     JMP    verifica_teclaC
 
-   
+continua_jogo:
+    MOV    R6, 2                                 
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; quando o jogo está parado e o terminamos, apagamos o cenário frontal(2)
+    MOV    R6, 0
+    MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o video de fundo do jogo(0)
+    MOV    R6, 1
+    MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o som de fundo do jogo(1)
+
+
+suspende_jogo:
+    MOV    R6, 1
+    MOV    [SUSPENDE_SOM_VIDEO], R6             ; pausa o video de fundo do jogo(1)
+    MOV    R6, 0
+    MOV    [SUSPENDE_SOM_VIDEO], R6             ; pausa o som de fundo do jogo(0)
+    MOV    R6, 2
+    MOV    [SELECIONA_CENARIO_FRONTAL], R6      ; coloca cenario frontal de pausa do jogo(2)
+    
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
