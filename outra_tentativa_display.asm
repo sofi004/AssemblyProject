@@ -635,8 +635,6 @@ acabou_energia:
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    R6, 0
     MOV    [jogo_estado], R6
-    MOV    R6, DISPLAYS
-    MOV    [R6], 0
     JMP    display_tempo
 
 ; ******************************************************************************************************************************************************
@@ -730,6 +728,8 @@ transformação:
 
 retorna_ciclo_transforma:
     MOV    R6, DISPLAYS
+    CMP    R2, 0
+    JLE    display_a_zero
     MOV    [R6], R2  
     POP    R6
     POP    R4
@@ -739,6 +739,16 @@ retorna_ciclo_transforma:
     POP    R0
     RET 
 
+display_a_zero:
+    MOV    R2, 0
+    MOV    [R6], R2  
+    POP    R6
+    POP    R4
+    POP    R3
+    POP    R2
+    POP    R1
+    POP    R0
+    RET 
 
 ; ***********
 ; ROTINAS DE INTERRUPÇÃO
