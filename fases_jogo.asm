@@ -270,6 +270,7 @@ verifica_teclaC:
     MOV [R0], R6
     MOV R0, 0064H
     MOV [valor_display], R0
+    MOV    R6, [jogo_estado]
     MOV    R3, JOGO_A_CORRER
     MOV    [jogo_estado], R3
     MOV    R11, 1                               ; para indicar que é para desenhar
@@ -278,7 +279,6 @@ verifica_teclaC:
     MOV    R9, DEF_NAVE
     CALL   desenha_apaga_boneco
     MOV    R3, JOGO_NAO_INICIADO
-    MOV    R6, [jogo_estado]
     CMP    R3, R6
     JZ   inicia_jogo
     JMP    verifica_teclaC
