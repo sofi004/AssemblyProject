@@ -720,9 +720,9 @@ explosão_bom:
     SUB     R8, 1                               ; decrementa em 1 a linha, porque a primeira animação começa a ser desenhada uma linha a baixo 
     SUB     R10, 1                              ; decrementa em 1 a coluna, porque a primeira animação começa a ser desenhada uma coluna a baixo 
     MOV     R9, DEF_EFEITO1_ASTEROIDE_BOM       ; passa a desenha_apaga_boneco, como argumento de entrada, a tabela da 1º
-    MOV     R11, 1
+    MOV     R11, 1                              ; para indicar quee é para desenhar
     CALL    desenha_apaga_boneco
-    MOV     R11, 0
+    MOV     R11, 0                              ; para indicar que é para apagar
     CALL    desenha_apaga_boneco
     SUB     R8, 1
     SUB     R10, 1
