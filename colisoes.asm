@@ -40,14 +40,13 @@ TECLA_E EQU 0084H
 TECLA_0 EQU 0011H
 TECLA_1 EQU 0012H
 TECLA_2 EQU 0014H
-NENHUMA_SONDA EQU 4
 DECREMENTAÇÃO_PENDENTE_5 EQU 5
 NENHUMA_EXPLOSÃO_MIN EQU 0
 EXPLOSÃO_MIN EQU 1
 TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
 N_ASTEROIDES			EQU  5		            ; número de bonecos
 N_MAX_SONDAS      EQU 3                         ; num max sondas
-LINHA_INICIAL_SONDA EQU 26                      ; linha inicial da sonda
+LINHA_INICIAL_SONDA EQU 31                      ; linha inicial da sonda
 COLUNA_INICIAL_SONDA EQU 32                     ; coluna inicial da sonda
 
 ; ******************************************************************************************************************************************************
@@ -74,7 +73,7 @@ LARGURA_ASTEROIDE  EQU 5                        ; largura do asteroide
 ALTURA_ASTEROIDE  EQU 5                         ; altura do asteroide
 LARGURA_SONDA EQU 1                             ; largura da sonda
 ALTURA_SONDA EQU 1                              ; altura da sonda
-LINHA_SONDA EQU 26                              ; linha onde vai ser desenhado o primeiro pixel da sonda
+LINHA_SONDA EQU 31                              ; linha onde vai ser desenhado o primeiro pixel da sonda
 COLUNA_SONDA EQU 32                             ; coluna onde vai ser desenhado o primeiro pixel da sonda
 COLUNA_NAVE EQU 25                              ; coluna onde vai ser desenhado o primeiro pixel da nave
 LINHA_NAVE EQU 27                               ; linha onde vai ser desenhado o primeiro pixel da nave
@@ -706,7 +705,7 @@ lock_sonda:
 
 move_sonda:
     
-    MOV R4, 0
+    MOV R4, 8
     MOV [SELECIONA_ECRÃ], R4                    ; seleciona o ecrã
     
     MOV R11, 0
