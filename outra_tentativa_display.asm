@@ -267,7 +267,7 @@ inicio:
     
     CALL    painel_nave
     CALL    teclado
-    CALL    display_tempo                              
+    CALL    energia_tempo                              
     MOV     R11, N_ASTEROIDES
 
     loop_asteroide:
@@ -533,15 +533,13 @@ ciclo_boneco:
 ; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
 PROCESS SPinit_display
-display_tempo:
+energia_tempo:
     MOV R0, [evento_init_display]          ; verificação lock
-    MOV R6, [valor_display]
-    SUB R6, 3
-    MOV [valor_display], R6
-    CALL hex_para_dec
+    MOV R7, -3
+    CALL energia
     CMP R6, 0
     JLT acabou_energia
-    JMP display_tempo
+    JMP energia_tempo
 
     
 
@@ -620,6 +618,18 @@ move_sonda:
 ; **************
 ; ROTINAS 
 ; **************
+
+energia:
+    MOV R6, [valor_display]
+    ADD R6, R7
+    MOV [valor_display], R6
+    CALL hex_para_dec
+    RET
+
+
+;********************************************************************************
+; ACABOU_ENERGIA
+;********************************************************************************
 acabou_energia:
     MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
     MOV    R6, 2
@@ -635,7 +645,7 @@ acabou_energia:
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    R6, 0
     MOV    [jogo_estado], R6
-    JMP    display_tempo
+    JMP    energia_tempo
 
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Rotina Desenha/Apaga um boneco na linha e coluna indicadas
