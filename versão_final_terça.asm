@@ -598,6 +598,12 @@ seleciona_posicao_tabela:
     MOV R10, [R9]                               ; guarda coluna inicial da sonda em R10
     MOV R9, DEF_SONDA                           ; guarda em R9  o endereço que define o desenho da sonda
 
+energia_sonda:
+    MOV R7, -5
+    CALL energia
+    CMP R6, 0
+    JLT acabou_energia
+
 move_sonda:
     MOV	R3, [evento_init_sonda]	                ; lê o LOCK e bloqueia até a interrupção escrever nele
     MOV R4, 0
