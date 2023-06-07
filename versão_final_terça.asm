@@ -246,6 +246,8 @@ inicio:
     MOV    BTE, tab 
     MOV    [APAGA_AVISO], R1                    ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV    [APAGA_ECRÃ], R1                     ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+    MOV    R6, 2                                 
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; quando o jogo está parado e o terminamos, apagamos o cenário frontal(2)
 	MOV	   R1, 0                                ; cenário de fundo número 0
     MOV    [SELECIONA_CENARIO_FUNDO], R1        ; seleciona o cenário de fundo
     MOV    [jogo_estado], R1
@@ -361,7 +363,6 @@ verifica_tecla2:
 
 
 inicia_jogo:
-
     MOV    R6, 5                                ; som número 4
     MOV    [TERMINA_SOM_VIDEO], R6              ; este ciclo inicia/ reinicia o jogo
     MOV    R6, 2   
@@ -377,7 +378,6 @@ inicia_jogo:
     JMP    verifica_teclaC
 
 continua_jogo:
-
     MOV    R6, 2                                 
     MOV    [APAGA_CENARIO_FRONTAL], R6          ; quando o jogo está parado e o terminamos, apagamos o cenário frontal(2)
     MOV    R6, 0
@@ -389,7 +389,6 @@ continua_jogo:
     JMP    verifica_teclaC
 
 suspende_jogo:
- 
     MOV    R6, 1
     MOV    [SUSPENDE_SOM_VIDEO], R6             ; pausa o video de fundo do jogo(1)
     MOV    R6, 0
@@ -401,8 +400,6 @@ suspende_jogo:
     JMP    verifica_teclaC
 
 termina_jogo:
-
-    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
     MOV    R6, 2
     MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
     MOV    R6, 1                      
@@ -416,6 +413,7 @@ termina_jogo:
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    R6, JOGO_NAO_INICIADO
     MOV    [jogo_estado], R6
+    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
     JMP    verifica_teclaC
 
    
