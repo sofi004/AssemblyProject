@@ -705,12 +705,6 @@ move_sonda:
 ;               R10 - coluna onde ocorreu a explosão
 ;               R7 - número da sonda que explodiu o asteroide
 ;************************************************************************************
-; contador para se saber quantas animações já foram feitas 
-; asteroide_bom - 5 animações (apagar, desenhar, apagar, desenhar, apagar)
-; asteroide_mau - 3 animações (apagar, desenhar, apagar)
-; quando o contador chegar a 5 ou 3 dependente do asteroide que explodiu acaba-se o processo (RET)
-; consoante o contador o processo sabe oq tem que fazer em cada interrupção
-; uma vez que explosão bom e mau são quase iguais fazer uma rotina geral 
 PROCESS SPinit_explosão
 
 explosão:
@@ -718,49 +712,83 @@ explosão:
     MUL     R3, R7                              ; R1 passa a ter o enderço da pilha
     SUB     SP, R3                              ; a sonda com este incremento fica com a respetiva pilha
 
+bom_ou_mau:
+    CMP     DEF_ASTEROIDE_MAU, R9               ; verifica se o asteroide que explodiu era mau
+    JZ      coloca_a_3
+    CMP     DEF_ASTEROIDE_BOM, R9               ; verifica se o asteroide que explodiu era mau
+    JZ      coloca_a_5
+
+coloca_a_3:
+    MOV     R1, 2
+coloca_a_5:
+    MOV     R1, 3
+
+MOV     R4, -1                                  ; contador de animações
 explosão_princ:
-    CALL    explosão_bom                        ; responsavel pelo efeito de explosão do asteroide bom
-    CALL    explosão_mau                        ; responsavel pelo efeito de explosão do asteroide mau
-    JMP     explosão_princ
+    MOV     R2, [SPinit_explosao]               ; bloqueia o processo
+    CALL    explosão_animações                  ; responsavel pelo efeito de explosão
+    CMP     R4, R1
+    JNZ     explosão_princ
+    JMP     acaba_processo
 
 explosão_bom:
-    CMP     DEF_ASTEROIDE_BOM, R9               ; verifica se o asteroide que explodio era bom
-    JNZ     retorna_explosão_princ_bom          ; se não era volta `rotina explosão 
+    CMP     R4, -1
+    JZ      retorna_explosão_princ
+    CMP     R4, 0
+    JZ      primeira_animação
+    CMP     R4, 1
+    JZ      segunda_animação
+    CMP     R4, 2
+    JZ      ultima_animaçãor
+
+primeira_animação:
     MOV     R6, 6
     MOV     [SELECIONA_SOM_VIDEO], R6           ; selciona o som de explosão
     MOV     [REPRODUZ_SOM_VIDEO], R6            ; reproduz o som de explosão
-    MOV     R11, 0                              ; para indicar que é para apagar
-    CALL    desenha_apaga_boneco                ; apaga o asteroide que explodiu
+    MOV     R11, 0
+    CALL    desenha_apaga_boneco                ; apaga o steroide que explodiu
+    CMP     R1, 3                       
+    JZ      primeira_animação_bom
+    JMP     primeira_animação_mau
+
+primeira_animação_bom: 
     SUB     R8, 1                               ; decrementa em 1 a linha, porque a primeira animação começa a ser desenhada uma linha a baixo 
     SUB     R10, 1                              ; decrementa em 1 a coluna, porque a primeira animação começa a ser desenhada uma coluna a baixo 
     MOV     R9, DEF_EFEITO1_ASTEROIDE_BOM       ; passa a desenha_apaga_boneco, como argumento de entrada, a tabela da 1º
     MOV     R11, 1                              ; para indicar quee é para desenhar
     CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+primeira_animação_mau:
+    MOV     R9, DEF_ASTEROIDE_MAU
+    MOV     R11, 1
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+segunda_animação:
+    CMP     R1, 3
+    JZ      segunda_animação_bom
+    JMP     ultima_animação
+
+segunda_animação_bom:
     MOV     R11, 0                              ; para indicar que é para apagar
     CALL    desenha_apaga_boneco
     SUB     R8, 1
     SUB     R10, 1
     MOV     R9, DEF_EFEITO2_ASTEROIDE_BOM
     CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+ultima_animação:
     MOV     R11, 0
     CALL    desenha_apaga_boneco
-retorna_explosão_princ_bom:                     
+    JMP     retorna_explosão_princ
+
+retorna_explosão_princ:
+    ADD     R4, 1                     
     RET
 
-explosão_mau:
-    CMP     DEF_ASTEROIDE_MAU, R9               ; verifica se o asteroide que explodiu era mau
-    JNZ     retorna_explosão_princ_mau          ; se não era volta à rotina explosão
-    MOV     R6, 5
-    MOV     [SELECIONA_SOM_VIDEO], R6           ; seleciona o som de explosão
-    MOV     [REPRODUZ_SOM_VIDEO], R6            ; reproduz o som de explosão
-    MOV     R11, 0
-    CALL    desenha_apaga_boneco                ; apaga o steroide que explodiu
-    MOV     R9, DEF_ASTEROIDE_MAU
-    MOV     R11, 1
-    CALL    desenha_apaga_boneco
-    MOV     R11, 0
-    CALL    desenha_apaga_boneco
-retorna_explosão_princ_mau:                     ; volta a explosão
+acaba_processo: 
     RET
 
 ; ***********************************************************************************
