@@ -621,8 +621,7 @@ boneco:					                        ; processo que implementa o comportamento do
     MUL     R1, R11                                 ; multiplica pelo numero do asteroide
     MOV     R3, R11                                 ; guarda o nº do asteroide para ser usado para a escolha da coluna inicial
     SUB     SP, R1                                  ; subtrai a pilha total (100H*5) ao numero do asteroide * 100 
-    MOV     R4, R11                                 ;registo para usar na seleçao do ecra
-    ADD     R4, 1                                   ; adiciona 2 porque no 0 tá a nave e no 1 ta o display
+
 
 escolhe_asteroide_tipo:
     MOV     R1, [valor_aleatorio]                   
