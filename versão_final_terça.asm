@@ -117,6 +117,9 @@ evento_init_display:                            ; LOCK para a rotina de interrup
 evento_init_sonda:                              ; LOCK para a rotina de interrupção comunicar ao processo move_sonda que a interrupção ocorreu
     LOCK 0
 
+<<<<<<< HEAD:tentativa_processos.asm
+jogo_estado: WORD 0     
+=======
 tab:                                            ; Tabela das rotinas de interrupção
 	WORD rot_int_boneco			                ; rotina de atendimento da interrupção 0
     WORD rot_int_sonda                          ; rotina de atendimento da interrupção 1
@@ -138,6 +141,7 @@ posicao_sondas:
     WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
     WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
 
+>>>>>>> aaafdd2a7abf027de091a9c6c93706b6bb33006a:versão_final_terça.asm
 posicao_asteroides:
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE0
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE1
