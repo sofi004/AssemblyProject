@@ -561,7 +561,7 @@ boneco:					                        ; processo que implementa o comportamento do
     JMP     escolhe_asteroide_mau               ; se valor aleaotorio 1 ou 2 vem asteroide mau
 
 escolhe_asteroide_bom:
-	MOV	    R9, DEF_ASTEROIDE_BOM		        ; endereço da tabela que define o boneco
+    MOV	    R9, DEF_ASTEROIDE_BOM		        ; endereço da tabela que define o boneco
     JMP     ciclo_boneco
 
 escolhe_asteroide_mau:
