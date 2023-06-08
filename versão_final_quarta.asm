@@ -474,7 +474,28 @@ termina_jogo:
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    R6, JOGO_NAO_INICIADO
     MOV    [jogo_estado], R6
+    CALL   reset_posicoes_objetos
+    CALL   nao_existe_sondas
     JMP    verifica_teclaC
+
+nao_existe_sondas:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    MOV R0, N_MAX_SONDAS
+    MOV R1, existe_sonda
+
+loop_sonda_n:
+    SUB R0, 1
+    MOV R2, 0
+    MOV [R1], R2
+    ADD R1, 2
+    CMP R0, 0
+    JNZ loop_sonda_n
+    POP R2
+    POP R1
+    POP R0
+    RET
 
 reset_posicoes_objetos:
     PUSH R0
@@ -511,7 +532,7 @@ reset_posicao_sondas:
     SUB R1, 1
     MOV R0, R1
     MOV R2, posicao_sondas
-    SHL R0, 1
+    SHL R0, 2
     ADD R2, R0
     MOV R6, LINHA_INICIAL_SONDA
     MOV [R2], R6
@@ -600,6 +621,7 @@ boneco:					                        ; processo que implementa o comportamento do
     MOV     R4, R11                                 ;registo para usar na seleçao do ecra
     ADD     R4, 1                                   ; adiciona 2 porque no 0 tá a nave e no 1 ta o display
 
+escolhe_asteroide_tipo:
     MOV     R1, [valor_aleatorio]                   
     CMP     R1, 0
     JZ      escolhe_asteroide_bom               ; se valor aleatorio é 0 vem asteroide bom
@@ -607,12 +629,12 @@ boneco:					                        ; processo que implementa o comportamento do
 
 escolhe_asteroide_bom:
 	MOV	    R9, DEF_ASTEROIDE_BOM		        ; endereço da tabela que define o boneco
-    JMP     ciclo_boneco
+    JMP     escolhe_posicao
 
 escolhe_asteroide_mau:
 	MOV	    R9, DEF_ASTEROIDE_MAU		        ; endereço da tabela que define o boneco
 
-    escolhe_posicao:
+escolhe_posicao:
     MOV	    R11, [evento_init_boneco]	        ; lê o LOCK e bloqueia até a interrupção escrever nele
 
     MOV     R11, R3
@@ -667,7 +689,7 @@ limites:
 
 reset_posicao:
     CALL rotina_posicao
-    JMP  escolhe_posicao
+    JMP  escolhe_asteroide_tipo
 
 rotina_posicao:
     PUSH R4
@@ -756,7 +778,16 @@ incremento_sonda:
 
 ADD     R0, 1
 SHL     R0, 2
+MOV     R7, posicao_sondas                      ; guardamos o endereço da posicao da sonda
+ADD     R7, R0                                  ; seleciona qual sonda estamos a alterar a posição
+MOV     R6, R7                                      
+ADD     R6, 2
+MOV R2, R0
+SHR R2, 1
+
 seleciona_posicao_tabela:
+    MOV	    R3, [evento_init_sonda]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
+
     MOV     R9, posicao_sondas
     ADD     R9, R0
     MOV     R8, [R9]                            ; guarda linha inicial da sonda em R8
@@ -764,20 +795,15 @@ seleciona_posicao_tabela:
     MOV     R10, [R9]                           ; guarda coluna inicial da sonda em R10
     MOV     R9, DEF_SONDA                       ; guarda em R9  o endereço que define o desenho da sonda
 
-MOV     R7, posicao_sondas                      ; guardamos o endereço da posicao da sonda
-ADD     R7, R0                                  ; seleciona qual sonda estamos a alterar a posição
-MOV     R6, R7                                      
-ADD     R6, 2
-SHR     R0, 1
-desenha_sonda_inicial:
-    MOV     R11, 1
-    CALL    desenha_apaga_boneco
+
+;desenha_sonda_inicial:
+;    MOV     R11, 1
+;    CALL    desenha_apaga_boneco
 
 lock_sonda:
     YIELD
-    MOV	    R3, [evento_init_sonda]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
     MOV     R11, existe_sonda
-    ADD     R11, R0
+    ADD     R11, R2
     MOV     R1, [R11]
     CMP     R1, 0
     JZ      lock_sonda  
@@ -799,7 +825,7 @@ move_sonda:
     CALL    verifica_limites
     MOV     R8, R3
     CMP     R11, 0
-    JZ      lock_sonda
+    JZ      seleciona_posicao_tabela
     MOV     R11, 0
     CALL    desenha_apaga_boneco
     MOV     R11, LINHA_INICIAL_SONDA
@@ -807,10 +833,9 @@ move_sonda:
     MOV     R11 , COLUNA_INICIAL_SONDA
     MOV     [R6], R11
     MOV     R11, existe_sonda
-    ADD     R11, R0
+    ADD     R11, R2
     MOV     R4, 0
     MOV     [R11], R4
-    SHL     R0, 1
     JMP     seleciona_posicao_tabela
     
 ; ***********************************************************************************
@@ -839,6 +864,7 @@ jogo_perdido:
     MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
     POP    R6
     CALL   reset_posicoes_objetos
+    CALL   nao_existe_sondas
     RET
 
 ;************************************************************************************
@@ -1160,11 +1186,10 @@ rot_int_sonda:
     MOV     R3, 1
     MOV     R7, [jogo_estado]  
 	CMP     R7, R3
-    JZ      sonda_unlock
-    JMP     continuar_int_sonda
+    JNZ     fim_rot_int_sonda
+    
 
-sonda_unlock:
-    MOV	    [evento_init_sonda], R0	            ; desbloqueia processo sonda (qualquer registo serve)
+
     
 continuar_int_sonda:
     MOV     R1, [valor_aleatorio]
@@ -1177,15 +1202,24 @@ continuar_int_sonda:
 mete_1:
     MOV     R2, 1
     MOV     [valor_aleatorio], R2
-    JMP     fim_rot_int_sonda
+    JMP     sonda_unlock
+
+
 
 mete_0:
     MOV     R2, 0
     MOV     [valor_aleatorio], R2
+    JMP     sonda_unlock
+
 
 mete_2:
     MOV     R2, 2
     MOV     [valor_aleatorio], R2
+    JMP     sonda_unlock
+
+
+sonda_unlock:
+    MOV	    [evento_init_sonda], R0	            ; desbloqueia processo sonda (qualquer registo serve)
 
 fim_rot_int_sonda:
     POP     R7
