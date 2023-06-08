@@ -70,8 +70,6 @@ LARGURA_ASTEROIDE  EQU 5                        ; largura do asteroide
 ALTURA_ASTEROIDE  EQU 5                         ; altura do asteroide
 LARGURA_SONDA EQU 1                             ; largura da sonda
 ALTURA_SONDA EQU 1                              ; altura da sonda
-LINHA_SONDA EQU 31                              ; linha onde vai ser desenhado o primeiro pixel da sonda
-COLUNA_SONDA EQU 32                             ; coluna onde vai ser desenhado o primeiro pixel da sonda
 COLUNA_NAVE EQU 25                              ; coluna onde vai ser desenhado o primeiro pixel da nave
 LINHA_NAVE EQU 27                               ; linha onde vai ser desenhado o primeiro pixel da nave
 LARGURA_NAVE  EQU 15                            ; largura da nave
@@ -161,6 +159,13 @@ posicao_asteroides:
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE2   
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE3
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE4 
+
+escolha_asteroide_posicao:
+    WORD COLUNA_ASTEROIDE0
+    WORD COLUNA_ASTEROIDE1
+    WORD COLUNA_ASTEROIDE2
+    WORD COLUNA_ASTEROIDE3
+    WORD COLUNA_ASTEROIDE4
 
 sentido_movimento_coluna_asteroide:
     WORD 1
@@ -529,10 +534,14 @@ PROCESS SPinit_boneco	                        ; indicação de que a rotina que 
 boneco:					                        ; processo que implementa o comportamento do boneco
     MOV     R1, TAMANHO_PILHA                       ; tamanho de cada pilha (100H)
     MUL     R1, R11                                 ; multiplica pelo numero do asteroide
+    MOV     R3, R11                                 ; guarda o nº do asteroide para ser usado para a escolha da coluna inicial
     SUB     SP, R1                                  ; subtrai a pilha total (100H*5) ao numero do asteroide * 100 
     MOV     R4, R11                                 ;registo para usar na seleçao do ecra
     ADD     R4, 1                                   ; adiciona 2 porque no 0 tá a nave e no 1 ta o display
-    MOV     R6,R11                                  ; coloca o nº do boneco em R6
+
+    escolhe_posicao:
+    MOV     R11, R3
+    MOV     R6, R11                                  ; coloca o nº do boneco em R6
     SHL     R11, 2                                  ; multiplica por 4 pois a tabela vai de 4 em 4 (2 words por asteroide)
     MOV     R10,R11                                 ; guarda o numero do asteroide para usar pra posiçao
     MOV     R9, posicao_asteroides                  ; endereço da tabela que guarda a posiçao dos asteroides na memoria
@@ -540,6 +549,7 @@ boneco:					                        ; processo que implementa o comportamento do
     MOV     R8, [R9]                                ; R8 guarda linha
     ADD     R9, 2                                   ; word seguinte, primeiro guardamos linha, na a seguir a coluna
     MOV     R10, [R9]                               ; R10 guarda coluna
+
     MOV     R9, sentido_movimento_coluna_asteroide  ; endereço da tabela de sentido dos asteroides
     SHL     R6, 1	                                ; multiplica por 2 pois estamos a tratar de WORDS
     MOV     R7, [R9 + R6]                           ; guarda o incremento por coluna
@@ -557,14 +567,14 @@ escolhe_asteroide_bom:
 escolhe_asteroide_mau:
 	MOV	    R9, DEF_ASTEROIDE_MAU		        ; endereço da tabela que define o boneco
 
-    MOV     R2, posicao_asteroides              ; guardamos o endereço da posicao da sonda
+    MOV     R2, posicao_asteroides              ; guardamos o endereço da posicao do asteroide
     MOV     R0,R11
-    ADD     R2, R0                              ; seleciona qual sonda estamos a alterar a posição
+    ADD     R2, R0                              ; seleciona qual asteroide estamos a alterar a posição
     MOV     R6, R2                                      
     ADD     R6, 2
 
 ciclo_boneco:
-    MOV	    R3, [evento_init_boneco]	        ; lê o LOCK e bloqueia até a interrupção escrever nele
+    MOV	    R11, [evento_init_boneco]	        ; lê o LOCK e bloqueia até a interrupção escrever nele
     MOV     [SELECIONA_ECRÃ], R4                ; seleciona o ecrã
     MOV     R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela	                        
@@ -574,7 +584,45 @@ ciclo_boneco:
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
     MOV     [R2], R8                            ;guarda a linha atual do asteroide na memoria
     MOV     [R6], R10                           ;guarda a coluna atual do asteroide na memoria
+
+    CALL    limites
+    CMP     R11, 1
+    JZ      reset_posicao
     JMP     ciclo_boneco
+
+limites:
+    PUSH R7
+    PUSH R8
+    MOV R7, R2
+    MOV R8, 5
+    CALL verifica_limites
+    POP R8
+    POP R7
+    RET
+
+reset_posicao:
+
+    CALL rotina_posicao
+    JMP  escolhe_posicao
+
+rotina_posicao:
+    PUSH R4
+    PUSH R5
+    PUSH R2
+    MOV R4, R3                                  ; para preservar o numero do asteroide
+    SHL R4, 1
+    MOV R5, escolha_asteroide_posicao
+    ADD R5, R4
+    MOV R2, [R5]                                ; R2  agora tem a nova coluna inicial do asteroide
+    MOV R4, LINHA_ASTEROIDE
+    MOV [R6], R2
+    SUB R6, 2
+    MOV [R6], R4
+
+    POP R2
+    POP R5
+    POP R4
+    RET
 
 ; ******************************************************************************************************************************************************
 ; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
@@ -675,15 +723,16 @@ move_sonda:
     MOV     [R6], R10                           ; para guardar a coluna da sonda na memoria
     MOV     R3,R8
     MOV     R8, 1
+
     CALL    verifica_limites
     MOV     R8, R3
     CMP     R11, 0
     JZ      lock_sonda
     MOV     R11, 0
     CALL    desenha_apaga_boneco
-    MOV     R11, LINHA_SONDA
+    MOV     R11, LINHA_INICIAL_SONDA
     MOV     [R7], R11
-    MOV     R11 , COLUNA_SONDA
+    MOV     R11 , COLUNA_INICIAL_SONDA
     MOV     [R6], R11
     MOV     R11, existe_sonda
     ADD     R11, R0
@@ -869,7 +918,7 @@ display_a_zero:
 ; VERIFICA_LIMITES - 
 ;			             
 ; Argumentos:   R8 - largura/altura (iguais)
-;               R10 - endereço para a posiçao na memoria
+;               R7 - endereço para a posiçao na memoria
 ; 
 ; Saida:        R11- 1 se o objeto sair dos limites, 2 se a nave explodir  e 0 caso nao aconteça nada
 ;
