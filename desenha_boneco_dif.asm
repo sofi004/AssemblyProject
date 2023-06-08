@@ -1,5 +1,5 @@
 ; ******************************************************************************************************************************************************
-; * Projeto IAC 2022/23 - Versão Intermédia
+; * Projeto IAC 2022/23 - Versão Final
 ; * Alunos: Filippo Bortoli(106103), João Gomes(106204), Sofia Piteira(106194)
 ; ******************************************************************************************************************************************************
 
@@ -44,6 +44,11 @@ NENHUMA_SONDA EQU 4
 DECREMENTAÇÃO_PENDENTE_5 EQU 5
 NENHUMA_EXPLOSÃO_MIN EQU 0
 EXPLOSÃO_MIN EQU 1
+TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
+N_ASTEROIDES			EQU  5		            ; número de bonecos
+N_MAX_SONDAS      EQU 3                         ; num max sondas
+LINHA_INICIAL_SONDA EQU 26                      ; linha inicial da sonda
+COLUNA_INICIAL_SONDA EQU 32                     ; coluna inicial da sonda
 
 ; ******************************************************************************************************************************************************
 ; * Paleta
@@ -59,8 +64,8 @@ COR_PIXEL_AZUL_CLARO  EQU 0F0FFH                ;cor do pixel: azul em ARGB
 ; ******************************************************************************************************************************************************
 ; * Definição dos desenhos
 ; ******************************************************************************************************************************************************
-LINHA_ASTEROIDE EQU 0                       ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
-COLUNA_ASTEROIDE0 EQU 0                      ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
+LINHA_ASTEROIDE EQU 0                           ; linha onde vai ser desenhado o primeiro pixel do asteroide bom
+COLUNA_ASTEROIDE0 EQU 0                         ; coluna onde vai ser desenhado o primeiro pixel do asteroide bom
 COLUNA_ASTEROIDE1 EQU 25
 COLUNA_ASTEROIDE2 EQU 30
 COLUNA_ASTEROIDE3 EQU 35
@@ -79,8 +84,13 @@ COLUNA_ECRA_NAVE EQU 29                         ; coluna onde vai ser desenhado 
 LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
-TAMANHO_PILHA		EQU  100H      ; tamanho de cada pilha, em words
-N_BONECOS			EQU  5		; número de bonecos (até 4)
+LARGURA_EFEITO1_ASTEROIDE_BOM EQU 3
+ALTURA_EFEITO1_ASTEROIDE_BOM EQU 3
+LARGURA_EFEITO2_ASTEROIDE_BOM EQU 1
+ALTURA_EFEITO2_ASTEROIDE_BOM EQU 1
+LARGURA_EFEITO_ASTEROIDE_MAU EQU 5
+ALTURA_EFEITO_ASTEROIDE_MAU EQU 5
+
 
 
 ; ######################################################################################################################################################
@@ -91,40 +101,51 @@ STACK TAMANHO_PILHA			                    ; espaço reservado para a pilha do pr
     SPinit_principal:		                    ; este é o endereço com que o SP deste processo deve ser inicializado
 STACK  TAMANHO_PILHA                            ; espaço reservado para a pilha 200H bytes, 100H words
 	SPinit_teclado:	
-STACK  TAMANHO_PILHA * N_BONECOS                ; espaço reservado para a pilha do processo "boneco"
+STACK  TAMANHO_PILHA * N_ASTEROIDES             ; espaço reservado para a pilha do processo "boneco"
     SPinit_boneco:
 STACK TAMANHO_PILHA
     SPinit_painelnave:
 
 STACK TAMANHO_PILHA
     SPinit_display:
+STACK TAMANHO_PILHA * N_MAX_SONDAS
+    SPinit_sonda:
 
 evento_init_boneco:                             ; LOCK para a rotina de interrupção comunicar ao processo boneco que a interrupção ocorreu
     LOCK 0 
 evento_tecla_carregada:                         ; LOCK para o teclado comunicar aos restantes processos que tecla detetou
     LOCK 0
-evento_init_nave:
+evento_init_nave:                               ; LOCK para a rotina de interrupção comunicar ao processo painel_nave que a interrupção ocorreu
     LOCK 0
-evento_init_display:
+evento_init_display:                            ; LOCK para a rotina de interrupção comunicar ao processo energia_tempo que a interrupção ocorreu
+    LOCK 0
+evento_init_sonda:                              ; LOCK para a rotina de interrupção comunicar ao processo move_sonda que a interrupção ocorreu
     LOCK 0
 
-; Tabela das rotinas de interrupção
-tab:
+tab:                                            ; Tabela das rotinas de interrupção
 	WORD rot_int_boneco			                ; rotina de atendimento da interrupção 0
-    WORD 0
-    WORD rot_int_display
-    WORD rot_int_painel_nave
+    WORD rot_int_sonda                          ; rotina de atendimento da interrupção 1
+    WORD rot_int_display                        ; rotina de atendimento da interrupção 2
+    WORD rot_int_painel_nave                    ; rotina de atendimento da interrupção 3
 
+valor_aleatorio: WORD 1
 jogo_estado: WORD JOGO_NAO_INICIADO             ; o estado 0 simboliza que o jogo ainda não começou
                                                 ; o estado 1 simboliza que o jogo está a correr
                                                 ; o estado 2 simboliza que o jogo está em pausa
-sonda_estado: WORD NENHUMA_SONDA                ; o estado 0, 1 e 2 sibolizam respetivamente que que as teclas 0, 1 e 2 foram premidas
-                                                ; o estado 4 simboliza que nenhuma destas teclas foi premida
-                                                ; o estado 5 simboliza que ainda não foi feita a decrementação de 5% ao valor apresentado no display
+incremento_horizontal_sonda: WORD 0             ; variável que guarda o incremento horizontal da sonda
 valor_display: WORD 0064H                       ; valor em hexadecimal que está no display
 mineravel_estado:  WORD NENHUMA_EXPLOSÃO_MIN    ; o estado 0 simboliza que nenhum asteroide mineravel explodio,
                                                 ; ou que explodio, mas já foi adicionada no display a energia correspondente à explosão
                                                 ; o estado 1 simboliza que ainda não foi feita a incrementação de 25% ao valor apresentado no display
+
+posicao_sondas:
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+
+
+existe_sonda:
+    WORD 0,0,0
 
 posicao_asteroides:
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE0
@@ -134,14 +155,32 @@ posicao_asteroides:
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE4 
     
 
-
 sentido_movimento_coluna_asteroide:
     WORD 1
     WORD -1
     WORD 0
     WORD 1
     WORD -1
+DEF_EFEITO1_ASTEROIDE_BOM:
+    WORD LARGURA_EFEITO1_ASTEROIDE_BOM  
+    WORD ALTURA_EFEITO2_ASTEROIDE_BOM
+    WORD COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
+    WORD COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
 
+DEF_EFEITO2_ASTEROIDE_BOM:
+    WORD LARGURA_EFEITO2_ASTEROIDE_BOM   
+    WORD ALTURA_EFEITO2_ASTEROIDE_BOM 
+    WORD COR_PIXEL_VERDE
+
+DEF_EFEITO_ASTEROIDE_MAU:
+    WORD LARGURA_EFEITO_ASTEROIDE_MAU  
+    WORD ALTURA_EFEITO_ASTEROIDE_MAU
+    WORD 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0
+    WORD COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO
+    WORD 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0
+    WORD COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO
+    WORD 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0
 DEF_ASTEROIDE_BOM:                              ; tabela que define o asteroide bom (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE   
     WORD        ALTURA_ASTEROIDE 
@@ -235,8 +274,11 @@ inicio:
     MOV    BTE, tab 
     MOV    [APAGA_AVISO], R1                    ; apaga o aviso de nenhum cenário selecionado (o valor de R1 não é relevante)
     MOV    [APAGA_ECRÃ], R1                     ; apaga todos os pixels já desenhados (o valor de R1 não é relevante)
+    MOV    R6, 2                                 
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; quando o jogo está parado e o terminamos, apagamos o cenário frontal(2)
 	MOV	   R1, 0                                ; cenário de fundo número 0
     MOV    [SELECIONA_CENARIO_FUNDO], R1        ; seleciona o cenário de fundo
+    MOV    [jogo_estado], R1
     MOV    R9, 2                                ; som número 2
     MOV    [SELECIONA_SOM_VIDEO], R9            ; seleciona um som para a intro do jogo
     MOV    [REPRODUZ_SOM_VIDEO], R9             ; inicia a reprodução do som da intro
@@ -245,179 +287,184 @@ inicio:
     MOV   [R0], R6
     MOV     R0, 0064H
     MOV [valor_display], R0 
+
     EI0
+    EI1
     EI2
     EI3
     EI
+    
     CALL    painel_nave
-    CALL    teclado                              
-    MOV     R11, N_BONECOS
+    CALL    teclado
+    CALL    energia_tempo                              
+    MOV     R11, N_ASTEROIDES
 
     loop_asteroide:
-        SUB R11, 1
+        SUB R11, 1                              ; subtrai-mos logo por causa da pilha
         CALL   boneco  
         CMP R11, 0
         JNZ loop_asteroide                             
 
 verifica_teclaC:
-    MOV    R1, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada   
+    MOV    R2, [evento_tecla_carregada]         ; bloqueia aqui o processo caso nao haja tecla carregada   
     MOV    R4, TECLA_C    
-    CMP    R1, R4                               ; a tecla premida é a c?
+    CMP    R2, R4                               ; a tecla premida é a c?
     JNZ    verifica_teclaD
-    MOV R6, 0100H
-    MOV R0, DISPLAYS
-    MOV [R0], R6
-    MOV R0, 0064H
-    MOV [valor_display], R0
-    MOV    R3, 1
+    MOV    R4, [jogo_estado] 
+    MOV    R1, JOGO_NAO_INICIADO
+    CMP    R4, R1
+    JNZ     verifica_teclaD
+    MOV    R6, 0100H
+    MOV    R0, DISPLAYS
+    MOV    [R0], R6
+    MOV    R0, 0064H
+    MOV    [valor_display], R0
+    MOV    R3, JOGO_A_CORRER
     MOV    [jogo_estado], R3
     MOV    R11, 1                               ; para indicar que é para desenhar
-    
     MOV    R8, LINHA_NAVE
     MOV    R10, COLUNA_NAVE
     MOV    R9, DEF_NAVE
     CALL   desenha_apaga_boneco
-    
+    MOV    R3, JOGO_NAO_INICIADO
+    CMP    R3, R4
+    JZ     inicia_jogo
     JMP    verifica_teclaC
 
 verifica_teclaD:
     MOV    R4, TECLA_D
-    CMP   R1, R4
+    CMP   R2, R4
     JNZ   verifica_teclaE
+    MOV    R4, [jogo_estado]
+    MOV    R1, JOGO_NAO_INICIADO
+    CMP    R4, R1
+    JZ     verifica_teclaE
+    MOV    R1, JOGO_PAUSADO
+    CMP    R4, R1
+    JZ     continua_jogo
+    MOV    R1, JOGO_A_CORRER
+    CMP    R4, R1
+    JZ     suspende_jogo
     JMP verifica_teclaC
 
 verifica_teclaE:
     MOV    R4, TECLA_E
-    CMP   R1, R4
+    CMP   R2, R4
     JNZ   verifica_tecla0
+    MOV    R4, [jogo_estado]
+    MOV    R1, JOGO_NAO_INICIADO
+    CMP    R4, R1
+    JNZ    termina_jogo
     JMP verifica_teclaC
 
+
 verifica_tecla0:
-    MOV    R4, TECLA_0
+    MOV  R4, [jogo_estado]
+    MOV  R1, JOGO_A_CORRER
     CMP  R1, R4
+    JNZ verifica_teclaC
+    MOV    R4, TECLA_0
+    CMP  R2, R4 
     JNZ  verifica_tecla1
-    MOV    R3, 0
-    MOV    [sonda_estado], R3
+    MOV  R3, -1
+    MOV  [incremento_horizontal_sonda], R3
+    MOV R5, [existe_sonda]
+    CMP R5,1
+    JZ verifica_tecla1
+    MOV R5,1
+    MOV [existe_sonda],R5
+    CALL incremento_sonda
     JMP verifica_teclaC
 
 verifica_tecla1:
     MOV    R4, TECLA_1
-    CMP  R1, R4
+    CMP  R2, R4
     JNZ  verifica_tecla2
-    MOV    R3, 1
-    MOV    [sonda_estado], R3
+    MOV  R3, 0
+    MOV  [incremento_horizontal_sonda], R3
+    MOV R5, [existe_sonda+2]
+    CMP R5,1
+    JZ verifica_tecla2
+    MOV R5,1 
+    MOV [existe_sonda+2],R5
+    CALL incremento_sonda
     JMP verifica_teclaC
 
 verifica_tecla2:
     MOV    R4, TECLA_2
-    CMP  R1, R4
+    CMP  R2, R4
     JNZ  verifica_teclaC
-    MOV    R3, 2
-    MOV    [sonda_estado], R3
+    MOV  R3, 1
+    MOV  [incremento_horizontal_sonda], R3
+    MOV R5, [existe_sonda+4]
+    CMP R5,1
+    JZ verifica_teclaC
+    MOV R5, 1
+    MOV [existe_sonda+4],R5
+    CALL incremento_sonda
     JMP verifica_teclaC
 
-; ******************************************************************************************************************************************************
-; hex_para_dec- rotina que converte um número hexadecimal, no respetivo decimal
-; ******************************************************************************************************************************************************
-hex_para_dec:
-    PUSH   R0
-    PUSH   R1
-    PUSH   R2
-    PUSH   R3
-    PUSH   R4
-    PUSH   R6
 
-    MOV    R0, 100                              ; define R0 como 100, que é usado como uma constante na transformação
-    MOV    R1, 10                               ; define R1 como 10, que é usado como uma constante na transformação
-    MOV    R2, 0                                ; inicializa R2 como 0, que será usado para acumular os dígitos convertidos
-    MOV    R4, R6                               ; move o valor de R6 para R4, para guardar o valor original de R6
-transformação:
-    MOV    R3, R4                               ; move o valor de R4 para R3 para preservar o valor original
-    DIV    R3, R0                               ; divide o valor de R3 por R0 para obter o quociente da divisão
-    MOD    R4, R0                               ; calcula o resto da divisão de R4 por R0
-    DIV    R0, R1                               ; divide o valor de R0 por R1 para atualizar o valor de R0 para a próxima iteração
-    SHL    R2, 4                                ; desloca o conteúdo de R2 em 4 bits para a esquerda, R2 é utilizado como mascara
-    OR     R2, R3                               ; combina o conteúdo de R2 e R3, acumulando os dígitos convertidos
-    CMP    R0, 0                                ; verifica se cada um dos digitos do número hexadecimal já foram convertidos
-    JNZ    transformação
 
-retorna_ciclo_transforma:
-    MOV    R6, DISPLAYS
-    MOV    [R6], R2  
-    POP    R6
-    POP    R4
-    POP    R3
-    POP    R2
-    POP    R1
-    POP    R0
-    RET 
+inicia_jogo:
+
+    MOV    R6, 5                                ; som número 4
+    MOV    [TERMINA_SOM_VIDEO], R6              ; este ciclo inicia/ reinicia o jogo
+    MOV    R6, 2   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 2
+    MOV    R6, 4                                ; som número 4
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 4
+    MOV    R6, 0                                  
+    MOV    [SELECIONA_SOM_VIDEO], R6           ; seleciona um video para cenário de fundo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6           ; inicia a reprodução do video de fundo do jogo
+    MOV    R6, 1   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som de fundo do jogo
+    MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
+    JMP    verifica_teclaC
+
+continua_jogo:
+
+    MOV    R6, 2                                 
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; quando o jogo está parado e o terminamos, apagamos o cenário frontal(2)
+    MOV    R6, 0
+    MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o video de fundo do jogo(0)
+    MOV    R6, 1
+    MOV    [CONTINUA_SOM_VIDEO], R6             ; continua o som de fundo do jogo(1)
+    MOV    R6, JOGO_A_CORRER
+    MOV    [jogo_estado], R6
+    JMP    verifica_teclaC
+
+suspende_jogo:
+ 
+    MOV    R6, 1
+    MOV    [SUSPENDE_SOM_VIDEO], R6             ; pausa o video de fundo do jogo(1)
+    MOV    R6, 0
+    MOV    [SUSPENDE_SOM_VIDEO], R6             ; pausa o som de fundo do jogo(0)
+    MOV    R6, 2
+    MOV    [SELECIONA_CENARIO_FRONTAL], R6      ; coloca cenario frontal de pausa do jogo(2)
+    MOV    R6, JOGO_PAUSADO
+    MOV    [jogo_estado], R6
+    JMP    verifica_teclaC
+
+termina_jogo:
+
+    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
+    MOV    R6, 2
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
+    MOV    R6, 1                      
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 1
+    MOV    R6, 0   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
+    MOV    R6, 1   
+    MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
+    MOV    R6, 4   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+    MOV    R6, JOGO_NAO_INICIADO
+    MOV    [jogo_estado], R6
+    JMP    verifica_teclaC
 
    
-; ******************************************************************************************************************************************************
-; ROT_INT_BONECO - 	Rotina de atendimento da interrupção 0
-;			        Faz simplesmente uma escrita no LOCK que o processo boneco lê.
-;			        Como basta indicar que a interrupção ocorreu (não há mais
-;			        informação a transmitir). Dependendo do estado do jogo,
-;                   a interrupção irá ou não desbloquear o lock.
-; ******************************************************************************************************************************************************
-rot_int_boneco:
-    PUSH R3
-    PUSH R7
-    MOV   R3, 1
-    MOV   R7, [jogo_estado]  
-	CMP  R7, R3
-    JZ   boneco_unlock
-    retorna_int:
-    POP R7
-    POP R3
-    RFE
-    boneco_unlock:
-    MOV	[evento_init_boneco], R0	; desbloqueia processo boneco (qualquer registo serve)
-    JMP retorna_int
-
-; ******************************************************************************************************************************************************
-; ROT_INT_DISPLAY - Rotina de atendimento da interrupção 2
-;			        Faz simplesmente uma escrita no LOCK que o processo display lê.
-;			        Como basta indicar que a interrupção ocorreu (não há mais
-;			        informação a transmitir). Dependendo do estado do jogo,
-;                   a interrupção irá ou não desbloquear o lock.
-; ******************************************************************************************************************************************************
-rot_int_display:
-    PUSH R3
-    PUSH R7
-    MOV   R3, 1
-    MOV   R7, [jogo_estado]  
-	CMP  R7, R3
-    JZ   display_unlock
-    retorna_int_display:
-    POP R7
-    POP R3
-    RFE
-    display_unlock:
-    MOV	[evento_init_display], R0	; desbloqueia processo painel_nave (qualquer registo serve)
-    JMP retorna_int_display
-
-; ******************************************************************************************************************************************************
-; ROT_INT_PAINEL_NAVE - Rotina de atendimento da interrupção 3
-;			            Faz simplesmente uma escrita no LOCK que o processo painel_nave lê.
-;			            Como basta indicar que a interrupção ocorreu (não há mais
-;			            informação a transmitir). Dependendo do estado do jogo,
-;                       a interrupção irá ou não desbloquear o lock.
-; ******************************************************************************************************************************************************
-rot_int_painel_nave:
-    PUSH R3
-    PUSH R7
-    MOV   R3, 1
-    MOV   R7, [jogo_estado]  
-	CMP  R7, R3
-    JZ   nave_unlock
-    retorna_int_nave:
-    POP R7
-    POP R3
-    RFE
-    nave_unlock:
-    MOV	[evento_init_nave], R0	; desbloqueia processo painel_nave (qualquer registo serve)
-    JMP retorna_int_nave
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
@@ -429,9 +476,10 @@ teclado:
     MOV    R3, TEC_COL                          ; endereço do periférico das colunas
 restart_linhas:
     MOV    R1, LINHA                            ; coloca 16 = 10000 em binário no registo 1
+    WAIT
 
 espera_tecla:                                   ; neste ciclo espera-se até uma tecla ser premida
-    WAIT
+    
     SHR    R1, 1                                ; passa para a linha seguinte
     CMP    R1, 0                                ; verifica se ja passamos pelas linhas todas
     JZ     restart_linhas                       ; voltamos ao inicio das linhas 
@@ -454,7 +502,7 @@ repeticao_tecla:
     AND    R8, R7                               ; elimina bits para além dos bits 0-3
     CMP    R8, 0                                ; há tecla premida?
     JNZ    repeticao_tecla                      ; se ainda houver uma tecla premida, espera até não haver
-    RET
+    JMP    restart_linhas
 
 
 ; **********************************************************************
@@ -462,83 +510,274 @@ repeticao_tecla:
 ;		   temporização marcada pela interrupção 0
 ; **********************************************************************
 
-PROCESS SPinit_boneco	; indicação de que a rotina que se segue é um processo,
-						; com indicação do valor para inicializar o SP
-boneco:					; processo que implementa o comportamento do boneco
+PROCESS SPinit_boneco	                        ; indicação de que a rotina que se segue é um processo,
+						                        ; com indicação do valor para inicializar o SP
+boneco:					                        ; processo que implementa o comportamento do boneco
+;********
+;Parte da criaçao do processo, em que apontamos o SP para a parte da pilha a usar
+;********
+    MOV R1, TAMANHO_PILHA                       ; tamanho de cada pilha (100H)
+    MUL R1, R11                                 ; multiplica pelo numero do asteroide
+    SUB SP, R1                                  ; subtrai a pilha total (100H*5) ao numero do asteroide * 100 
 
-    MOV R1, TAMANHO_PILHA
-    MUL R1, R11
-    SUB SP, R1
+    MOV R4, R11                                 ;registo para usar na seleçao do ecra
+    ADD R4, 1                                   ; adiciona 2 porque no 0 tá a nave e no 1 ta o display
 
-    MOV R4, R11         ;registo para usar na seleçao do ecra
+    MOV R6,R11                                  ; coloca o nº do boneco em R6
 
-    MOV R10, R11
-    SHL R10, 2
+    SHL R11, 2                                  ; multiplica por 4 pois a tabela vai de 4 em 4 (2 words por asteroide)
+    MOV R10,R11                                 ; guarda o numero do asteroide para usar pra posiçao
 
-    MOV R9, posicao_asteroides
-    ADD R9, R10                     ; endereço da tabela de posicao + nº asteroide * 4
-    MOV R8, [R9]                    ; R8 guarda linha
-    ADD R9, 2
-    MOV R10, [R9]                   ; R10 guarda coluna
+    MOV R9, posicao_asteroides                  ; endereço da tabela que guarda a posiçao dos asteroides na memoria
+    ADD R9, R10                                 ; endereço da tabela de posicao + nº asteroide * 4
+    MOV R8, [R9]                                ; R8 guarda linha
+    ADD R9, 2                                   ; word seguinte, primeiro guardamos linha, na a seguir a coluna
+    MOV R10, [R9]                               ; R10 guarda coluna
 
-    MOV R9, sentido_movimento_coluna_asteroide      ; endereço da tabela de sentido dos asteroides
-    MOV R6, R11                     ; coloca o nº do boneco em R6
-    SHL R6, 1	                    ; multiplica por 2 pois estamos a tratar de WORDS
-    MOV R7, [R9 + R6]               ; guarda o incremento por coluna
-    MOV R5, 1                       ; incremento da linha
+    MOV R9, sentido_movimento_coluna_asteroide  ; endereço da tabela de sentido dos asteroides
+    ;MOV R6, R11                                 ; coloca o nº do boneco em R6
+    SHL R6, 1	                                ; multiplica por 2 pois estamos a tratar de WORDS
+    MOV R7, [R9 + R6]                           ; guarda o incremento por coluna
+    MOV R5, 1                                   ; incremento da linha
 	
-	; cena aleatoria escolher entre asteroide bom e mau
 
+
+	; cena aleatoria escolher entre asteroide bom e mau
+    MOV R1, [valor_aleatorio]                   
+    CMP R1, 0
+    JZ escolhe_asteroide_bom                    ; se valor aleatorio é 0 vem asteroide bom
+    JMP escolhe_asteroide_mau                   ; se valor aleaotorio 1 ou 2 vem asteroide mau
+
+    escolhe_asteroide_bom:
 	MOV	 R9, DEF_ASTEROIDE_BOM		            ; endereço da tabela que define o boneco
+    JMP ciclo_boneco
+
+    escolhe_asteroide_mau:
+	MOV	 R9, DEF_ASTEROIDE_MAU		            ; endereço da tabela que define o boneco
+
+
+
+
+
+    MOV R2, posicao_asteroides                          ; guardamos o endereço da posicao da sonda
+    MOV R0,R11
+    ADD R2, R0                                      ; seleciona qual sonda estamos a alterar a posição
+    MOV R6, R2                                      
+    ADD R6, 2
+
+
+
+
 
 ciclo_boneco:
     MOV	R3, [evento_init_boneco]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
 
-    CMP R4, 2
-    JZ seleciona_ecra0
-    CMP R4, 4
-    JZ seleciona_ecra1
-    CMP R4, 1
-    JZ seleciona_ecra1
-    CMP R4, 3
-    JZ seleciona_ecra2
-    CMP R4, 0
-    JZ seleciona_ecra2
-    seleciona_ecra0:
-        MOV R2, 0
-        MOV [SELECIONA_ECRÃ], R2
-        JMP ecra_selecionado
-    seleciona_ecra1:
-        MOV R2, 1
-        MOV [SELECIONA_ECRÃ], R2
-        JMP ecra_selecionado
-    seleciona_ecra2:
-        MOV R2, 2
-        MOV [SELECIONA_ECRÃ], R2
-        JMP ecra_selecionado
-
-    ecra_selecionado:
+    MOV [SELECIONA_ECRÃ], R4                    ; seleciona o ecrã
     
     MOV R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
 
-	
-						                        ; Quando bloqueia, passa o controlo para outro processo
-						                        ; Como não há valor a transmitir, o registo pode ser um qualquer
+			                        
     ADD	R8, R5			                        ; para desenhar objeto na linha seguinte 
     ADD	R10, R7			                        ; para desenhar objeto na coluna seguinte 
 
     MOV R11, 1
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
+
+    MOV [R2], R8                                ;guarda a linha atual do asteroide na memoria
+    MOV [R6], R10                               ;guarda a coluna atual do asteroide na memoria
+
     JMP ciclo_boneco
 						                        ; Se se quisesse terminar o processo, era deixar o processo chegar a um RET
+
+
+
+; ******************************************************************************************************************************************************
+; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
+PROCESS SPinit_display
+energia_tempo:
+    MOV R0, [evento_init_display]               ; verificação lock
+    MOV R7, -3
+    CALL energia
+    CMP R6, 0
+    JLT acabou_energia
+    JMP energia_tempo
+
+    
+
+; ******************************************************************************************************************************************************
+; PAINEL_NAVE - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
+
+PROCESS SPinit_painelnave
+
+painel_nave:
+    MOV R2, 0
+    JMP restart_loop
+painel_nave_loop:
+    MOV R0, [evento_init_nave]          
+    MOV [SELECIONA_ECRÃ], R2
+    MOV R8, LINHA_ECRA_NAVE
+    MOV R10, COLUNA_ECRA_NAVE
+    MOV R11, 0
+    CALL desenha_apaga_boneco
+    MOV R11, 1
+    CALL desenha_apaga_boneco
+    MOV R10, 32d
+    ADD R9, R10
+    SUB R1, 1
+    CMP R1, 0
+    JZ restart_loop
+    JMP painel_nave_loop
+
+    restart_loop:
+    MOV R9, DEF_ECRA_NAVE_1
+    MOV R1, 7
+    JMP painel_nave_loop
+
+
+; ******************************************************************************************************************************************************
+; SONDA - Processo que deteta quando se carrega numa tecla do teclado.
+; ******************************************************************************************************************************************************
+
+PROCESS SPinit_sonda
+
+incremento_sonda:
+    MOV R0, [incremento_horizontal_sonda]
+    MOV R5, R0
+    MOV R1, R0                                  ; movemos para R1 para poder modificar o incremento
+    ADD R1, 1                                   ; adicionar 2 para apontar para a "centena" correta da pilha
+    MOV R3, TAMANHO_PILHA
+    MUL R1, R3                                  ; R1 passa a ter o enderço da pilha
+    SUB SP, R1                                  ; a sonda com este incremento fica com a respetiva pilha
+
+seleciona_posicao_tabela:
+    ADD R0, 1
+    SHL R0, 2
+    MOV R9, posicao_sondas
+    ADD R9, R0
+    MOV R8, [R9]                                ; guarda linha inicial da sonda em R8
+    ADD R9, 2
+    MOV R10, [R9]                               ; guarda coluna inicial da sonda em R10
+    MOV R9, DEF_SONDA                           ; guarda em R9  o endereço que define o desenho da sonda
+
+sound_sonda:
+    MOV    R6, 3   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som número 3 (beep)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do beep
+energia_sonda:
+    MOV R7, -5
+    CALL energia
+    CALL acabou_energia
+
+MOV R7, posicao_sondas                          ; guardamos o endereço da posicao da sonda
+ADD R7, R0                                      ; seleciona qual sonda estamos a alterar a posição
+MOV R6, R7                                      
+ADD R6, 2
+move_sonda:
+    MOV	R3, [evento_init_sonda]	                ; lê o LOCK e bloqueia até a interrupção escrever nele
+    MOV R4, 0
+    MOV [SELECIONA_ECRÃ], R4                    ; seleciona o ecrã
+    
+    MOV R11, 0
+
+	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
+
+    SUB	R8, 1			                        ; para desenhar objeto na linha anterior 
+    ADD	R10, R5		                            ; para desenhar objeto na coluna seguinte 
+
+    MOV R11, 1
+	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
+    
+    MOV [R7], R8                                ; para guardar a linha da sonda na memoria 
+    MOV [R6], R10                               ; para guardar a coluna da sonda na memoria
+    JMP move_sonda
+
+;************************************************************************************
+; EXPLOSÃO_BOM
+;************************************************************************************
+;explosão_bom:
+
+;************************************************************************************
+;EXPLOSÃO_MAU
+;************************************************************************************
+;explosão_mau:
+
+
+
+
+
+
+
+
+; ***********************************************************************************
+; ROTINAS 
+; ***********************************************************************************
+
+
+;************************************************************************************
+;JOGO_PERDIDO
+;************************************************************************************
+jogo_perdido:
+    MOV    R6, 2
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
+    MOV    R6, 1                      
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 1
+    MOV    R6, 0   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
+    MOV    R6, 4   
+    MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
+    MOV    R6, 4   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+    MOV    R6, JOGO_NAO_INICIADO
+    MOV    [jogo_estado], R6
+    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
+    RET
+
+;************************************************************************************
+; ENERGIA
+;************************************************************************************
+energia:
+    PUSH R7
+    MOV R6, [valor_display]
+    ADD R6, R7
+    MOV [valor_display], R6
+    CALL hex_para_dec
+    POP R7
+    RET
+
+;********************************************************************************
+; ACABOU_ENERGIA
+;********************************************************************************
+acabou_energia:
+    CMP R6, 0
+    JGE retorna_energia
+    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
+    MOV    R6, 2
+    MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
+    MOV    R6, 1                      
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 1
+    MOV    R6, 0   
+    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
+    MOV    R6, 3   
+    MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
+    MOV    R6, 5   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+    MOV    R6, 0
+    MOV    [jogo_estado], R6
+retorna_energia:
+    RET
+
 
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Rotina Desenha/Apaga um boneco na linha e coluna indicadas
 ;			             com a forma e cor definidas na tabela indicada.
-; Argumentos:   R8 - linha inicial
-;               R10 - coluna inicial
-;               R9 - tabela que define o boneco
+; Argumentos:   R8 - endereço da posicao do boneco
+;               R9 - endereço da tabela que define o boneco
+;               R10 - endereço da tabela com o decremento ou incremento do objeto
 ;               R11 - 1(para desenhar), 0(para apagar)
 ;
 ; ******************************************************************************************************************************************************
@@ -597,80 +836,163 @@ retorna_ciclo_desenho:
     RET
 
 ; ******************************************************************************************************************************************************
-; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
+; hex_para_dec- rotina que converte um número hexadecimal, no respetivo decimal
 ; ******************************************************************************************************************************************************
-PROCESS SPinit_display
-display_princ:
-    MOV R0, [evento_init_display]          ; verificação lock
-    MOV R1, [sonda_estado]
-    MOV R2, [mineravel_estado]
-    MOV R1, [sonda_estado]
-    CMP R1, DECREMENTAÇÃO_PENDENTE_5
-    JZ display_sonda
-    CMP R2, EXPLOSÃO_MIN
-    JZ display_explosão_mineravel
-    JMP display_tempo
+hex_para_dec:
+    PUSH   R0
+    PUSH   R1
+    PUSH   R2
+    PUSH   R3
+    PUSH   R4
+    PUSH   R6
+
+    MOV    R0, 100                              ; define R0 como 100, que é usado como uma constante na transformação
+    MOV    R1, 10                               ; define R1 como 10, que é usado como uma constante na transformação
+    MOV    R2, 0                                ; inicializa R2 como 0, que será usado para acumular os dígitos convertidos
+    MOV    R4, R6                               ; move o valor de R6 para R4, para guardar o valor original de R6
+transformação:
+    MOV    R3, R4                               ; move o valor de R4 para R3 para preservar o valor original
+    DIV    R3, R0                               ; divide o valor de R3 por R0 para obter o quociente da divisão
+    MOD    R4, R0                               ; calcula o resto da divisão de R4 por R0
+    DIV    R0, R1                               ; divide o valor de R0 por R1 para atualizar o valor de R0 para a próxima iteração
+    SHL    R2, 4                                ; desloca o conteúdo de R2 em 4 bits para a esquerda, R2 é utilizado como mascara
+    OR     R2, R3                               ; combina o conteúdo de R2 e R3, acumulando os dígitos convertidos
+    CMP    R0, 0                                ; verifica se cada um dos digitos do número hexadecimal já foram convertidos
+    JNZ    transformação
+
+retorna_ciclo_transforma:
+    MOV    R6, DISPLAYS
+    CMP    R2, 0
+    JLE    display_a_zero
+    MOV    [R6], R2  
+    POP    R6
+    POP    R4
+    POP    R3
+    POP    R2
+    POP    R1
+    POP    R0
+    RET 
+
+display_a_zero:
+    MOV    R2, 0
+    MOV    [R6], R2  
+    POP    R6
+    POP    R4
+    POP    R3
+    POP    R2
+    POP    R1
+    POP    R0
+    RET 
+
+; ***********
+; ROTINAS DE INTERRUPÇÃO
+; ***********
+
+; ******************************************************************************************************************************************************
+; ROT_INT_BONECO - 	Rotina de atendimento da interrupção 0
+;			        Faz simplesmente uma escrita no LOCK que o processo boneco lê.
+;			        Como basta indicar que a interrupção ocorreu (não há mais
+;			        informação a transmitir). Dependendo do estado do jogo,
+;                   a interrupção irá ou não desbloquear o lock.
+; ******************************************************************************************************************************************************
+rot_int_boneco:
+    PUSH R3
+    PUSH R7
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   boneco_unlock
+    retorna_int:
+    POP R7
+    POP R3
+    RFE
+    boneco_unlock:
+    MOV	[evento_init_boneco], R0	            ; desbloqueia processo boneco (qualquer registo serve)
+    JMP retorna_int
+; ******************************************************************************************************************************************************
+; ROT_INT_DISPLAY - Rotina de atendimento da interrupção 2
+;			        Faz simplesmente uma escrita no LOCK que o processo display lê.
+;			        Como basta indicar que a interrupção ocorreu (não há mais
+;			        informação a transmitir). Dependendo do estado do jogo,
+;                   a interrupção irá ou não desbloquear o lock.
+; ******************************************************************************************************************************************************
+rot_int_display:
+    PUSH R3
+    PUSH R7
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   display_unlock
+    retorna_int_display:
+    POP R7
+    POP R3
+    RFE
+    display_unlock:
+    MOV	[evento_init_display], R0	            ; desbloqueia processo painel_nave (qualquer registo serve)
+    JMP retorna_int_display
+
+; ******************************************************************************************************************************************************
+; ROT_INT_PAINEL_NAVE - Rotina de atendimento da interrupção 3
+;			            Faz simplesmente uma escrita no LOCK que o processo painel_nave lê.
+;			            Como basta indicar que a interrupção ocorreu (não há mais
+;			            informação a transmitir). Dependendo do estado do jogo,
+;                       a interrupção irá ou não desbloquear o lock.
+; ******************************************************************************************************************************************************
+rot_int_painel_nave:
+    PUSH R3
+    PUSH R7
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   nave_unlock
+    retorna_int_nave:
+    POP R7
+    POP R3
+    RFE
+    nave_unlock:
+    MOV	[evento_init_nave], R0	                ; desbloqueia processo painel_nave (qualquer registo serve)
+    JMP retorna_int_nave
 
 
+rot_int_sonda:
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R7
 
-display_sonda:
-    MOV R6, [valor_display]
-    SUB R6, 5
-    MOV [valor_display], R6
-    CALL hex_para_dec
-    MOV    R3, NENHUMA_SONDA
-    MOV    [sonda_estado], R3
-    JMP   display_princ
+    MOV   R3, 1
+    MOV   R7, [jogo_estado]  
+	CMP  R7, R3
+    JZ   sonda_unlock
+    JMP continuar_int_sonda
 
-display_tempo:
-    CMP R1, NENHUMA_SONDA
-    JNZ display_princ
-    CMP R1, NENHUMA_EXPLOSÃO_MIN
-    JNZ display_princ
-    MOV R6, [valor_display]
-    SUB R6, 3
-    MOV [valor_display], R6
-    CALL hex_para_dec
-    JMP display_princ
-
-display_explosão_mineravel:
-    MOV R6, [valor_display]
-    MOV R7, 25
-    ADD R6, R7
-    MOV [valor_display], R6
-    CALL hex_para_dec
-    MOV    R3, NENHUMA_EXPLOSÃO_MIN
-    MOV    [mineravel_estado], R3
-    JMP display_princ
+    sonda_unlock:
+    MOV	[evento_init_sonda], R0	                ; desbloqueia processo sonda (qualquer registo serve)
     
 
-; ******************************************************************************************************************************************************
-; PAINEL_NAVE - Processo que deteta quando se carrega numa tecla do teclado.
-; ******************************************************************************************************************************************************
-
-PROCESS SPinit_painelnave
-
-painel_nave:
-    MOV R2,0
-    JMP restart_loop
-painel_nave_loop:
-    MOV R0, [evento_init_nave]          ; verificação lock
-    MOV [SELECIONA_ECRÃ], R2
-    MOV R8, LINHA_ECRA_NAVE
-    MOV R10, COLUNA_ECRA_NAVE
-    MOV R11, 0
-    CALL desenha_apaga_boneco
-    MOV R11, 1
-    CALL desenha_apaga_boneco
-    MOV R10, 32d
-    ADD R9, R10
-    SUB R1, 1
+    continuar_int_sonda:
+    MOV R1, [valor_aleatorio]
     CMP R1, 0
-    JZ restart_loop
-    JMP painel_nave_loop
+    JZ mete_1
+    CMP R1, 1
+    JZ mete_2
+    JMP mete_0
 
 
-restart_loop:
-    MOV R9, DEF_ECRA_NAVE_1
-    MOV R1, 7
-    JMP painel_nave_loop
+    mete_1:
+    MOV R2, 1
+    MOV [valor_aleatorio], R2
+    JMP fim_rot_int_sonda
+    mete_0:
+    MOV R2, 0
+    MOV [valor_aleatorio], R2
+    mete_2:
+    MOV R2, 2
+    MOV [valor_aleatorio], R2
+
+    fim_rot_int_sonda:
+    POP R7
+    POP R3
+    POP R2
+    POP R1
+    RFE

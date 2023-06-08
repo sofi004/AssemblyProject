@@ -1,7 +1,7 @@
 {
   "comment" : "This is a JSON file describing a digital circuit, which can be loaded into the SEPE (Simulador Especial Para Ensino), a computer architecture simulator.",
-  "savedWithSimulatorVersion" : "2.2.1",
-  "savedWithSimulatorBuildOn" : "2023-05-16  at  14:54:44",
+  "savedWithSimulatorVersion" : "2.2.0",
+  "savedWithSimulatorBuildOn" : "2023-05-01  at  07:54:14",
   "editorLocked" : true,
   "startAutomatically" : true,
   "showConnectionColors" : false,
@@ -10,10 +10,10 @@
   "primary screen width" : 1920,
   "primary screen height" : 1080,
   "window" : {
-    "X absolute" : 309,
-    "Y absolute" : 81,
-    "X relative" : 309,
-    "Y relative" : 81,
+    "X absolute" : 600,
+    "Y absolute" : 0,
+    "X relative" : 600,
+    "Y relative" : 0,
     "width" : 1266,
     "height" : 1036,
     "leftRightDividerLocation" : 296,
@@ -740,10 +740,10 @@
     "positionX" : 258,
     "positionY" : 40,
     "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 933,
-    "simGuiYRelative" : 163,
-    "simGuiWidth" : 900,
-    "simGuiHeight" : 880,
+    "simGuiXRelative" : 0,
+    "simGuiYRelative" : 0,
+    "simGuiWidth" : 880,
+    "simGuiHeight" : 856,
     "clockPeriod" : 200,
     "startAutomatically" : true,
     "simulationMaster" : true,
@@ -772,7 +772,7 @@
       "pinConnectionID" : -1,
       "pinValueFixed" : "1"
     },
-    "programFilePathName" : "tentativa_processos.asm",
+    "programFilePathName" : "versão_final_terça.asm",
     "nTabSpaces" : 4,
     "bus interface" : {
       "className" : "ModuleExtensionMasterBusReadWrite",
@@ -1453,11 +1453,7 @@
     "moduleDelay" : 5,
     "positionX" : 978,
     "positionY" : 536,
-    "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 1249,
-    "simGuiYRelative" : 54,
-    "simGuiWidth" : 150,
-    "simGuiHeight" : 185,
+    "simGuiVisibleInSimulation" : false,
     "columns" : 4,
     "key numbers radix" : "Hexadecimal",
     "key color" : "Default",
@@ -1496,11 +1492,7 @@
     "moduleDelay" : 5,
     "positionX" : 1026,
     "positionY" : 392,
-    "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 680,
-    "simGuiYRelative" : 662,
-    "simGuiWidth" : 249,
-    "simGuiHeight" : 209,
+    "simGuiVisibleInSimulation" : false,
     "nHexaDigits" : 3,
     "onColor" : "Red",
     "zColor" : "Black_White",
@@ -1524,11 +1516,7 @@
     "moduleDelay" : 5,
     "positionX" : 810,
     "positionY" : 224,
-    "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 153,
-    "simGuiYRelative" : 107,
-    "simGuiWidth" : 1024,
-    "simGuiHeight" : 512,
+    "simGuiVisibleInSimulation" : false,
     "columnAddressNBits" : 6,
     "lineAddressNBits" : 5,
     "windowScreenWidthPixels" : 1024,
@@ -1537,7 +1525,7 @@
     "image paths" : [ "../../grupo12/imagens/start_image.png", "../../grupo12/imagens/jogo_terminado.png", "../../grupo12/imagens/transparencia.png", "../../grupo12/imagens/sem_energia.png" ],
     "sounds/videos settings" : [ {
       "filePathName" : "../../grupo12/sons/backgroundvideo.mp4",
-      "relative sound volume" : 0.34,
+      "relative sound volume" : 1.0,
       "relative start time" : 0.0,
       "relative stop time" : 1.0,
       "playAsClip" : false
@@ -1549,7 +1537,7 @@
       "playAsClip" : false
     }, {
       "filePathName" : "../../grupo12/sons/ABERTURA.mp3",
-      "relative sound volume" : 0.1,
+      "relative sound volume" : 1.0,
       "relative start time" : 0.0,
       "relative stop time" : 1.0,
       "playAsClip" : false
@@ -1580,7 +1568,7 @@
       "nWordParts" : 2,
       "endianness" : "Big-Endian",
       "addressNBits" : 12,
-      "numberOfPixelScreens" : 3
+      "numberOfPixelScreens" : 10
     },
     "addressable control" : {
       "className" : "ModuleExtensionMediaCenter",
@@ -1690,7 +1678,7 @@
     "positionX" : 32,
     "positionY" : 32,
     "simGuiVisibleInSimulation" : false,
-    "clockPeriod" : 2000,
+    "clockPeriod" : 400,
     "startAutomatically" : true,
     "simulationMaster" : false,
     "clockOutPin" : {
