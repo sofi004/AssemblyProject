@@ -721,6 +721,14 @@ move_sonda:
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
     MOV     [R7], R8                            ; para guardar a linha da sonda na memoria 
     MOV     [R6], R10                           ; para guardar a coluna da sonda na memoria
+
+
+    PUSH R0
+    MOV R0, R7
+    CALL   colisoes_asteroide
+    POP R0
+
+
     MOV     R3,R8
     MOV     R8, 1
 
@@ -1018,6 +1026,7 @@ PUSH R5
 PUSH R6
 Push R7
 PUSH R8
+PUSH R9
 
 MOV R11, 0
 
@@ -1025,10 +1034,13 @@ MOV R11, 0
 ;R0-LINHA
 ;R1-COLUNA
 MOV R1, [R0+2]                          ;indica a coluna da sonda
+MOV R9, [R0]
+MOV R0, R9                              ;indica a linha da sonda
 
 MOV R2, N_ASTEROIDES                   
 SUB R2, 1
 MOV R3,0                                ;contador para verificar todos os asteroides
+MOV R9, 0
 
 ;ASTEROIDE:
 ;R5-LINHA TOPO
@@ -1037,6 +1049,8 @@ MOV R3,0                                ;contador para verificar todos os astero
 ;R8-COLUNA DIREITA
 obtem_limites_asteroide:
 MOV R4, posicao_asteroides
+MOV R3, R9
+SHL R3,2
 ADD R4,R3                               ;seleciona o asteroide que iremos verificar
 MOV R5, [R4]                            ;obtem linha topo do asteroide
 MOV R6, R5
@@ -1065,11 +1079,13 @@ MOV R11, 1
 JMP fim_colisoes
 
 continua_verificacoes_asteroide:
-    ADD R3,1
-    CMP R3, R2
+    ADD R3, 1
+    ADD R9,1
+    CMP R9, R2
     JNZ obtem_limites_asteroide
 
 fim_colisoes:
+POP R9
 POP R8
 POP R7
 POP R6
