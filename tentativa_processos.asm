@@ -121,7 +121,7 @@ tab:
     WORD 0
     WORD rot_int_painel_nave
 
-jogo_estado: WORD 0
+jogo_estado: WORD 0     
 posicao_asteroides:
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE0
     WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE1
