@@ -1028,7 +1028,7 @@ Push R7
 PUSH R8
 PUSH R9
 
-MOV R11, 0
+MOV R11, -1
 
 ;SONDA:
 ;R0-LINHA
@@ -1075,7 +1075,7 @@ verifica_direita_asteroide:
     CMP R1, R8
     JGT     continua_verificacoes_asteroide
 
-MOV R11, 1
+MOV R11, R9
 JMP fim_colisoes
 
 continua_verificacoes_asteroide:
