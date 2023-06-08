@@ -384,6 +384,7 @@ verifica_tecla0:
     MOV     R5, [existe_sonda]
     CMP     R5,1
     JZ      verifica_tecla1
+    CALL    sonda_displays_sound
     MOV     R5,1
     MOV     [existe_sonda],R5
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
@@ -397,6 +398,7 @@ verifica_tecla1:
     MOV     R5, [existe_sonda+2]
     CMP     R5,1
     JZ      verifica_tecla2
+    CALL    sonda_displays_sound
     MOV     R5,1 
     MOV     [existe_sonda+2],R5
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
@@ -410,6 +412,7 @@ verifica_tecla2:
     MOV     R5, [existe_sonda+4]
     CMP     R5,1
     JZ      verifica_teclaC
+    CALL    sonda_displays_sound
     MOV     R5, 1
     MOV     [existe_sonda+4],R5    
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
@@ -467,6 +470,17 @@ termina_jogo:
     MOV    R6, JOGO_NAO_INICIADO
     MOV    [jogo_estado], R6
     JMP    verifica_teclaC
+
+sonda_displays_sound:
+sound_sonda:
+    MOV    R6, 3   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som número 3 (beep)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do beep
+energia_sonda:
+    MOV     R7, -5
+    CALL    energia
+    CALL    acabou_energia
+RET
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
@@ -571,8 +585,7 @@ energia_tempo:
     MOV     R0, [evento_init_display]           ; verificação lock
     MOV     R7, -3
     CALL    energia
-    CMP     R6, 0
-    JLT     acabou_energia
+    CALL    acabou_energia
     JMP     energia_tempo
 
 ; ******************************************************************************************************************************************************
