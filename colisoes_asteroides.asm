@@ -1003,7 +1003,7 @@ ha_colisao:
 ; ******************************************************************************************************************************************************
 ; colisoes_asteroide - rotina que verifica se a sonda colidiu com algum asteroide
 ;			             
-; Argumentos:   R0- posiçao da sonda
+; Argumentos:   R0- posiçao da sonda na memoria
 ;
 ; Saida:        R11- 1 se o asteroide explodir e 0 caso nao aconteça nada
 ;
