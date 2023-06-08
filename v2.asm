@@ -631,7 +631,9 @@ escolhe_asteroide_tipo:
 
 escolhe_asteroide_bom:
     MOV R9, tipo_asteroide
-    ADD R9, R3
+    MOV R4, R3
+    SHL R4, 1
+    ADD R9, R4
     MOV R4, 0
     MOV [R9], R4
 
@@ -640,7 +642,9 @@ escolhe_asteroide_bom:
 
 escolhe_asteroide_mau:
     MOV R9, tipo_asteroide
-    ADD R9, R3
+    MOV R4, R3
+    SHL R4, 1
+    ADD R9, R4
     MOV R4, 1
     MOV [R9], R4
 
