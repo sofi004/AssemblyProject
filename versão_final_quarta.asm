@@ -86,6 +86,8 @@ LARGURA_EFEITO2_ASTEROIDE_BOM EQU 1             ; largura do boneco desenhado na
 ALTURA_EFEITO2_ASTEROIDE_BOM EQU 1              ; altura do boneco desenhado na segunda animação, quando um asteroide bom explode 
 LARGURA_EFEITO_ASTEROIDE_MAU EQU 5              ; largura do boneco desenhado na animação, quando um asteroide mau explode 
 ALTURA_EFEITO_ASTEROIDE_MAU EQU 5               ; altura do boneco desenhado na animação, quando um asteroide mau explode 
+NENHUMA_EXPLOSÃO_MIN EQU 0                      
+EXPLOSÃO_MIN EQU 1
 
 ; ######################################################################################################################################################
 ; * ZONA DE DADOS 
@@ -108,10 +110,7 @@ STACK TAMANHO_PILHA                             ; espaço reservado para a pilha
     SPinit_display:
 
 STACK TAMANHO_PILHA * N_MAX_SONDAS              ; espaço reservado para a pilha do processo incremento_sonda
-    SPinit_sonda:
-
-STACK TAMANHO_PILHA * N_MAX_SONDAS              ; espaço reservado para a pilha do processo explosão  
-    SPinit_explosão                              
+    SPinit_sonda:                           
 
 evento_init_boneco:                             ; LOCK para a rotina de interrupção comunicar ao processo boneco que a interrupção ocorreu
     LOCK 0 
