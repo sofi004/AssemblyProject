@@ -43,7 +43,7 @@ TECLA_2 EQU 0014H                               ; número devolvido pelo teclado
 TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
 N_ASTEROIDES			EQU  5		            ; número de bonecos
 N_MAX_SONDAS      EQU 3                         ; num max sondas
-LINHA_INICIAL_SONDA EQU 31                      ; linha inicial da sonda
+LINHA_INICIAL_SONDA EQU 28                      ; linha inicial da sonda
 COLUNA_INICIAL_SONDA EQU 32                     ; coluna inicial da sonda
 
 ; ******************************************************************************************************************************************************
@@ -340,6 +340,7 @@ verifica_teclaC:
     MOV     [R0], R6
     MOV     R0, 0064H                           ; porque 100 decimal correponde a 64 hexadecimal
     MOV     [valor_display], R0                 ; coloca na memória o valor que está no display, mas em hexadecimal
+    CALL    reset_posicoes_objetos
     MOV     R3, JOGO_A_CORRER                   
     MOV     [jogo_estado], R3                   ; coloca o estado do jogo como iniciado
     MOV     R11, 1                              ; para indicar que é para desenhar
@@ -476,6 +477,64 @@ termina_jogo:
     MOV    [jogo_estado], R6
     JMP    verifica_teclaC
 
+reset_posicoes_objetos:
+    PUSH R0
+    PUSH R1
+    PUSH R2 
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R6
+    MOV R0, N_ASTEROIDES
+
+reset_posicoes_asteroides:
+    SUB R0, 1
+    MOV R5, R0
+    MOV R3, R5
+    SHL R5, 2
+    MOV R1, posicao_asteroides
+    SHL R3, 1
+    MOV R2, escolhe_posicao 
+    ADD R1, R5
+    ADD R2, R3
+    MOV R4, [R2]
+    MOV [R1], R4
+    ADD R1, 2
+    MOV R6, LINHA_ASTEROIDE
+    MOV [R1], R6
+    CMP R0, 0
+    JNZ reset_posicoes_asteroides
+    MOV R1, N_MAX_SONDAS
+    
+reset_posicao_sondas:
+    SUB R1, 1
+    MOV R0, R1
+    MOV R2, posicao_sondas
+    SHL R0, 1
+    ADD R2, R0
+    MOV R6, LINHA_INICIAL_SONDA
+    MOV [R2], R6
+    ADD R2, 2
+    MOV R6, COLUNA_INICIAL_SONDA
+    MOV [R2], R6
+    CMP R1, 0
+    JNZ reset_posicao_sondas
+
+retorna_reset_posicoes:
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
+
+
+
+
+
+
 sonda_displays_sound:
 sound_sonda:
     MOV    R6, 3   
@@ -588,6 +647,8 @@ ciclo_boneco:
     CALL    limites
     CMP     R11, 1
     JZ      reset_posicao
+    CMP     R11, 2
+    JZ      acaba_jogo
     JMP     ciclo_boneco
 
 limites:
@@ -601,7 +662,6 @@ limites:
     RET
 
 reset_posicao:
-
     CALL rotina_posicao
     JMP  escolhe_posicao
 
@@ -609,6 +669,7 @@ rotina_posicao:
     PUSH R4
     PUSH R5
     PUSH R2
+    PUSH R11
     MOV R4, R3                                  ; para preservar o numero do asteroide
     SHL R4, 1
     MOV R5, escolha_asteroide_posicao
@@ -618,12 +679,19 @@ rotina_posicao:
     MOV [R6], R2
     SUB R6, 2
     MOV [R6], R4
-
+    MOV R11, 0
+    CALL desenha_apaga_boneco
+    POP R11
     POP R2
     POP R5
     POP R4
     RET
 
+acaba_jogo:
+    MOV R11, [evento_init_nave]
+    CALL jogo_perdido 
+    JMP escolhe_posicao
+    
 ; ******************************************************************************************************************************************************
 ; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
@@ -750,6 +818,9 @@ move_sonda:
 ;JOGO_PERDIDO
 ;************************************************************************************
 jogo_perdido:
+    PUSH   R6
+    MOV    R6, JOGO_NAO_INICIADO
+    MOV    [jogo_estado], R6
     MOV    R6, 2
     MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
     MOV    R6, 1                      
@@ -761,9 +832,9 @@ jogo_perdido:
     MOV    R6, 4   
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
-    MOV    R6, JOGO_NAO_INICIADO
-    MOV    [jogo_estado], R6
     MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
+    POP    R6
+    CALL   reset_posicoes_objetos
     RET
 
 ;************************************************************************************
@@ -944,18 +1015,18 @@ verifica_topo_nave:
     MOV     R5, R0
     ADD     R5, R8
     CMP     R5, R4
-    JNZ     continua_verificacoes
+    JLE     continua_verificacoes
 
 verifica_direita_nave:
     MOV     R5,R1
     CMP     R5,R3
-    JNZ     continua_verificacoes
+    JGE     continua_verificacoes
 
 verifica_esquerda_nave:
     MOV     R5, R1
     ADD     R5, R8
     CMP     R5, R2
-    JNZ     continua_verificacoes
+    JLE     continua_verificacoes
     MOV     R11, 2
     JMP     retorna_limites
 
