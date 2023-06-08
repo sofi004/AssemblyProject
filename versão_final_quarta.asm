@@ -340,7 +340,6 @@ verifica_teclaC:
     MOV     [R0], R6
     MOV     R0, 0064H                           ; porque 100 decimal correponde a 64 hexadecimal
     MOV     [valor_display], R0                 ; coloca na memória o valor que está no display, mas em hexadecimal
-    CALL    reset_posicoes_objetos
     MOV     R3, JOGO_A_CORRER                   
     MOV     [jogo_estado], R3                   ; coloca o estado do jogo como iniciado
     MOV     R11, 1                              ; para indicar que é para desenhar
@@ -480,32 +479,34 @@ termina_jogo:
 reset_posicoes_objetos:
     PUSH R0
     PUSH R1
-    PUSH R2 
+    PUSH R2
     PUSH R3
     PUSH R4
     PUSH R5
     PUSH R6
-    MOV R0, N_ASTEROIDES
+    PUSH R7
+    MOV  R3, N_ASTEROIDES
 
-reset_posicoes_asteroides:
-    SUB R0, 1
-    MOV R5, R0
-    MOV R3, R5
-    SHL R5, 2
-    MOV R1, posicao_asteroides
-    SHL R3, 1
-    MOV R2, escolhe_posicao 
-    ADD R1, R5
-    ADD R2, R3
-    MOV R4, [R2]
-    MOV [R1], R4
-    ADD R1, 2
-    MOV R6, LINHA_ASTEROIDE
-    MOV [R1], R6
-    CMP R0, 0
-    JNZ reset_posicoes_asteroides
+reset_posições_asteroides:
+    SUB R3, 1
+    MOV R7, R3
+    MOV R4, R3                                  ; para preservar o numero do asteroide
+    SHL R4, 1
+    MOV R5, escolha_asteroide_posicao
+    ADD R5, R4
+    MOV R2, [R5]                                ; R2  agora tem a nova coluna inicial do asteroide
+    MOV R4, LINHA_ASTEROIDE
+    MOV R6, posicao_asteroides
+    SHL R7, 2
+    ADD R7, 2
+    ADD R6, R7
+    MOV [R6], R2
+    SUB R6, 2
+    MOV [R6], R4
+    CMP R3, 0
+    JNZ reset_posições_asteroides
     MOV R1, N_MAX_SONDAS
-    
+
 reset_posicao_sondas:
     SUB R1, 1
     MOV R0, R1
@@ -521,6 +522,7 @@ reset_posicao_sondas:
     JNZ reset_posicao_sondas
 
 retorna_reset_posicoes:
+    POP R7
     POP R6
     POP R5
     POP R4
@@ -598,22 +600,6 @@ boneco:					                        ; processo que implementa o comportamento do
     MOV     R4, R11                                 ;registo para usar na seleçao do ecra
     ADD     R4, 1                                   ; adiciona 2 porque no 0 tá a nave e no 1 ta o display
 
-    escolhe_posicao:
-    MOV     R11, R3
-    MOV     R6, R11                                  ; coloca o nº do boneco em R6
-    SHL     R11, 2                                  ; multiplica por 4 pois a tabela vai de 4 em 4 (2 words por asteroide)
-    MOV     R10,R11                                 ; guarda o numero do asteroide para usar pra posiçao
-    MOV     R9, posicao_asteroides                  ; endereço da tabela que guarda a posiçao dos asteroides na memoria
-    ADD     R9, R10                                 ; endereço da tabela de posicao + nº asteroide * 4
-    MOV     R8, [R9]                                ; R8 guarda linha
-    ADD     R9, 2                                   ; word seguinte, primeiro guardamos linha, na a seguir a coluna
-    MOV     R10, [R9]                               ; R10 guarda coluna
-
-    MOV     R9, sentido_movimento_coluna_asteroide  ; endereço da tabela de sentido dos asteroides
-    SHL     R6, 1	                                ; multiplica por 2 pois estamos a tratar de WORDS
-    MOV     R7, [R9 + R6]                           ; guarda o incremento por coluna
-    MOV     R5, 1                                   ; incremento da linha
-	; aleatoriamente escolhe entre asteroide bom e mau
     MOV     R1, [valor_aleatorio]                   
     CMP     R1, 0
     JZ      escolhe_asteroide_bom               ; se valor aleatorio é 0 vem asteroide bom
@@ -626,15 +612,33 @@ escolhe_asteroide_bom:
 escolhe_asteroide_mau:
 	MOV	    R9, DEF_ASTEROIDE_MAU		        ; endereço da tabela que define o boneco
 
+    escolhe_posicao:
+    MOV	    R11, [evento_init_boneco]	        ; lê o LOCK e bloqueia até a interrupção escrever nele
+
+    MOV     R11, R3
+    MOV     R6, R11                                  ; coloca o nº do boneco em R6
+    SHL     R11, 2                                  ; multiplica por 4 pois a tabela vai de 4 em 4 (2 words por asteroide)
+    MOV     R10,R11                                 ; guarda o numero do asteroide para usar pra posiçao
+    MOV     R4, posicao_asteroides                  ; endereço da tabela que guarda a posiçao dos asteroides na memoria
+    ADD     R4, R10                                 ; endereço da tabela de posicao + nº asteroide * 4
+    MOV     R8, [R4]                                ; R8 guarda linha
+    ADD     R4, 2                                   ; word seguinte, primeiro guardamos linha, na a seguir a coluna
+    MOV     R10, [R4]                               ; R10 guarda coluna
+
+    MOV     R4, sentido_movimento_coluna_asteroide  ; endereço da tabela de sentido dos asteroides
+    SHL     R6, 1	                                ; multiplica por 2 pois estamos a tratar de WORDS
+    MOV     R7, [R4 + R6]                           ; guarda o incremento por coluna
+    MOV     R5, 1                                   ; incremento da linha
+
+    
     MOV     R2, posicao_asteroides              ; guardamos o endereço da posicao do asteroide
-    MOV     R0,R11
+    MOV     R0, R11
     ADD     R2, R0                              ; seleciona qual asteroide estamos a alterar a posição
     MOV     R6, R2                                      
     ADD     R6, 2
 
 ciclo_boneco:
-    MOV	    R11, [evento_init_boneco]	        ; lê o LOCK e bloqueia até a interrupção escrever nele
-    MOV     [SELECIONA_ECRÃ], R4                ; seleciona o ecrã
+    MOV     [SELECIONA_ECRÃ], R3                ; seleciona o ecrã
     MOV     R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela	                        
     ADD	    R8, R5			                    ; para desenhar objeto na linha seguinte 
@@ -649,7 +653,7 @@ ciclo_boneco:
     JZ      reset_posicao
     CMP     R11, 2
     JZ      acaba_jogo
-    JMP     ciclo_boneco
+    JMP     escolhe_posicao
 
 limites:
     PUSH R7
@@ -688,7 +692,7 @@ rotina_posicao:
     RET
 
 acaba_jogo:
-    MOV R11, [evento_init_nave]
+    ;MOV R11, [evento_init_nave]
     CALL jogo_perdido 
     JMP escolhe_posicao
     
