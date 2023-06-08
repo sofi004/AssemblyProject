@@ -108,7 +108,10 @@ STACK TAMANHO_PILHA                             ; espaço reservado para a pilha
     SPinit_display:
 
 STACK TAMANHO_PILHA * N_MAX_SONDAS              ; espaço reservado para a pilha do processo incremento_sonda
-    SPinit_sonda:                           
+    SPinit_sonda:      
+
+STACK TAMANHO_PILHA * N_MAX_SONDAS              ; espaço reservado para a pilha do processo explosao
+    SPinit_explosao:    
 
 evento_init_boneco:                             ; LOCK para a rotina de interrupção comunicar ao processo boneco que a interrupção ocorreu
     LOCK 0 
@@ -787,7 +790,7 @@ incremento_sonda:
     MOV     R0, R10
     MOV     R5, R0
     MOV     R1, R0                              ; movemos para R1 para poder modificar o incremento
-    ADD     R1, 1                               ; adicionar 2 para apontar para a "centena" correta da pilha
+    ADD     R1, 1                               ; adicionar 1 para apontar para a "centena" correta da pilha
     MOV     R3, TAMANHO_PILHA
     MUL     R1, R3                              ; R1 passa a ter o enderço da pilha
     SUB     SP, R1                              ; a sonda com este incremento fica com a respetiva pilha
@@ -835,24 +838,177 @@ move_sonda:
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
     MOV     [R7], R8                            ; para guardar a linha da sonda na memoria 
     MOV     [R6], R10                           ; para guardar a coluna da sonda na memoria
+
+    
+    PUSH R0
+    MOV R0, R7
+    CALL   colisoes_asteroide
+    POP R0
+
+    CMP R11, -1
+    
+    JNZ ativa_explosao
+
+
     MOV     R3,R8
     MOV     R8, 1
-
-    CALL    verifica_limites
+    CALL    verifica_limites                    ; verifica se a sonda saiu do ecrã
     MOV     R8, R3
     CMP     R11, 0
     JZ      seleciona_posicao_tabela
-    MOV     R11, 0
+    JMP ha_colisao
+    
+    ativa_explosao:
+        PUSH R0
+        PUSH R1
+        PUSH R2
+        PUSH R3
+        PUSH R7
+        PUSH R8
+        PUSH R9
+        PUSH R10
+        MOV R7, R2
+        MOV R1, R11
+        MOV R0, posicao_asteroides
+        SHL R1, 2
+        ADD R0, R1
+        MOV R8, [R0]
+        ADD R0, 2
+        MOV R10, [R0]
+        MOV R2, tipo_asteroide
+        SHR R1, 1
+        ADD R2, R1
+        MOV R3, [R2]
+        CMP R3, 0
+        JZ e_asteroide_bom 
+        JMP e_asteroide_mau
+
+        e_asteroide_bom:
+        MOV R9, DEF_ASTEROIDE_BOM
+        JMP asteroide_escolhido
+
+        e_asteroide_mau:
+        MOV R9, DEF_ASTEROIDE_MAU
+
+        asteroide_escolhido:
+        CALL explosão
+        POP R10
+        POP R9
+        POP R8
+        POP R7
+        POP R3
+        POP R2
+        POP R1
+        POP R0
+
+    há_colisao:
+    MOV     R11, 0                                  ; caso haja qualquer tipo de colisao
     CALL    desenha_apaga_boneco
-    MOV     R11, LINHA_INICIAL_SONDA
+    MOV     R11, LINHA_INICIAL_SONDA                ; da reset à posiçao da sonda
     MOV     [R7], R11
     MOV     R11 , COLUNA_INICIAL_SONDA
     MOV     [R6], R11
-    MOV     R11, existe_sonda
+    MOV     R11, existe_sonda                       ; permite ao utilizador criar outra sonda
     ADD     R11, R2
     MOV     R4, 0
     MOV     [R11], R4
     JMP     seleciona_posicao_tabela
+
+;************************************************************************************
+;   EXPLOSÃO
+;   Argumentos: R8 - linha onde ocorreu a explosão
+;               R9 - tabela do asteroide que explodiu
+;               R10 - coluna onde ocorreu a explosão
+;               R7 - número da sonda que explodiu o asteroide
+;************************************************************************************
+PROCESS SPinit_explosao
+
+explosão:
+    SHR     R7, 1
+    MOV     R3, TAMANHO_PILHA
+    MUL     R3, R7                              ; R1 passa a ter o enderço da pilha
+    SUB     SP, R3                              ; a sonda com este incremento fica com a respetiva pilha
+
+MOV     R4, -1                                  ; contador de animações
+bom_ou_mau:
+    MOV     R2, DEF_ASTEROIDE_MAU
+    CMP     R2, R9                              ; verifica se o asteroide que explodiu era mau
+    JZ      coloca_a_3
+    MOV     R2, DEF_ASTEROIDE_BOM
+    CMP     R2, R9               ; verifica se o asteroide que explodiu era mau
+    JZ      coloca_a_5
+
+coloca_a_3:
+    MOV     R1, 2
+    JMP explosão_princ
+coloca_a_5:
+    MOV     R1, 3
+
+explosão_princ:
+    MOV     R2, [evento_init_boneco]               ; bloqueia o processo
+    CALL    explosão_bom                  ; responsavel pelo efeito de explosão
+    CMP     R4, R1
+    JNZ     explosão_princ
+
+explosão_bom:
+    CMP     R4, -1
+    JZ      retorna_explosão_princ
+    CMP     R4, 0
+    JZ      primeira_animação
+    CMP     R4, 1
+    JZ      segunda_animação
+    CMP     R4, 2
+    JZ      ultima_animação
+
+primeira_animação:
+    MOV     R6, 6
+    MOV     [SELECIONA_SOM_VIDEO], R6           ; selciona o som de explosão
+    MOV     [REPRODUZ_SOM_VIDEO], R6            ; reproduz o som de explosão
+    MOV     R11, 0
+    CALL    desenha_apaga_boneco                ; apaga o steroide que explodiu
+    CMP     R1, 3                       
+    JZ      primeira_animação_bom
+    JMP     primeira_animação_mau
+
+primeira_animação_bom: 
+    SUB     R8, 1                               ; decrementa em 1 a linha, porque a primeira animação começa a ser desenhada uma linha a baixo 
+    SUB     R10, 1                              ; decrementa em 1 a coluna, porque a primeira animação começa a ser desenhada uma coluna a baixo
+    MOV     R9, DEF_ASTEROIDE_BOM                              ; passa a desenha_apaga_boneco, como argumento de entrada, a tabela da 1º
+    MOV     R11, 1                              ; para indicar quee é para desenhar
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+primeira_animação_mau:
+    MOV     R9, DEF_ASTEROIDE_MAU
+    MOV     R11, 1
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+segunda_animação:
+    CMP     R1, 3
+    JZ      segunda_animação_bom
+    JMP     ultima_animação
+
+segunda_animação_bom:
+    MOV     R11, 0                              ; para indicar que é para apagar
+    CALL    desenha_apaga_boneco
+    SUB     R8, 1
+    SUB     R10, 1
+    MOV     R9, DEF_EFEITO2_ASTEROIDE_BOM
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+ultima_animação:
+    MOV     R11, 0
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+retorna_explosão_princ:
+    ADD     R4, 1                     
+    RET
+
+
+    
     
 ; ***********************************************************************************
 ; ROTINAS 
@@ -1114,6 +1270,95 @@ retorna_limites:
 ha_colisao:
     MOV     R11, 1
     JMP     retorna_limites
+
+; ******************************************************************************************************************************************************
+; colisoes_asteroide - rotina que verifica se a sonda colidiu com algum asteroide
+;			             
+; Argumentos:   R0- posiçao da sonda na memoria
+;
+; Saida:        R11- 1 se o asteroide explodir e 0 caso nao aconteça nada
+;
+; ******************************************************************************************************************************************************
+colisoes_asteroide:
+
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R6
+    PUSH R7
+    PUSH R8
+    PUSH R9
+
+    MOV R11, -1
+
+    ;SONDA:
+    ;R0-LINHA
+    ;R1-COLUNA
+    MOV R1, [R0+2]                             ;indica a coluna da sonda
+    MOV R9, [R0]
+    MOV R0, R9                                ;indica a linha da sonda
+
+    MOV R2, N_ASTEROIDES                   
+    SUB R2, 1
+    MOV R3,0                                ;contador para verificar todos os asteroides
+    MOV R9, 0
+
+    ;ASTEROIDE:
+    ;R5-LINHA TOPO
+    ;R6-LINHA BAIXO
+    ;R7-COLUNA ESQUERDA
+    ;R8-COLUNA DIREITA
+    obtem_limites_asteroide:
+    MOV R4, posicao_asteroides
+    MOV R3, R9
+    SHL R3,2
+    ADD R4,R3                               ;seleciona o asteroide que iremos verificar
+    MOV R5, [R4]                            ;obtem linha topo do asteroide
+    MOV R6, R5
+    ADD R6, 4                               ;obtem linha de baixo do asteroide
+    MOV R7, [R4+2]                          ;obtem a coluna da esquerda do asteroide
+    MOV R8, R7
+    ADD R8, 4                               ;obtem a coluna da direita do asteroide
+  
+verifica_topo_asteroide:
+    CMP     R0, R5
+    JLT     continua_verificacoes_asteroide
+
+verifica_baixo_asteroide:
+    CMP     R0,R6
+    JGT     continua_verificacoes_asteroide
+
+verifica_esquerda_asteroide:
+    CMP R1,R7
+    JLT     continua_verificacoes_asteroide
+
+verifica_direita_asteroide:
+    CMP R1, R8
+    JGT     continua_verificacoes_asteroide
+
+MOV R11, R9
+JMP fim_colisoes
+
+continua_verificacoes_asteroide:
+    ADD R3, 1
+    ADD R9,1
+    CMP R9, R2
+    JNZ obtem_limites_asteroide
+
+fim_colisoes:
+    POP R9
+    POP R8
+    POP R7
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
+
 
 ;**********************************************************************************************************************
 ; ROTINAS DE INTERRUPÇÃO
