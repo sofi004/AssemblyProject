@@ -563,6 +563,14 @@ retorna_reset_posicoes:
     POP R0
     RET
 
+reset_aleatorio:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    MOV R0, valor_aleatorio
+    MOV R1, 2
+    MOV [R0], R1
+
 sonda_displays_sound:
 sound_sonda:
     MOV    R6, 3   
