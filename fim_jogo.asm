@@ -500,7 +500,7 @@ venceu_jogo:
     MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
     MOV    R6, 5   
     MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
-    MOV    R6, 4   
+    MOV    R6, 8   
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    R6, JOGO_NAO_INICIADO
@@ -921,6 +921,7 @@ move_sonda:                                     ; label encarregada de fazer o m
     PUSH R8
     PUSH R9
     PUSH R10
+    PUSH    R6
     MOV R1, R11
     MOV R2, tipo_asteroide
     SHL R1, 1
@@ -931,13 +932,26 @@ move_sonda:                                     ; label encarregada de fazer o m
     JMP e_asteroide_mau
 
     e_asteroide_bom:
+<<<<<<< HEAD
     MOV     R7, 25                              ; incrementa 25
     PUSH    R6
     CALL    energia                             ; chama a rotina energia, incrementa ou decrementa o valor em R7
     CALL    ganhou_jogo                         ; verifica se ganhamos o jogo
     POP     R6
+=======
+    MOV     R7, 25
+    CALL    energia
+    CALL    ganhou_jogo
+    MOV     R6, 7
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+>>>>>>> 690fb0e (ee)
 
     e_asteroide_mau:
+    MOV    R6, 6   
+    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
+    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
+    POP     R6
     POP R10
     POP R9
     POP R8
