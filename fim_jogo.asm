@@ -446,7 +446,6 @@ inicia_jogo:
     MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
     CALL   reset_posicoes_objetos
     CALL   nao_existe_sondas
-    CALL   reset_aleatorio
     RET
 
 continua_jogo:
@@ -585,18 +584,6 @@ retorna_reset_posicoes:
     POP R0
     RET
 
-reset_aleatorio:
-    PUSH R0
-    PUSH R1
-    PUSH R2
-    MOV R0, valor_aleatorio
-    MOV R1, 2
-    MOV [R0], R1
-    POP  R2
-    POP  R1
-    POP R0
-    RET
-
 sonda_displays_sound:
 sound_sonda:
     MOV    R6, 3   
@@ -653,10 +640,10 @@ repeticao_tecla:
 PROCESS SPinit_boneco	                        ; indicação de que a rotina que se segue é um processo,
 						                        ; com indicação do valor para inicializar o SP
 boneco:					                        ; processo que implementa o comportamento do boneco
-    MOV     R1, TAMANHO_PILHA                       ; tamanho de cada pilha (100H)
-    MUL     R1, R11                                 ; multiplica pelo numero do asteroide
-    MOV     R3, R11                                 ; guarda o nº do asteroide para ser usado para a escolha da coluna inicial
-    SUB     SP, R1                                  ; subtrai a pilha total (100H*5) ao numero do asteroide * 100 
+    MOV     R1, TAMANHO_PILHA                   ; tamanho de cada pilha (100H)
+    MUL     R1, R11                             ; multiplica pelo numero do asteroide
+    MOV     R3, R11                             ; guarda o nº do asteroide para ser usado para a escolha da coluna inicial
+    SUB     SP, R1                              ; subtrai a pilha total (100H*5) ao numero do asteroide * 100 
 
 
 escolhe_asteroide_tipo:
@@ -666,10 +653,10 @@ escolhe_asteroide_tipo:
     JMP     escolhe_asteroide_mau               ; se valor aleaotorio 1 ou 2 vem asteroide mau
 
 escolhe_asteroide_bom:
-    MOV R9, tipo_asteroide
-    MOV R4, R3
+    MOV R9, tipo_asteroide                      ; guardamos na tabela o tipo de asteroide que foi criado
+    MOV R4, R3                                  ; para preservar R3
     SHL R4, 1
-    ADD R9, R4
+    ADD R9, R4                                  ; para aceder a posiçao correta da tabela
     MOV R4, 0
     MOV [R9], R4
 
@@ -796,9 +783,9 @@ PROCESS SPinit_display
 
 energia_tempo:
     MOV     R0, [evento_init_display]           ; verificação lock
-    MOV     R7, -3
-    CALL    energia
-    CALL    acabou_energia
+    MOV     R7, -3                              ; decrementa 3 a cada interrupção
+    CALL    energia                             ; coloca o valor no display
+    CALL    acabou_energia                      ; verifica se o display está a menos de 0
     JMP     energia_tempo
 
 ; ******************************************************************************************************************************************************
@@ -808,21 +795,21 @@ energia_tempo:
 PROCESS SPinit_painelnave
 
 painel_nave:
-    MOV     R2, 0
+    MOV     R2, 0           
     JMP     restart_loop
 
 painel_nave_loop:
-    MOV     R0, [evento_init_nave]          
-    MOV     [SELECIONA_ECRÃ], R2
-    MOV     R8, LINHA_ECRA_NAVE
-    MOV     R10, COLUNA_ECRA_NAVE
-    MOV     R11, 0
+    MOV     R0, [evento_init_nave]              ; LOCK da nave        
+    MOV     [SELECIONA_ECRÃ], R2                
+    MOV     R8, LINHA_ECRA_NAVE                 ; linha onde o ecrã é desenhado
+    MOV     R10, COLUNA_ECRA_NAVE               ; coluna onde o ecrã é desenhado
+    MOV     R11, 0                              ; 0 para apagar
     CALL    desenha_apaga_boneco
-    MOV     R11, 1
+    MOV     R11, 1                              ; 1 para desenhar
     CALL    desenha_apaga_boneco
-    MOV     R10, 32d
-    ADD     R9, R10
-    SUB     R1, 1
+    MOV     R10, 32d                            ; para "saltar entre tabelas
+    ADD     R9, R10                             
+    SUB     R1, 1                               ; loop para quando chegar a 0 voltar à tabela inicial
     CMP     R1, 0
     JZ      restart_loop
     JMP     painel_nave_loop
@@ -847,41 +834,36 @@ incremento_sonda:
     MUL     R1, R3                              ; R1 passa a ter o enderço da pilha
     SUB     SP, R1                              ; a sonda com este incremento fica com a respetiva pilha
 
-ADD     R0, 1
-SHL     R0, 2
-MOV     R7, posicao_sondas                      ; guardamos o endereço da posicao da sonda
-ADD     R7, R0                                  ; seleciona qual sonda estamos a alterar a posição
-MOV     R6, R7                                      
-ADD     R6, 2
-MOV R2, R0
-SHR R2, 1
+    ADD     R0, 1                                   ; como usamos o incremento da sonda precisamos de somar 1 para começar em 0
+    SHL     R0, 2                                   ; multiplicar por 2 para aceder ao endreço correto
+    MOV     R7, posicao_sondas                      ; guardamos o endereço da posicao da sonda
+    ADD     R7, R0                                  ; seleciona qual sonda estamos a alterar a posição e o R7 fica para aceder a linha
+    MOV     R6, R7                                  ; adicionar 2 e o R6 fica o endereço para a coluna   
+    ADD     R6, 2                                   ; para aceder a linha
+    MOV     R2, R0                                  ; pretendemos usar o R2 para o lock_sonda
+    SHR     R2, 1                                   ; na tabela onde vai ser usado cada sonda ocupa 1 word (em vez de 2)
 
 seleciona_posicao_tabela:
     MOV	    R3, [evento_init_sonda]	            ; lê o LOCK e bloqueia até a interrupção escrever nele
 
-    MOV     R9, posicao_sondas
-    ADD     R9, R0
+    MOV     R9, posicao_sondas                  ; endereço da tabela que guarda a posiçao das sondas
+    ADD     R9, R0                              ; endereço da sonda que queremos mexer
     MOV     R8, [R9]                            ; guarda linha inicial da sonda em R8
-    ADD     R9, 2
+    ADD     R9, 2                               
     MOV     R10, [R9]                           ; guarda coluna inicial da sonda em R10
     MOV     R9, DEF_SONDA                       ; guarda em R9  o endereço que define o desenho da sonda
 
-
-;desenha_sonda_inicial:
-;    MOV     R11, 1
-;    CALL    desenha_apaga_boneco
-
-lock_sonda:
+lock_sonda:                                     ; "lock" para apenas deixar este processo correr quando queremos usar uma sonda
     YIELD
-    MOV     R11, existe_sonda
-    ADD     R11, R2
-    MOV     R1, [R11]
-    CMP     R1, 0
+    MOV     R11, existe_sonda                   
+    ADD     R11, R2                                 
+    MOV     R1, [R11]                               
+    CMP     R1, 0                               ; verificamos o valor guardado na memoria 
     JZ      lock_sonda  
 
-move_sonda:
+move_sonda:                                     ; label encarregada de fazer o movimento da sonda 
     MOV     R4, 8
-    MOV     [SELECIONA_ECRÃ], R4                ; seleciona o ecrã
+    MOV     [SELECIONA_ECRÃ], R4                ; seleciona o ecrã desejado para desenhar a sonda
     MOV     R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
     SUB	    R8, 1			                    ; para desenhar objeto na linha anterior 
@@ -891,45 +873,45 @@ move_sonda:
     MOV     [R7], R8                            ; para guardar a linha da sonda na memoria 
     MOV     [R6], R10                           ; para guardar a coluna da sonda na memoria
 
-    
-    PUSH R0
-    MOV R0, R7
-    CALL   colisoes_asteroide
-    POP R0
-    CMP R11, -1
-    JNZ há_colisao
+; para podermos utilizar R0 e para preservar R7
+    PUSH    R0
+    MOV     R0, R7                                  
+    CALL   colisoes_asteroide                   ; verificamos se houve alguma colisao com esta sonda
+    POP     R0
+    CMP     R11, -1                             ; se não há, R11 terá -1, caso contrário iremos para há_colisao
+    JNZ     há_colisao
 
 
-    MOV     R3,R8
-    MOV     R8, 1
-    CALL    verifica_limites_sonda                   ; verifica se a sonda saiu do ecrã
-    MOV     R8, R3
-    CMP     R11, 0
+    MOV     R3,R8                               ; linha onde se encontra a sonda        
+    MOV     R8, 1                               ; R8 é um argumento de entrada para verifica_limites sonda
+    CALL    verifica_limites_sonda              ; verifica se a sonda saiu do ecrã
+    MOV     R8, R3                              
+    CMP     R11, 0                              ; verificamos se a sonda saiu dos limites, se nao acontecer apenas voltamos ao inicio
     JZ      seleciona_posicao_tabela
 
-    há_colisao:
-    CALL ativa_explosao
+    há_colisao:                                 
+    CALL ativa_explosao                         
     SHL     R11, 1
     MOV     R3, asteroide_que_explodiu
-    ADD     R11, R3
+    ADD     R11, R3                             
     PUSH    R5
     MOV     R5, 1
-    MOV     [R11], R5                                ; com esta instrução coloco o número 1 na tabela no local certo 
+    MOV     [R11], R5                           ; guardamos em memoria qual asteroide é que explodiu
     POP     R5
-    MOV     R11, 0                                  ; caso haja qualquer tipo de colisao
+    MOV     R11, 0                              ; caso haja qualquer tipo de colisao
     CALL    desenha_apaga_boneco
-    MOV     R11, LINHA_INICIAL_SONDA                ; da reset à posiçao da sonda
+    MOV     R11, LINHA_INICIAL_SONDA            ; da reset à posiçao da sonda
     MOV     [R7], R11
     MOV     R11 , COLUNA_INICIAL_SONDA
     MOV     [R6], R11
-    MOV     R11, existe_sonda                       ; permite ao utilizador criar outra sonda
+    MOV     R11, existe_sonda                   ; permite ao utilizador criar outra sonda
     ADD     R11, R2
     MOV     R4, 0
     MOV     [R11], R4
     JMP     seleciona_posicao_tabela
 
 
-    ativa_explosao:
+    ativa_explosao:                             ; guarda que tipo de asteroide teve uma colisao
     PUSH R0
     PUSH R1
     PUSH R2
@@ -943,16 +925,16 @@ move_sonda:
     MOV R2, tipo_asteroide
     SHL R1, 1
     ADD R2, R1
-    MOV R3, [R2]
+    MOV R3, [R2]                                ; verificamos que tipo de asteroide explodiu 
     CMP R3, 0
-    JZ e_asteroide_bom 
+    JZ e_asteroide_bom                          ; se for bom queremos aumentar energia
     JMP e_asteroide_mau
 
     e_asteroide_bom:
-    MOV     R7, 25
+    MOV     R7, 25                              ; incrementa 25
     PUSH    R6
-    CALL    energia
-    CALL    ganhou_jogo
+    CALL    energia                             ; chama a rotina energia, incrementa ou decrementa o valor em R7
+    CALL    ganhou_jogo                         ; verifica se ganhamos o jogo
     POP     R6
 
     e_asteroide_mau:
@@ -1034,9 +1016,9 @@ retorna_energia:
 
 ganhou_jogo:
     PUSH R0
-    MOV R6, [valor_display]
-    MOV R0, 0C8H
-    CMP R6, R0
+    MOV R6, [valor_display]                     ; ler o valor no display
+    MOV R0, 0C8H                                ; verficar se é menor do que 200
+    CMP R6, R0                                  ; se for retorna, caso contrário executa venceu_jogo
     JLT retorna
 
 fim_jogo:
@@ -1050,9 +1032,9 @@ retorna:
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Rotina Desenha/Apaga um boneco na linha e coluna indicadas
 ;			             com a forma e cor definidas na tabela indicada.
-; Argumentos:   R8 - endereço da posicao do boneco
+; Argumentos:   R8 -  linha do boneco
 ;               R9 - endereço da tabela que define o boneco
-;               R10 - endereço da tabela com o decremento ou incremento do objeto
+;               R10 - coluna do boneco
 ;               R11 - 1(para desenhar), 0(para apagar)
 ;
 ; ******************************************************************************************************************************************************
