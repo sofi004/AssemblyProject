@@ -432,6 +432,8 @@ verifica_tecla2:
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
 
 inicia_jogo:
+    MOV    R6, 8                                ; som número 4
+    MOV    [TERMINA_SOM_VIDEO], R6              ; este ciclo inicia/ reinicia o jogo
     MOV    R6, 5                                ; som número 4
     MOV    [TERMINA_SOM_VIDEO], R6              ; este ciclo inicia/ reinicia o jogo
     MOV    R6, 2   
@@ -509,7 +511,7 @@ venceu_jogo:
     CALL   nao_existe_sondas
     JMP    verifica_teclaC
 
-nao_existe_sondas:
+nao_existe_sondas:              ; mete toda a tabela a zeros
     PUSH R0
     PUSH R1
     PUSH R2
@@ -935,6 +937,7 @@ move_sonda:                                     ; label encarregada de fazer o m
     MOV     R7, 25                              ; incrementa 25
     CALL    energia                             ; chama a rotina energia, incrementa ou decrementa o valor em R7
     CALL    ganhou_jogo                         ; verifica se ganhamos o jogo
+    MOV    R6, 7
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
 
