@@ -1033,18 +1033,18 @@ retorna_energia:
 
 
 ganhou_jogo:
-PUSH R0
-MOV R6, [valor_display]
-MOV R0, 0C8H
-CMP R6, R0
-JGT fim_jogo
-retorna:
-POP R0
-RET
+    PUSH R0
+    MOV R6, [valor_display]
+    MOV R0, 0C8H
+    CMP R6, R0
+    JLT retorna
+
 fim_jogo:
-CALL venceu_jogo
+    CALL venceu_jogo
 
-
+retorna:
+    POP R0
+    RET
 
 
 ; ******************************************************************************************************************************************************
