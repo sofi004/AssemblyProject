@@ -499,7 +499,7 @@ venceu_jogo:
     MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 1
     MOV    R6, 0   
     MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
-    MOV    R6, 1   
+    MOV    R6, 5   
     MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
     MOV    R6, 4   
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
@@ -797,7 +797,6 @@ PROCESS SPinit_display
 energia_tempo:
     MOV     R0, [evento_init_display]           ; verificação lock
     MOV     R7, -3
-    CALL    ganhou_jogo
     CALL    energia
     CALL    acabou_energia
     JMP     energia_tempo
@@ -953,6 +952,7 @@ move_sonda:
     MOV     R7, 25
     PUSH    R6
     CALL    energia
+    CALL    ganhou_jogo
     POP     R6
 
     e_asteroide_mau:
@@ -1033,18 +1033,18 @@ retorna_energia:
 
 
 ganhou_jogo:
-PUSH R0
-MOV R6, [valor_display]
-MOV R0, 0C8H
-CMP R6, R0
-JGT fim_jogo
-retorna:
-POP R0
-RET
+    PUSH R0
+    MOV R6, [valor_display]
+    MOV R0, 0C8H
+    CMP R6, R0
+    JLT retorna
+
 fim_jogo:
-CALL venceu_jogo
+    CALL venceu_jogo
 
-
+retorna:
+    POP R0
+    RET
 
 
 ; ******************************************************************************************************************************************************
