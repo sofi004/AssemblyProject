@@ -43,7 +43,7 @@ TECLA_2 EQU 0014H                               ; número devolvido pelo teclado
 TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
 N_ASTEROIDES			EQU  5		            ; número de bonecos
 N_MAX_SONDAS      EQU 3                         ; num max sondas
-LINHA_INICIAL_SONDA EQU 28                      ; linha inicial da sonda
+LINHA_INICIAL_SONDA EQU 31                      ; linha inicial da sonda
 COLUNA_INICIAL_SONDA EQU 32                     ; coluna inicial da sonda
 
 ; ******************************************************************************************************************************************************
@@ -444,6 +444,8 @@ inicia_jogo:
     MOV    R6, 1   
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som de fundo do jogo
     MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
+    CALL   reset_posicoes_objetos
+    CALL   nao_existe_sondas
     RET
 
 continua_jogo:
@@ -867,7 +869,7 @@ move_sonda:
 
     MOV     R3,R8
     MOV     R8, 1
-    CALL    verifica_limites                    ; verifica se a sonda saiu do ecrã
+    CALL    verifica_limites_sonda                   ; verifica se a sonda saiu do ecrã
     MOV     R8, R3
     CMP     R11, 0
     JZ      seleciona_posicao_tabela
@@ -1198,6 +1200,72 @@ ha_colisao:
     MOV     R11, 1
     JMP     retorna_limites
 
+;******************************************************************************************************************************************************
+; VERIFICA_LIMITES_SONDA - 
+;			             
+; Argumentos:   R8 - largura/altura (iguais)
+;               R7 - endereço para a posiçao na memoria
+; 
+; Saida:        R11- 1 se o objeto sair dos limites, 2 se a nave explodir  e 0 caso nao aconteça nada
+;
+; ******************************************************************************************************************************************************
+verifica_limites_sonda:
+    PUSH    R0
+    PUSH    R1
+    PUSH    R2
+    PUSH    R3
+    PUSH    R4
+    PUSH    R5
+    PUSH    R9
+    SUB     R8, 1
+    MOV     R11, 0                              ;caso nao aconteça nada retorna 0
+    MOV     R0, [R7]                            ;linha do objeto
+    MOV     R1, [R7+2]                          ;coluna do objeto
+
+
+continua_verificacoes_sonda:  
+    MOV     R2, 15                              ; coluna e linha minimo
+    MOV     R9, 0
+    MOV     R3, 63                              ; coluna maxima
+    MOV     R4, 31                              ; linha maxima
+
+verifica_direita_sonda:
+    CMP     R1, R3
+    jz      ha_colisao_sonda
+
+verifica_esquerda_sonda:
+    MOV     R5, R1
+    ADD     R5, R8
+    CMP     R5, R9
+    JZ      ha_colisao_sonda
+
+verifica_baixo_sonda:
+    CMP     R0, R4
+    jz      ha_colisao_sonda
+
+verifica_topo_sonda:
+    MOV     R5, R0
+    ADD     R5, R8
+    CMP     R5, R2
+    JZ      ha_colisao_sonda
+    
+
+retorna_limites_sonda:
+    POP     R9
+    POP     R5
+    POP     R4
+    POP     R3
+    POP     R2
+    POP     R1
+    POP     R0
+    RET
+
+ha_colisao_sonda:
+    MOV     R11, 1
+    JMP     retorna_limites_sonda
+
+
+
 ; ******************************************************************************************************************************************************
 ; colisoes_asteroide - rotina que verifica se a sonda colidiu com algum asteroide
 ;			             
@@ -1228,7 +1296,7 @@ colisoes_asteroide:
     MOV R0, R9                                ;indica a linha da sonda
 
     MOV R2, N_ASTEROIDES                   
-    SUB R2, 1
+    ;SUB R2, 1
     MOV R3,0                                ;contador para verificar todos os asteroides
     MOV R9, 0
 
@@ -1385,14 +1453,14 @@ continuar_int_sonda:
     JZ      mete_1
     CMP     R1, 1
     JZ      mete_2
+    CMP     R1, 2
+    JZ      mete_3
     JMP     mete_0
 
 mete_1:
     MOV     R2, 1
     MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
-
-
 
 mete_0:
     MOV     R2, 0
@@ -1402,6 +1470,11 @@ mete_0:
 
 mete_2:
     MOV     R2, 2
+    MOV     [valor_aleatorio], R2
+    JMP     sonda_unlock
+
+mete_3:
+    MOV     R2, 3
     MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
 
