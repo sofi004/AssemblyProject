@@ -932,35 +932,26 @@ move_sonda:                                     ; label encarregada de fazer o m
     JMP e_asteroide_mau
 
     e_asteroide_bom:
-<<<<<<< HEAD
     MOV     R7, 25                              ; incrementa 25
-    PUSH    R6
     CALL    energia                             ; chama a rotina energia, incrementa ou decrementa o valor em R7
     CALL    ganhou_jogo                         ; verifica se ganhamos o jogo
-    POP     R6
-=======
-    MOV     R7, 25
-    CALL    energia
-    CALL    ganhou_jogo
-    MOV     R6, 7
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
->>>>>>> 690fb0e (ee)
 
     e_asteroide_mau:
     MOV    R6, 6   
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     POP     R6
-    POP R10
-    POP R9
-    POP R8
-    POP R7
-    POP R5
-    POP R3
-    POP R2
-    POP R1
-    POP R0
+    POP     R10
+    POP     R9
+    POP     R8
+    POP     R7
+    POP     R5
+    POP     R3
+    POP     R2
+    POP     R1
+    POP     R0
     RET
     
 ; ***********************************************************************************
