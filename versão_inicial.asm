@@ -446,6 +446,7 @@ inicia_jogo:
     MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
     CALL   reset_posicoes_objetos
     CALL   nao_existe_sondas
+    CALL   reset_aleatorio
     RET
 
 continua_jogo:
@@ -561,6 +562,18 @@ retorna_reset_posicoes:
     POP R3
     POP R2
     POP R1
+    POP R0
+    RET
+
+reset_aleatorio:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    MOV R0, valor_aleatorio
+    MOV R1, 2
+    MOV [R0], R1
+    POP  R2
+    POP  R1
     POP R0
     RET
 
@@ -1140,7 +1153,7 @@ verifica_limites:
 verifica_nave:
     MOV     R2, 25                              ; coluna minima
     MOV     R3, 39                              ; coluna maxima
-    MOV     R4, 27                              ; linha minimo
+    MOV     R4, 25                              ; linha minimo
     
 verifica_topo_nave:
     MOV     R5, R0

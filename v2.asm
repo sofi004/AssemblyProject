@@ -371,7 +371,7 @@ verifica_teclaD:
     CMP     R4, R1                              ; verifica se o jogo está em pausa
     JZ      suspende_jogo                       ; se não está pausamos o jogo
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
- 
+
 verifica_teclaE:
     MOV     R4, TECLA_E
     CMP     R2, R4                              ; verifica se a tecla e é a premida
@@ -558,11 +558,6 @@ retorna_reset_posicoes:
     POP R1
     POP R0
     RET
-
-
-
-
-
 
 sonda_displays_sound:
 sound_sonda:
@@ -949,6 +944,7 @@ explosão_princ:
     CALL    explosão_bom                  ; responsavel pelo efeito de explosão
     CMP     R4, R1
     JNZ     explosão_princ
+    JMP     acaba_processo
 
 explosão_bom:
     CMP     R4, -1
@@ -1007,6 +1003,8 @@ retorna_explosão_princ:
     ADD     R4, 1                     
     RET
 
+acaba_processo:
+    RET
 
     
     
