@@ -43,7 +43,7 @@ TECLA_2 EQU 0014H                               ; número devolvido pelo teclado
 TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
 N_ASTEROIDES			EQU  5		            ; número de bonecos
 N_MAX_SONDAS      EQU 3                         ; num max sondas
-LINHA_INICIAL_SONDA EQU  30                     ; linha inicial da sonda
+LINHA_INICIAL_SONDA EQU 31                      ; linha inicial da sonda
 COLUNA_INICIAL_SONDA EQU 32                     ; coluna inicial da sonda
 
 ; ******************************************************************************************************************************************************
@@ -445,6 +445,8 @@ inicia_jogo:
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som de fundo do jogo
     MOV    [REPRODUZ_SOM_VIDEO_CICLO], R6       ; inicia a reprodução do som de fundo
     CALL   reset_posicoes_objetos
+    CALL   nao_existe_sondas
+    CALL   reset_aleatorio
     RET
 
 continua_jogo:
@@ -570,6 +572,10 @@ reset_aleatorio:
     MOV R0, valor_aleatorio
     MOV R1, 2
     MOV [R0], R1
+    POP  R2
+    POP  R1
+    POP R0
+    RET
 
 sonda_displays_sound:
 sound_sonda:
@@ -876,12 +882,13 @@ move_sonda:
 
     MOV     R3,R8
     MOV     R8, 1
-    CALL    verifica_limites_sonda                    ; verifica se a sonda saiu do ecrã
+    CALL    verifica_limites_sonda                   ; verifica se a sonda saiu do ecrã
     MOV     R8, R3
     CMP     R11, 0
     JZ      seleciona_posicao_tabela
 
     há_colisao:
+    CALL ativa_explosao
     SHL     R11, 1
     MOV     R3, asteroide_que_explodiu
     ADD     R11, R3
@@ -900,6 +907,44 @@ move_sonda:
     MOV     R4, 0
     MOV     [R11], R4
     JMP     seleciona_posicao_tabela
+
+
+    ativa_explosao:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R5
+    PUSH R7
+    PUSH R8
+    PUSH R9
+    PUSH R10
+    MOV R1, R11
+    MOV R2, tipo_asteroide
+    SHL R1, 1
+    ADD R2, R1
+    MOV R3, [R2]
+    CMP R3, 0
+    JZ e_asteroide_bom 
+    JMP e_asteroide_mau
+
+    e_asteroide_bom:
+    MOV     R7, 25
+    PUSH    R6
+    CALL    energia
+    POP     R6
+
+    e_asteroide_mau:
+    POP R10
+    POP R9
+    POP R8
+    POP R7
+    POP R5
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
     
 ; ***********************************************************************************
 ; ROTINAS 
@@ -984,6 +1029,12 @@ desenha_apaga_boneco:
     PUSH    R5
     PUSH    R6
     PUSH    R7
+
+verifica_jogo_a_correr:
+    MOV R0, [jogo_estado]
+    MOV R6, 1
+    CMP R0, R6
+    JNZ retorna_ciclo_desenho
 
 posicão_desenho:
     MOV     R0, R8                              ; coloca no registo R0 o número da linha do primeiro pixel, do asteroide bom, a ser desenhado
@@ -1102,7 +1153,7 @@ verifica_limites:
 verifica_nave:
     MOV     R2, 25                              ; coluna minima
     MOV     R3, 39                              ; coluna maxima
-    MOV     R4, 27                              ; linha minimo
+    MOV     R4, 25                              ; linha minimo
     
 verifica_topo_nave:
     MOV     R5, R0
@@ -1178,6 +1229,7 @@ verifica_limites_sonda:
     PUSH    R3
     PUSH    R4
     PUSH    R5
+    PUSH    R9
     SUB     R8, 1
     MOV     R11, 0                              ;caso nao aconteça nada retorna 0
     MOV     R0, [R7]                            ;linha do objeto
@@ -1185,7 +1237,8 @@ verifica_limites_sonda:
 
 
 continua_verificacoes_sonda:  
-    MOV     R2, 10                               ; coluna e linha minimo
+    MOV     R2, 15                              ; coluna e linha minimo
+    MOV     R9, 0
     MOV     R3, 63                              ; coluna maxima
     MOV     R4, 31                              ; linha maxima
 
@@ -1196,7 +1249,7 @@ verifica_direita_sonda:
 verifica_esquerda_sonda:
     MOV     R5, R1
     ADD     R5, R8
-    CMP     R5, R2
+    CMP     R5, R9
     JZ      ha_colisao_sonda
 
 verifica_baixo_sonda:
@@ -1211,6 +1264,7 @@ verifica_topo_sonda:
     
 
 retorna_limites_sonda:
+    POP     R9
     POP     R5
     POP     R4
     POP     R3
@@ -1222,6 +1276,8 @@ retorna_limites_sonda:
 ha_colisao_sonda:
     MOV     R11, 1
     JMP     retorna_limites_sonda
+
+
 
 ; ******************************************************************************************************************************************************
 ; colisoes_asteroide - rotina que verifica se a sonda colidiu com algum asteroide
@@ -1253,7 +1309,7 @@ colisoes_asteroide:
     MOV R0, R9                                ;indica a linha da sonda
 
     MOV R2, N_ASTEROIDES                   
-    SUB R2, 1
+    ;SUB R2, 1
     MOV R3,0                                ;contador para verificar todos os asteroides
     MOV R9, 0
 
@@ -1410,14 +1466,14 @@ continuar_int_sonda:
     JZ      mete_1
     CMP     R1, 1
     JZ      mete_2
+    CMP     R1, 2
+    JZ      mete_3
     JMP     mete_0
 
 mete_1:
     MOV     R2, 1
     MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
-
-
 
 mete_0:
     MOV     R2, 0
@@ -1427,6 +1483,11 @@ mete_0:
 
 mete_2:
     MOV     R2, 2
+    MOV     [valor_aleatorio], R2
+    JMP     sonda_unlock
+
+mete_3:
+    MOV     R2, 3
     MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
 
@@ -1440,4 +1501,3 @@ fim_rot_int_sonda:
     POP     R2
     POP     R1
     RFE
-

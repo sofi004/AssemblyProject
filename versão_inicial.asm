@@ -128,6 +128,9 @@ evento_init_display:                            ; LOCK para a rotina de interrup
 evento_init_sonda:                              ; LOCK para a rotina de interrupção comunicar ao processo move_sonda que a interrupção ocorreu
     LOCK 0
 
+evento_init_explosao:
+    LOCK 0
+
 tab:                                            ; Tabela das rotinas de interrupção
 	WORD rot_int_boneco			                ; rotina de atendimento da interrupção 0
     WORD rot_int_sonda                          ; rotina de atendimento da interrupção 1
@@ -701,7 +704,9 @@ ciclo_boneco:
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
     MOV     [R2], R8                            ;guarda a linha atual do asteroide na memoria
     MOV     [R6], R10                           ;guarda a coluna atual do asteroide na memoria
-
+    CALL    verifica_explosão
+    CMP     R11, 1 
+    JZ      reset_posicao
     CALL    limites
     CMP     R11, 1
     JZ      reset_posicao
@@ -709,31 +714,31 @@ ciclo_boneco:
     JZ      acaba_jogo
     JMP     escolhe_posicao
 
+verifica_explosão:
+    PUSH R1
+    PUSH R4
+    MOV R1, asteroide_que_explodiu
+    MOV R4, R3                          ; para preservar R3 numero do asteroide
+    SHL R4, 1
+    ADD R1, R4
+    MOV R11, [R1]
+    MOV R4, 0
+    MOV [R1], R4
+    CMP R11, 1                            ; se for verdade sabemos que o asteroide explodiu
+    JNZ ret_verifica_explosao
+    MOV  R11, -1
+    CALL efeito_explosão
+ret_verifica_explosao:
+    POP  R4
+    POP  R1
+    RET
+
 limites:
     PUSH R7
     PUSH R8
-    PUSH R1
-    PUSH R2
-    PUSH R3
-    PUSH R4
-    PUSH R5
-    MOV R1, asteroide_que_explodiu
-    MOV R4, R3                          ; para preservar R3
-    SHL R4, 1
-    ADD R1, R4
-    MOV R5, [R1]
-    MOV R4, 0
-    MOV [R1], R4
-    CMP R5, 1
-    JZ reset_posicao
     MOV R7, R2
     MOV R8, 5
     CALL verifica_limites
-    POP R5
-    POP R4
-    POP R3
-    POP R2
-    POP R1
     POP R8
     POP R7
     RET
@@ -887,14 +892,14 @@ move_sonda:
     CMP     R11, 0
     JZ      seleciona_posicao_tabela
 
-    há_colisao:
+há_colisao:
     CALL ativa_explosao
     SHL     R11, 1
     MOV     R3, asteroide_que_explodiu
-    ADD     R11, R3
+    ADD     R3, R11
     PUSH    R5
     MOV     R5, 1
-    MOV     [R11], R5                                ; com esta instrução coloco o número 1 na tabela no local certo 
+    MOV     [R3], R5                                ; com esta instrução coloco o número 1 na tabela no local certo 
     POP     R5
     MOV     R11, 0                                  ; caso haja qualquer tipo de colisao
     CALL    desenha_apaga_boneco
@@ -950,6 +955,108 @@ move_sonda:
 ; ROTINAS 
 ; ***********************************************************************************
 
+
+;************************************************************************************
+;   EXPLOSÃO
+;   Argumentos: R8 - linha onde ocorreu a explosão
+;               R9 - tabela do asteroide que explodiu
+;               R10 - coluna onde ocorreu a explosão
+;               
+;************************************************************************************
+efeito_explosão:
+    PUSH R1
+    PUSH R2
+    PUSH R4
+    PUSH R6
+    PUSH R11
+    MOV     R4, -1                                  ; contador de animações
+bom_ou_mau:
+    MOV     R2, DEF_ASTEROIDE_MAU
+    CMP     R2, R9                              ; verifica se o asteroide que explodiu era mau
+    JZ      coloca_a_3
+    MOV     R2, DEF_ASTEROIDE_BOM
+    CMP     R2, R9               ; verifica se o asteroide que explodiu era mau
+    JZ      coloca_a_5
+
+coloca_a_3:
+    MOV     R1, 2
+    JMP explosão_princ
+coloca_a_5:
+    MOV     R1, 3
+
+
+
+explosão_princ:
+    MOV     R2, [evento_init_explosao]               ; bloqueia o processo
+    CALL    explosão_bom                  ; responsavel pelo efeito de explosão
+    CMP     R4, R1
+    JNZ     explosão_princ
+    JMP     acaba_rotina
+
+explosão_bom:
+    CMP     R4, -1
+    JZ      retorna_explosão_princ
+    CMP     R4, 0
+    JZ      primeira_animação
+    CMP     R4, 1
+    JZ      segunda_animação
+    CMP     R4, 2
+    JZ      ultima_animação
+
+primeira_animação:
+    MOV     R6, 6
+    MOV     [SELECIONA_SOM_VIDEO], R6           ; selciona o som de explosão
+    MOV     [REPRODUZ_SOM_VIDEO], R6            ; reproduz o som de explosão
+    MOV     R11, 0
+    CALL    desenha_apaga_boneco                ; apaga o steroide que explodiu
+    CMP     R1, 3                       
+    JZ      primeira_animação_bom
+    JMP     primeira_animação_mau
+
+primeira_animação_bom: 
+    SUB     R8, 1                               ; decrementa em 1 a linha, porque a primeira animação começa a ser desenhada uma linha a baixo 
+    SUB     R10, 1                              ; decrementa em 1 a coluna, porque a primeira animação começa a ser desenhada uma coluna a baixo
+    MOV     R9, DEF_ASTEROIDE_BOM                              ; passa a desenha_apaga_boneco, como argumento de entrada, a tabela da 1º
+    MOV     R11, 1                              ; para indicar quee é para desenhar
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+primeira_animação_mau:
+    MOV     R9, DEF_ASTEROIDE_MAU
+    MOV     R11, 1
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+segunda_animação:
+    CMP     R1, 3
+    JZ      segunda_animação_bom
+    JMP     ultima_animação
+
+segunda_animação_bom:
+    MOV     R11, 0                              ; para indicar que é para apagar
+    CALL    desenha_apaga_boneco
+    SUB     R8, 1
+    SUB     R10, 1
+    MOV     R9, DEF_EFEITO2_ASTEROIDE_BOM
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+ultima_animação:
+    MOV     R11, 0
+    CALL    desenha_apaga_boneco
+    JMP     retorna_explosão_princ
+
+retorna_explosão_princ:
+    ADD     R4, 1                     
+    RET
+
+acaba_rotina:
+    POP R11
+    POP R6
+    POP R4
+    POP R2
+    POP R1
+    RET
 
 ;************************************************************************************
 ;JOGO_PERDIDO
@@ -1309,7 +1416,7 @@ colisoes_asteroide:
     MOV R0, R9                                ;indica a linha da sonda
 
     MOV R2, N_ASTEROIDES                   
-    ;SUB R2, 1
+    SUB R2, 1
     MOV R3,0                                ;contador para verificar todos os asteroides
     MOV R9, 0
 
@@ -1394,6 +1501,7 @@ retorna_int:
 
 boneco_unlock:
     MOV	    [evento_init_boneco], R0	        ; desbloqueia processo boneco (qualquer registo serve)
+    MOV     [evento_init_explosao], R0
     JMP     retorna_int
 
 ; ******************************************************************************************************************************************************

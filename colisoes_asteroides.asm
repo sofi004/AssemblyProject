@@ -1018,46 +1018,46 @@ ha_colisao:
 ; ******************************************************************************************************************************************************
 colisoes_asteroide:
 
-PUSH R1
-PUSH R2
-PUSH R3
-PUSH R4
-PUSH R5
-PUSH R6
-Push R7
-PUSH R8
-PUSH R9
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R6
+    PUSH R7
+    PUSH R8
+    PUSH R9
 
-MOV R11, -1
+    MOV R11, -1
 
-;SONDA:
-;R0-LINHA
-;R1-COLUNA
-MOV R1, [R0+2]                          ;indica a coluna da sonda
-MOV R9, [R0]
-MOV R0, R9                              ;indica a linha da sonda
+    ;SONDA:
+    ;R0-LINHA
+    ;R1-COLUNA
+    MOV R1, [R0+2]                             ;indica a coluna da sonda
+    MOV R9, [R0]
+    MOV R0, R9                                ;indica a linha da sonda
 
-MOV R2, N_ASTEROIDES                   
-SUB R2, 1
-MOV R3,0                                ;contador para verificar todos os asteroides
-MOV R9, 0
+    MOV R2, N_ASTEROIDES                   
+    SUB R2, 1
+    MOV R3,0                                ;contador para verificar todos os asteroides
+    MOV R9, 0
 
-;ASTEROIDE:
-;R5-LINHA TOPO
-;R6-LINHA BAIXO
-;R7-COLUNA ESQUERDA
-;R8-COLUNA DIREITA
-obtem_limites_asteroide:
-MOV R4, posicao_asteroides
-MOV R3, R9
-SHL R3,2
-ADD R4,R3                               ;seleciona o asteroide que iremos verificar
-MOV R5, [R4]                            ;obtem linha topo do asteroide
-MOV R6, R5
-ADD R6, 4                               ;obtem linha de baixo do asteroide
-MOV R7, [R4+2]                          ;obtem a coluna da esquerda do asteroide
-MOV R8, R7
-ADD R8, 4                               ;obtem a coluna da direita do asteroide
+    ;ASTEROIDE:
+    ;R5-LINHA TOPO
+    ;R6-LINHA BAIXO
+    ;R7-COLUNA ESQUERDA
+    ;R8-COLUNA DIREITA
+    obtem_limites_asteroide:
+    MOV R4, posicao_asteroides
+    MOV R3, R9
+    SHL R3,2
+    ADD R4,R3                               ;seleciona o asteroide que iremos verificar
+    MOV R5, [R4]                            ;obtem linha topo do asteroide
+    MOV R6, R5
+    ADD R6, 4                               ;obtem linha de baixo do asteroide
+    MOV R7, [R4+2]                          ;obtem a coluna da esquerda do asteroide
+    MOV R8, R7
+    ADD R8, 4                               ;obtem a coluna da direita do asteroide
   
 verifica_topo_asteroide:
     CMP     R0, R5
@@ -1085,16 +1085,16 @@ continua_verificacoes_asteroide:
     JNZ obtem_limites_asteroide
 
 fim_colisoes:
-POP R9
-POP R8
-POP R7
-POP R6
-POP R5
-POP R4
-POP R3
-POP R2
-POP R1
-RET
+    POP R9
+    POP R8
+    POP R7
+    POP R6
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
 
 
 ;**********************************************************************************************************************
