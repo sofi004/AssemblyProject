@@ -976,6 +976,7 @@ move_sonda:                                     ; label encarregada de fazer o m
     CMP R10,R7
     JGT direita
     
+    ;coloca a linha e a coluna na posiçao correta para desenhar a explosao
     esquerda:
     MOV R7,2
     SUB R8, R7
@@ -1000,16 +1001,17 @@ move_sonda:                                     ; label encarregada de fazer o m
     MOV [SELECIONA_ECRÃ], R11
     MOV R11, 1
     MOV R9, DEF_EFEITO_ASTEROIDE_MAU
-    CALL desenha_apaga_boneco
+    CALL desenha_apaga_boneco           ;desenha o efeito da explosao
+
     MOV R7, 0FFFFH
 
-    atrasa:
+    atrasa:                             ;funçao de atraso para se ver o desenho do efeito
     SUB R7,1
     CMP R7,0
     JNZ atrasa
 
     MOV R11,0
-    CALL desenha_apaga_boneco
+    CALL desenha_apaga_boneco           ;apaga o efeito
 
     POP R11
     POP R10
