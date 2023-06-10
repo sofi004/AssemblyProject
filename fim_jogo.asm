@@ -56,6 +56,7 @@ COR_PIXEL_TRANSPARENTE EQU 0FCCCH               ; cor do pixel; cinzento transpa
 COR_PIXEL_CINZENTO EQU 0F777H                   ; cor do pixel; cinzento transparente
 COR_PIXEL_AMARELO   EQU 0FFF0H                  ; cor do pixel: amarelo em ARGB
 COR_PIXEL_AZUL_CLARO  EQU 0F0FFH                ; cor do pixel: azul em ARGB
+COR_PIXEL_LARANJA  EQU   0FF88H
 
 ; ******************************************************************************************************************************************************
 ; * Definição dos desenhos
@@ -78,12 +79,8 @@ COLUNA_ECRA_NAVE EQU 29                         ; coluna onde vai ser desenhado 
 LINHA_ECRA_NAVE EQU 29                          ; linha onde vai ser desenhado o primeiro pixel do ecra da nave
 LARGURA_ECRA_NAVE  EQU 7                        ; largura do ecrã da nave
 ALTURA_ECRA_NAVE  EQU 2                         ; altura do ecrã da nave
-LARGURA_EFEITO1_ASTEROIDE_BOM EQU 3             ; largura do boneco desenhado na primeira animação, quando um asteroide bom explode 
-ALTURA_EFEITO1_ASTEROIDE_BOM EQU 3              ; altura do boneco desenhado na primeira animação, quando um asteroide bom explode 
-LARGURA_EFEITO2_ASTEROIDE_BOM EQU 1             ; largura do boneco desenhado na segunda animação, quando um asteroide bom explode 
-ALTURA_EFEITO2_ASTEROIDE_BOM EQU 1              ; altura do boneco desenhado na segunda animação, quando um asteroide bom explode 
-LARGURA_EFEITO_ASTEROIDE_MAU EQU 5              ; largura do boneco desenhado na animação, quando um asteroide mau explode 
-ALTURA_EFEITO_ASTEROIDE_MAU EQU 5               ; altura do boneco desenhado na animação, quando um asteroide mau explode 
+LARGURA_EFEITO_ASTEROIDE EQU 6                  ; largura do boneco desenhado na animação, quando um asteroide explode 
+ALTURA_EFEITO_ASTEROIDE EQU 6                   ; altura do boneco desenhado na animação, quando um asteroide explode 
 
 ; ######################################################################################################################################################
 ; * ZONA DE DADOS 
@@ -178,26 +175,15 @@ sentido_movimento_coluna_asteroide:             ; esta tabela serve para sabermo
     WORD 1
     WORD -1
 
-DEF_EFEITO1_ASTEROIDE_BOM:                      ; tabela que define a primeira animação, da explosão,  do asteroide bom (cor, largura, altura, pixels)
-    WORD LARGURA_EFEITO1_ASTEROIDE_BOM  
-    WORD ALTURA_EFEITO2_ASTEROIDE_BOM
-    WORD COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
-    WORD COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
-    WORD COR_PIXEL_VERDE, COR_PIXEL_VERDE, COR_PIXEL_VERDE
-
-DEF_EFEITO2_ASTEROIDE_BOM:                      ; tabela que define a segunda animação, da explosão,  do asteroide bom (cor, largura, altura, pixels)
-    WORD LARGURA_EFEITO2_ASTEROIDE_BOM   
-    WORD ALTURA_EFEITO2_ASTEROIDE_BOM 
-    WORD COR_PIXEL_VERDE
-
-DEF_EFEITO_ASTEROIDE_MAU:                       ; tabela que define a animação, da explosão,  do asteroide mau (cor, largura, altura, pixels)
-    WORD LARGURA_EFEITO_ASTEROIDE_MAU  
-    WORD ALTURA_EFEITO_ASTEROIDE_MAU
-    WORD 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0
-    WORD COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO
-    WORD 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0
-    WORD COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO
-    WORD 0, COR_PIXEL_AZUL_CLARO, 0, COR_PIXEL_AZUL_CLARO, 0
+DEF_EFEITO_ASTEROIDE:                       ; tabela que define a animação, da explosão, do asteroide (cor, largura, altura, pixels)
+    WORD LARGURA_EFEITO_ASTEROIDE  
+    WORD ALTURA_EFEITO_ASTEROIDE
+    WORD COR_PIXEL_AMARELO, 0, 0, 0, 0, COR_PIXEL_AMARELO
+    WORD 0, COR_PIXEL_AMARELO, 0, COR_PIXEL_LARANJA, COR_PIXEL_AMARELO, 0
+    WORD 0, COR_PIXEL_LARANJA, COR_PIXEL_LARANJA, COR_PIXEL_LARANJA, 0, 0
+    WORD 0, 0, COR_PIXEL_LARANJA, COR_PIXEL_LARANJA, COR_PIXEL_LARANJA, 0
+    WORD 0, COR_PIXEL_AMARELO, COR_PIXEL_LARANJA, 0, COR_PIXEL_AMARELO, 0
+    WORD COR_PIXEL_AMARELO, 0, 0, 0, 0, COR_PIXEL_AMARELO
 
 DEF_ASTEROIDE_BOM:                              ; tabela que define o asteroide bom (cor, largura, altura, pixels)
     WORD        LARGURA_ASTEROIDE   
@@ -682,7 +668,7 @@ escolhe_posicao:
 
 ciclo_boneco:
     MOV     R11, R3                             ; para preservar o R3
-    ADD     R11, 1
+    ADD     R11, 2
     MOV     [SELECIONA_ECRÃ], R11               ; seleciona o ecrã
     MOV     R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela	                        
@@ -846,7 +832,7 @@ lock_sonda:                                     ; "lock" para apenas deixar este
     JZ      lock_sonda  
 
 move_sonda:                                     ; label encarregada de fazer o movimento da sonda 
-    MOV     R4, 8
+    MOV     R4, 1
     MOV     [SELECIONA_ECRÃ], R4                ; seleciona o ecrã desejado para desenhar a sonda
     MOV     R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela
@@ -910,6 +896,7 @@ ativa_explosao:                                 ; guarda que tipo de asteroide t
     SHL     R1, 1
     ADD     R2, R1
     MOV     R3, [R2]                            ; verificamos que tipo de asteroide explodiu 
+    CALL    animacao_explosao
     CMP     R3, 0
     JZ      e_asteroide_bom                     ; se for bom queremos aumentar energia
     JMP     e_asteroide_mau
@@ -933,6 +920,56 @@ e_asteroide_mau:
     POP     R1
     RET
     
+animacao_explosao:
+    PUSH R6
+    PUSH R7
+    PUSH R8
+    PUSH R9
+    PUSH R10
+    PUSH R11
+
+    ;seleciona o asteroide que explodiu
+    MOV R7, R11
+    SHL R7, 2
+    MOV R11, posicao_asteroides
+    ADD R11, R7
+
+    MOV R8, [R11]                   ;linha onde se deve desenhar o efeito
+    MOV R10, [R11+2]                ;coluna onde se deve desenhar o efeito
+
+    SHR R7, 1
+    ADD R7, 2
+    MOV R11, R7
+    MOV [SELECIONA_ECRÃ], R7
+    MOV R11, 0
+    MOV R9, DEF_ASTEROIDE_MAU
+    CALL desenha_apaga_boneco           ;desenha o efeito da explosao
+
+    MOV R11, 1
+    MOV [SELECIONA_ECRÃ], R11
+    MOV R11, 1
+    MOV R9, DEF_EFEITO_ASTEROIDE
+    CALL desenha_apaga_boneco           ;desenha o efeito da explosao
+
+    MOV R7, 0FFFFH
+
+    atrasa:                             ;funçao de atraso para se ver o desenho do efeito
+    SUB R7,1
+    CMP R7,0
+    JNZ atrasa
+
+    MOV R11,0
+    CALL desenha_apaga_boneco           ;apaga o efeito
+
+    POP R11
+    POP R10
+    POP R9
+    POP R8
+    POP R7
+    POP R6
+    RET
+
+
 ; ******************************************************************************************************************************************************
 ; ROTINAS 
 ; ******************************************************************************************************************************************************
