@@ -330,6 +330,9 @@ loop_sondas:
     CMP     R11, 0
     JNZ     loop_sondas
 
+;*********************************************************************************************************
+; Associação de ações às tecla premidas
+;**********************************************************************************************************
 verifica_teclaC:
     MOV     R2, [evento_tecla_carregada]        ; bloqueia aqui o processo caso nao haja tecla carregada   
     MOV     R4, TECLA_C                          
@@ -427,6 +430,7 @@ verifica_tecla2:
     MOV     R5, 1
     MOV     [existe_sonda+4],R5                 ; mete na memória que a sonda 2 existe
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
+
 
 inicia_jogo:
     MOV    R6, 8                                ; som número 4
@@ -631,8 +635,7 @@ repeticao_tecla:
     JMP     restart_linhas
 
 ; **********************************************************************
-; BONECO - Processo que desenha um boneco e o move horizontalmente, com
-;		   temporização marcada pela interrupção 0
+; BONECO - Processo que apaga e desenha um boneco numa nova posição, fazendo com que se mova
 ; **********************************************************************
 
 PROCESS SPinit_boneco	                        ; indicação de que a rotina que se segue é um processo,
@@ -718,13 +721,13 @@ ciclo_boneco:
     JMP     escolhe_posicao
 
 limites:
-    PUSH    R7
-    PUSH    R8
     PUSH    R1
     PUSH    R2
     PUSH    R3
     PUSH    R4
     PUSH    R5
+    PUSH    R7
+    PUSH    R8
     MOV     R1, asteroide_que_explodiu          ; tabela que tem 1 se o asteroide explodiu e 0 senão
     MOV     R4, R3                              ; para preservar R3
     SHL     R4, 1
@@ -737,13 +740,13 @@ limites:
     MOV     R7, R2
     MOV     R8, 5
     CALL    verifica_limites                    ; verifica se o asteroide passou dos limites do ecrã, ou se chocou com a nave
+    POP     R8
+    POP     R7
     POP     R5
     POP     R4
     POP     R3
     POP     R2
     POP     R1
-    POP     R8
-    POP     R7
     RET
 
 reset_posicao:
@@ -751,9 +754,9 @@ reset_posicao:
     JMP     escolhe_asteroide_tipo              ; vê qual é o valor que foi colocado na memória na rotina de interrupção da sonda
 
 rotina_posicao:
+    PUSH    R2
     PUSH    R4
     PUSH    R5
-    PUSH    R2
     PUSH    R11
     MOV     R4, R3                              ; para preservar o numero do asteroide
     SHL     R4, 1
@@ -767,9 +770,9 @@ rotina_posicao:
     MOV     R11, 0
     CALL    desenha_apaga_boneco
     POP     R11
-    POP     R2
     POP     R5
     POP     R4
+    POP     R2
     RET
 
 acaba_jogo:
@@ -777,7 +780,7 @@ acaba_jogo:
     JMP     escolhe_posicao
     
 ; ******************************************************************************************************************************************************
-; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
+; DISPLAY - Processo que vai decrementando em 3% a energia apresentada no display
 ; ******************************************************************************************************************************************************
 PROCESS SPinit_display                          ; indicação de que a rotina que se segue é um processo,
 						                        ; com indicação do valor para inicializar o SP
@@ -789,7 +792,7 @@ energia_tempo:
     JMP     energia_tempo
 
 ; ******************************************************************************************************************************************************
-; PAINEL_NAVE - Processo que deteta quando se carrega numa tecla do teclado.
+; PAINEL_NAVE - Processo que vai trocando os padrões no painel da nave
 ; ******************************************************************************************************************************************************
 
 PROCESS SPinit_painelnave                       ; indicação de que a rotina que se segue é um processo,
@@ -873,32 +876,31 @@ move_sonda:                                     ; label encarregada de fazer o m
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
     MOV     [R7], R8                            ; para guardar a linha da sonda na memoria 
     MOV     [R6], R10                           ; para guardar a coluna da sonda na memoria
-
-; para podermos utilizar R0 e para preservar R7
-    PUSH    R0
-    MOV     R0, R7                                  
-    CALL    colisoes_asteroide                   ; verificamos se houve alguma colisao com esta sonda
-    POP     R0
+    CALL    colisão
     CMP     R11, -1                             ; se não há, R11 terá -1, caso contrário iremos para há_colisao
     JNZ     há_colisao
-
-
     MOV     R3,R8                               ; linha onde se encontra a sonda        
     MOV     R8, 1                               ; R8 é um argumento de entrada para verifica_limites sonda
     CALL    verifica_limites_sonda              ; verifica se a sonda saiu do ecrã
     MOV     R8, R3                              
     CMP     R11, 0                              ; verificamos se a sonda saiu dos limites, se nao acontecer apenas voltamos ao inicio
     JZ      seleciona_posicao_tabela
+    JNZ     há_colisao
+
+colisão:
+    PUSH    R0
+    MOV     R0, R7                                  
+    CALL    colisoes_asteroide                   ; verificamos se houve alguma colisao com esta sonda
+    POP     R0
+    RET
+
 
 há_colisao:                                 
-    CALL ativa_explosao                         
+    CALL    ativa_explosao                         
     SHL     R11, 1
     MOV     R3, asteroide_que_explodiu
     ADD     R11, R3                             
-    PUSH    R5
-    MOV     R5, 1
-    MOV     [R11], R5                           ; guardamos em memoria qual asteroide é que explodiu
-    POP     R5
+    CALL    memoria_explodiu
     MOV     R11, 0                              ; caso haja qualquer tipo de colisao
     CALL    desenha_apaga_boneco
     MOV     R11, LINHA_INICIAL_SONDA            ; da reset à posiçao da sonda
@@ -910,19 +912,19 @@ há_colisao:
     MOV     R4, 0
     MOV     [R11], R4
     JMP     seleciona_posicao_tabela
-
+memoria_explodiu:
+    PUSH    R5
+    MOV     R5, 1
+    MOV     [R11], R5                           ; guardamos em memoria qual asteroide é que explodiu
+    POP     R5
+    RET
 
 ativa_explosao:                             ; guarda que tipo de asteroide teve uma colisao
-    PUSH    R0
     PUSH    R1
     PUSH    R2
     PUSH    R3
-    PUSH    R5
-    PUSH    R7
-    PUSH    R8
-    PUSH    R9
-    PUSH    R10
     PUSH    R6
+    PUSH    R7
     MOV     R1, R11
     MOV     R2, tipo_asteroide                  ; tabela que tem qual o tipo de ada um dos asteroides no ecrã
     SHL     R1, 1
@@ -944,16 +946,11 @@ e_asteroide_mau:
     MOV     R6, 6   
     MOV     [SELECIONA_SOM_VIDEO], R6           ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV     [REPRODUZ_SOM_VIDEO], R6            ; inicia a reprodução do som número 4
-    POP     R6
-    POP     R10
-    POP     R9
-    POP     R8
     POP     R7
-    POP     R5
+    POP     R6
     POP     R3
     POP     R2
     POP     R1
-    POP     R0
     RET
     
 ; ***********************************************************************************
@@ -962,7 +959,7 @@ e_asteroide_mau:
 
 
 ;************************************************************************************
-;JOGO_PERDIDO
+;JOGO_PERDIDO 
 ;************************************************************************************
 jogo_perdido:
     PUSH   R6
@@ -980,13 +977,14 @@ jogo_perdido:
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
     MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
-    POP    R6
     CALL   reset_posicoes_objetos
     CALL   nao_existe_sondas
+    POP    R6
     RET
 
 ;************************************************************************************
-; ENERGIA
+; ENERGIA - rotina que incrementa/ decrementa o valor no display
+; Argumentos:  R7 - valor a adicionar ao display
 ;************************************************************************************
 energia:
     PUSH    R7
@@ -998,7 +996,7 @@ energia:
     RET
 
 ;********************************************************************************
-; ACABOU_ENERGIA
+; ACABOU_ENERGIA - rotina que verifica se o valor que supostamenete devia estar no display é menor ou igual a zero
 ;********************************************************************************
 acabou_energia:
     CMP     R6, 0
@@ -1019,6 +1017,10 @@ acabou_energia:
     MOV     [jogo_estado], R6
 retorna_energia:
     RET
+
+;********************************************************************************
+; GANHOU_JOGO - rotina que verifica se o valor no display é maior ou igual a 200 
+;********************************************************************************
 
 ganhou_jogo:
     PUSH    R0
@@ -1133,17 +1135,13 @@ retorna_ciclo_transforma:
     CMP     R2, 0                               
     JLT     display_a_zero                      ; se o valor que supostamente iamos por no display for menor que 0, então colocamos o display a zero
     MOV     [R6], R2  
-    POP     R6
-    POP     R4
-    POP     R3
-    POP     R2
-    POP     R1
-    POP     R0
-    RET 
+    JMP     retorna_transforma 
 
 display_a_zero:
     MOV    R2, 0                                
     MOV    [R6], R2                             ; coloca o display a zeros
+
+retorna_transforma:
     POP    R6
     POP    R4
     POP    R3
@@ -1467,7 +1465,11 @@ nave_unlock:
     JMP     retorna_int_nave
 
 ;***********************************************************************************************************************
-; ROT_INT_SONDA
+; ROT_INT_SONDA -  Rotina de atendimento da interrupção 4
+;			       Faz simplesmente uma escrita no LOCK que o processo painel_nave lê.
+;			       Dependendo do estado do jogo,
+;                  a interrupção irá ou não desbloquear o lock.
+;                  Coloca um valor aleatorio na memória para auxiliar na ecolha de que asteroide criar
 ;***********************************************************************************************************************																																				 
 rot_int_sonda:
     PUSH    R1
