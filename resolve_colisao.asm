@@ -948,14 +948,6 @@ animacao_explosao:
     MOV R8, [R11]                   ;linha onde se deve desenhar o efeito
     MOV R10, [R11+2]                ;coluna onde se deve desenhar o efeito
 
-    SHR R7, 1
-    ADD R7, 2
-    MOV R11, R7
-    MOV [SELECIONA_ECRÃ], R7
-    MOV R11, 0
-    MOV R9, DEF_ASTEROIDE_MAU
-    CALL desenha_apaga_boneco           ;desenha o efeito da explosao
-
     MOV R11, 1
     MOV [SELECIONA_ECRÃ], R11
     MOV R11, 1
@@ -963,7 +955,6 @@ animacao_explosao:
     CALL desenha_apaga_boneco           ;desenha o efeito da explosao
 
     MOV R7, 0FFFFH
-
     atrasa:                             ;funçao de atraso para se ver o desenho do efeito
     SUB R7,1
     CMP R7,0
