@@ -40,9 +40,9 @@ TECLA_E EQU 0084H                               ; número devolvido pelo teclado
 TECLA_0 EQU 0011H                               ; número devolvido pelo teclado quando a tecla 0 é premida
 TECLA_1 EQU 0012H                               ; número devolvido pelo teclado quando a tecla 1 é premida
 TECLA_2 EQU 0014H                               ; número devolvido pelo teclado quando a tecla 2 é premida
-TAMANHO_PILHA EQU  100H                   ; tamanho de cada pilha, em words
-N_ASTEROIDES EQU  5		            ; número de bonecos
-N_MAX_SONDAS EQU 3                         ; num max sondas
+TAMANHO_PILHA		EQU  100H                   ; tamanho de cada pilha, em words
+N_ASTEROIDES			EQU  5		            ; número de bonecos
+N_MAX_SONDAS      EQU 3                         ; num max sondas
 LINHA_INICIAL_SONDA EQU 31                      ; linha inicial da sonda
 COLUNA_INICIAL_SONDA EQU 32                     ; coluna inicial da sonda
 
@@ -84,6 +84,8 @@ LARGURA_EFEITO2_ASTEROIDE_BOM EQU 1             ; largura do boneco desenhado na
 ALTURA_EFEITO2_ASTEROIDE_BOM EQU 1              ; altura do boneco desenhado na segunda animação, quando um asteroide bom explode 
 LARGURA_EFEITO_ASTEROIDE_MAU EQU 5              ; largura do boneco desenhado na animação, quando um asteroide mau explode 
 ALTURA_EFEITO_ASTEROIDE_MAU EQU 5               ; altura do boneco desenhado na animação, quando um asteroide mau explode 
+NENHUMA_EXPLOSÃO_MIN EQU 0                      
+EXPLOSÃO_MIN EQU 1
 
 ; ######################################################################################################################################################
 ; * ZONA DE DADOS 
@@ -132,7 +134,7 @@ tab:                                            ; Tabela das rotinas de interrup
     WORD rot_int_display                        ; rotina de atendimento da interrupção 2
     WORD rot_int_painel_nave                    ; rotina de atendimento da interrupção 3
 
-valor_aleatorio: WORD 1                         ; valor aleatório que decide se o asteroide a criar é bom ou mau
+valor_aleatorio: WORD 1
 
 jogo_estado: WORD JOGO_NAO_INICIADO             ; o estado 0 simboliza que o jogo ainda não começou
                                                 ; o estado 1 simboliza que o jogo está a correr
@@ -142,36 +144,39 @@ incremento_horizontal_sonda: WORD 0             ; variável que guarda o increme
 
 valor_display: WORD 0064H                       ; valor em hexadecimal que está no display
 
-posicao_sondas:
-    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA  ; sabe onde se encontra a sonda 0 no momento
-    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA  ; sabe onde se encontar a sonda 1 no momento
-    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA  ; sabe onde se encontra a sonda 2 no momento
+mineravel_estado:  WORD NENHUMA_EXPLOSÃO_MIN    ; o estado 0 simboliza que nenhum asteroide mineravel explodio,
+                                                ; ou que explodio, mas já foi adicionada no display a energia correspondente à explosão
+                                                ; o estado 1 simboliza que ainda não foi feita a incrementação de 25% ao valor apresentado no display
 
-existe_sonda:                                   ; sabe se as sondas aparecem no ecrã ou não
-    WORD 0,0,0                                  ; se estive a 0 é porque a sonda ainda não aparece no ecrã
+posicao_sondas:
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+    WORD LINHA_INICIAL_SONDA, COLUNA_INICIAL_SONDA
+
+existe_sonda:
+    WORD 0,0,0
 
 posicao_asteroides:
-    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE0     ; sabe onde se encontra o asteroide 0 no momento
-    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE1     ; sabe onde se encontra o asteroide 1 no momento
-    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE2     ; sabe onde se encontra o asteroide 2 no momento
-    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE3     ; sabe onde se encontra o asteroide 3 no momento
-    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE4     ; sabe onde se encontra o asteroide 4 no momento
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE0
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE1
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE2   
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE3
+    WORD LINHA_ASTEROIDE, COLUNA_ASTEROIDE4 
 
-escolha_asteroide_posicao:                      ; tabela que guarda os valores iniciais das colunas de cada um dos asteroides
-    WORD COLUNA_ASTEROIDE0                      ; coluna inicial do asteroide 0
-    WORD COLUNA_ASTEROIDE1                      ; coluna inicial do asteroide 1
-    WORD COLUNA_ASTEROIDE2                      ; coluna inicial do asteroide 2
-    WORD COLUNA_ASTEROIDE3                      ; coluna inicial do asteroide 3
-    WORD COLUNA_ASTEROIDE4                      ; coluna inicial do asteroide 4
+escolha_asteroide_posicao:
+    WORD COLUNA_ASTEROIDE0
+    WORD COLUNA_ASTEROIDE1
+    WORD COLUNA_ASTEROIDE2
+    WORD COLUNA_ASTEROIDE3
+    WORD COLUNA_ASTEROIDE4
 
-tipo_asteroide:                                 ; 0 se o asteroide é mineravel e 1 se nao é
+tipo_asteroide:                             ; 0 se o asteroide é mineravel e 1 se nao é
     WORD 0,0,0,0,0
 
-asteroide_que_explodiu:                         ; 0 se o asteroide explodiu e 1 senão explodiu  
+asteroide_que_explodiu:
     WORD 0,0,0,0,0
 
-; à linha temos sempre que incrementar 1
-sentido_movimento_coluna_asteroide:             ; esta tabela serve para sabermos quanto temos de incrementar ao valor da coluna inicial de cada asteroide
+sentido_movimento_coluna_asteroide:
     WORD 1
     WORD -1
     WORD 0
@@ -324,9 +329,9 @@ loop_asteroide:
 MOV     R10, -1
 MOV     R11, N_MAX_SONDAS
 loop_sondas:
-    CALL    incremento_sonda                    ; chama o processo que move a sonda 
+    CALL    incremento_sonda
     ADD     R10, 1
-    SUB     R11,1                               ; decrementa o R11 porque queremos que o processo ocorra 3 vezes que existam no máximo 3 sondas
+    SUB     R11,1
     CMP     R11, 0
     JNZ     loop_sondas
 
@@ -350,8 +355,6 @@ verifica_teclaC:
     MOV     R8, LINHA_NAVE                      ; passamos como argumento para o desenha_apaga_boneco a linha onde a nave vai ser desenhada
     MOV     R10, COLUNA_NAVE                    ; passamos como argumento para o desenha_apaga_boneco a coluna onde a nave vai ser desenhada
     MOV     R9, DEF_NAVE                        ; passamos como argumento para o desenha_apaga_boneco a tabela da nave
-    MOV     R6, 0
-    MOV     [SELECIONA_ECRÃ], R6
     CALL    desenha_apaga_boneco                ; desenha a nave
     CALL    inicia_jogo                         ; chama a rotina inicia_jogo que troca o cenário e o som de fundo  
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
@@ -395,9 +398,9 @@ verifica_tecla0:
     MOV     R5, [existe_sonda]
     CMP     R5,1
     JZ      verifica_tecla1
-    CALL    sonda_displays_sound                ; chama a rotina que diminui 3 no display e que reproduz um som
+    CALL    sonda_displays_sound
     MOV     R5,1
-    MOV     [existe_sonda],R5                   ; mete na memória que a sonda 0 existe
+    MOV     [existe_sonda],R5
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
 
 verifica_tecla1:
@@ -409,9 +412,9 @@ verifica_tecla1:
     MOV     R5, [existe_sonda+2]
     CMP     R5,1
     JZ      verifica_tecla2
-    CALL    sonda_displays_sound                ; chama a rotina que diminui 3 no display e que reproduz um som
+    CALL    sonda_displays_sound
     MOV     R5,1 
-    MOV     [existe_sonda+2],R5                 ; mete na memória que a sonda 1 existe
+    MOV     [existe_sonda+2],R5
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
 
 verifica_tecla2:
@@ -423,9 +426,9 @@ verifica_tecla2:
     MOV     R5, [existe_sonda+4]
     CMP     R5,1
     JZ      verifica_teclaC
-    CALL    sonda_displays_sound                ; chama a rotina que diminui 5 no display e que reproduz um som
+    CALL    sonda_displays_sound
     MOV     R5, 1
-    MOV     [existe_sonda+4],R5                 ; mete na memória que a sonda 2 existe
+    MOV     [existe_sonda+4],R5    
     JMP     verifica_teclaC                     ; volta à procura duma tecla premida
 
 inicia_jogo:
@@ -508,7 +511,7 @@ venceu_jogo:
     CALL   nao_existe_sondas
     JMP    verifica_teclaC
 
-nao_existe_sondas:              ; mete na memória que nenhuma das sonda aparece no ecrã
+nao_existe_sondas:              ; mete toda a tabela a zeros
     PUSH R0
     PUSH R1
     PUSH R2
@@ -516,11 +519,11 @@ nao_existe_sondas:              ; mete na memória que nenhuma das sonda aparece
     MOV R1, existe_sonda
 
 loop_sonda_n:
-    SUB R0, 1                   ; decrementa para que comece na sonda 2
+    SUB R0, 1
     MOV R2, 0
-    MOV [R1], R2                ; põe todas as sondas como inexetentes
-    ADD R1, 2                   ; adiciona r1 ao endereço da memória para passar para a seguinte word
-    CMP R0, 0                   ; verifica se já fez o que tinha a fazer a todas as sondas
+    MOV [R1], R2
+    ADD R1, 2
+    CMP R0, 0
     JNZ loop_sonda_n
     POP R2
     POP R1
@@ -539,37 +542,37 @@ reset_posicoes_objetos:
     MOV  R3, N_ASTEROIDES
 
 reset_posições_asteroides:
-    SUB R3, 1                                   ; subtrai um porque quremos começar no asteroide 4
+    SUB R3, 1
     MOV R7, R3
     MOV R4, R3                                  ; para preservar o numero do asteroide
     SHL R4, 1
-    MOV R5, escolha_asteroide_posicao           ; tabela com a coluna inicial de cada asteroide
+    MOV R5, escolha_asteroide_posicao
     ADD R5, R4
     MOV R2, [R5]                                ; R2  agora tem a nova coluna inicial do asteroide
     MOV R4, LINHA_ASTEROIDE
-    MOV R6, posicao_asteroides                  ; tabela com a posição dos asteroide no momento
+    MOV R6, posicao_asteroides
     SHL R7, 2
     ADD R7, 2
     ADD R6, R7
-    MOV [R6], R2                                ; reinicia a coluna do asteroide, na tabela
+    MOV [R6], R2
     SUB R6, 2
-    MOV [R6], R4                                ; reinicia a linha do asteroide, na tabela
-    CMP R3, 0                                   ; verifica se já foi feito para todos os asteroides
+    MOV [R6], R4
+    CMP R3, 0
     JNZ reset_posições_asteroides
     MOV R1, N_MAX_SONDAS
 
 reset_posicao_sondas:
-    SUB R1, 1                                   ; subtrai um porque queremos começar na sonda 2
-    MOV R0, R1                                  ; para preservar o valor da sonda
-    MOV R2, posicao_sondas                      ; tabela com as posições atuais de cada uma das sondas
-    SHL R0, 2                                   ; multiplica por 2 o valor da sonda para sabermos qual valor na memória por a 0
+    SUB R1, 1
+    MOV R0, R1
+    MOV R2, posicao_sondas
+    SHL R0, 2
     ADD R2, R0
     MOV R6, LINHA_INICIAL_SONDA
-    MOV [R2], R6                                ; reinicia a linha da sonda, na tabela
-    ADD R2, 2                                   ; adiciona 2 para passar para a seguinte word 
+    MOV [R2], R6
+    ADD R2, 2
     MOV R6, COLUNA_INICIAL_SONDA
-    MOV [R2], R6                                ; reinicia a coluna da sonda, na tabela
-    CMP R1, 0                                   ; verifica se já foi feito para todas as sondas
+    MOV [R2], R6
+    CMP R1, 0
     JNZ reset_posicao_sondas
 
 retorna_reset_posicoes:
@@ -584,14 +587,15 @@ retorna_reset_posicoes:
     RET
 
 sonda_displays_sound:
+sound_sonda:
     MOV    R6, 3   
     MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som número 3 (beep)
     MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do beep
 energia_sonda:
-    MOV     R7, -5                              ; argumento de entrada para energia
-    CALL    energia                             ; decrementa 5 no display
-    CALL    acabou_energia                      ; verifica se o valor que iamos por no display era menor ou igual a zero
-    RET
+    MOV     R7, -5
+    CALL    energia
+    CALL    acabou_energia
+RET
 
 ; ******************************************************************************************************************************************************
 ; TECLADO - Processo que deteta quando se carrega numa tecla do teclado.
@@ -648,8 +652,7 @@ escolhe_asteroide_tipo:
     MOV     R1, [valor_aleatorio]                   
     CMP     R1, 0
     JZ      escolhe_asteroide_bom               ; se valor aleatorio é 0 vem asteroide bom
-    JMP     escolhe_asteroide_mau               ; se valor aleaotorio 1, 2, ou 3 vem asteroide mau
-                                                ; assim a probabilidade de ser criado um mau é de 75% e um bom de 25%
+    JMP     escolhe_asteroide_mau               ; se valor aleaotorio 1 ou 2 vem asteroide mau
 
 escolhe_asteroide_bom:
     MOV R9, tipo_asteroide                      ; guardamos na tabela o tipo de asteroide que foi criado
@@ -676,7 +679,7 @@ escolhe_posicao:
     MOV	    R11, [evento_init_boneco]	        ; lê o LOCK e bloqueia até a interrupção escrever nele
 
     MOV     R11, R3
-    MOV     R6, R11                                 ; coloca o nº do boneco em R6
+    MOV     R6, R11                                  ; coloca o nº do boneco em R6
     SHL     R11, 2                                  ; multiplica por 4 pois a tabela vai de 4 em 4 (2 words por asteroide)
     MOV     R10,R11                                 ; guarda o numero do asteroide para usar pra posiçao
     MOV     R4, posicao_asteroides                  ; endereço da tabela que guarda a posiçao dos asteroides na memoria
@@ -698,20 +701,18 @@ escolhe_posicao:
     ADD     R6, 2
 
 ciclo_boneco:
-    MOV     R11, R3                             ; para preservar o R3
-    ADD     R11, 1
-    MOV     [SELECIONA_ECRÃ], R11               ; seleciona o ecrã
+    MOV     [SELECIONA_ECRÃ], R3                ; seleciona o ecrã
     MOV     R11, 0
 	CALL	desenha_apaga_boneco		        ; apaga o boneco a partir da tabela	                        
     ADD	    R8, R5			                    ; para desenhar objeto na linha seguinte 
     ADD	    R10, R7			                    ; para desenhar objeto na coluna seguinte 
     MOV     R11, 1
 	CALL	desenha_apaga_boneco		        ; desenha o boneco a partir da tabela
-    MOV     [R2], R8                            ; guarda a linha atual do asteroide na memoria
-    MOV     [R6], R10                           ; guarda a coluna atual do asteroide na memoria
+    MOV     [R2], R8                            ;guarda a linha atual do asteroide na memoria
+    MOV     [R6], R10                           ;guarda a coluna atual do asteroide na memoria
 
-    CALL    limites                             
-    CMP     R11, 1                              
+    CALL    limites
+    CMP     R11, 1
     JZ      reset_posicao
     CMP     R11, 2
     JZ      acaba_jogo
@@ -725,18 +726,18 @@ limites:
     PUSH R3
     PUSH R4
     PUSH R5
-    MOV R1, asteroide_que_explodiu              ; tabela que tem 1 se o asteroide explodiu e 0 senão
-    MOV R4, R3                                  ; para preservar R3
+    MOV R1, asteroide_que_explodiu
+    MOV R4, R3                          ; para preservar R3
     SHL R4, 1
     ADD R1, R4
-    MOV R5, [R1]                                ; passa o endereço da tabela para R5
-    MOV R4, 0                       
-    MOV [R1], R4                                ; coloca 0 no valor na tabela, correspondente a este asteroide
-    CMP R5, 1                                   ; verifica se o valor que estva na tabela, correspondente a este asteroide, é 1
-    JZ reset_posicao                            ; se for quer dizer que o asteroide passou dos limites então reinicia.se as posições iniciais desse asteroide
+    MOV R5, [R1]
+    MOV R4, 0
+    MOV [R1], R4
+    CMP R5, 1
+    JZ reset_posicao
     MOV R7, R2
     MOV R8, 5
-    CALL verifica_limites                       ; verifica se o asteroide passou dos limites do ecrã, ou se chocou com a nave
+    CALL verifica_limites
     POP R5
     POP R4
     POP R3
@@ -748,7 +749,7 @@ limites:
 
 reset_posicao:
     CALL rotina_posicao
-    JMP  escolhe_asteroide_tipo                 ; vê qual é o valor que foi colocado na memória na rotina de interrupção da sonda
+    JMP  escolhe_asteroide_tipo
 
 rotina_posicao:
     PUSH R4
@@ -757,13 +758,13 @@ rotina_posicao:
     PUSH R11
     MOV R4, R3                                  ; para preservar o numero do asteroide
     SHL R4, 1
-    MOV R5, escolha_asteroide_posicao           ; tabela com os valores iniciais das colunas dos asteroides
+    MOV R5, escolha_asteroide_posicao
     ADD R5, R4
     MOV R2, [R5]                                ; R2  agora tem a nova coluna inicial do asteroide
     MOV R4, LINHA_ASTEROIDE
-    MOV [R6], R2                                ; coloca na tabela, que tem as posições no momento, o valor da coluna inicial   
+    MOV [R6], R2
     SUB R6, 2
-    MOV [R6], R4                                ; coloca na tabela, que tem as posições no momento, o valor da linha inicial 
+    MOV [R6], R4
     MOV R11, 0
     CALL desenha_apaga_boneco
     POP R11
@@ -773,14 +774,15 @@ rotina_posicao:
     RET
 
 acaba_jogo:
+    ;MOV R11, [evento_init_nave]
     CALL jogo_perdido 
     JMP escolhe_posicao
     
 ; ******************************************************************************************************************************************************
 ; DISPLAY - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
-PROCESS SPinit_display                          ; indicação de que a rotina que se segue é um processo,
-						                        ; com indicação do valor para inicializar o SP
+PROCESS SPinit_display
+
 energia_tempo:
     MOV     R0, [evento_init_display]           ; verificação lock
     MOV     R7, -3                              ; decrementa 3 a cada interrupção
@@ -792,8 +794,8 @@ energia_tempo:
 ; PAINEL_NAVE - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
 
-PROCESS SPinit_painelnave                       ; indicação de que a rotina que se segue é um processo,
-						                        ; com indicação do valor para inicializar o SP
+PROCESS SPinit_painelnave
+
 painel_nave:
     MOV     R2, 0           
     JMP     restart_loop
@@ -820,12 +822,11 @@ painel_nave_loop:
     JMP     painel_nave_loop
 
 ; ******************************************************************************************************************************************************
-; SONDA - Processo que faz a soda mudar de posição com o tempo.
-;         É também neste processo que percebemos se houve uma colisão de alguma das sondas com algumdos asteroide  
+; SONDA - Processo que deteta quando se carrega numa tecla do teclado.
 ; ******************************************************************************************************************************************************
 
-PROCESS SPinit_sonda                            ; indicação de que a rotina que se segue é um processo,
-						                        ; com indicação do valor para inicializar o SP
+PROCESS SPinit_sonda
+
 incremento_sonda:
     MOV     R0, R10
     MOV     R5, R0
@@ -877,7 +878,7 @@ move_sonda:                                     ; label encarregada de fazer o m
 ; para podermos utilizar R0 e para preservar R7
     PUSH    R0
     MOV     R0, R7                                  
-    CALL    colisoes_asteroide                   ; verificamos se houve alguma colisao com esta sonda
+    CALL   colisoes_asteroide                   ; verificamos se houve alguma colisao com esta sonda
     POP     R0
     CMP     R11, -1                             ; se não há, R11 terá -1, caso contrário iremos para há_colisao
     JNZ     há_colisao
@@ -924,7 +925,7 @@ move_sonda:                                     ; label encarregada de fazer o m
     PUSH R10
     PUSH    R6
     MOV R1, R11
-    MOV R2, tipo_asteroide                      ; tabela que tem qual o tipo de ada um dos asteroides no ecrã
+    MOV R2, tipo_asteroide
     SHL R1, 1
     ADD R2, R1
     MOV R3, [R2]                                ; verificamos que tipo de asteroide explodiu 
@@ -1020,6 +1021,7 @@ acabou_energia:
 retorna_energia:
     RET
 
+
 ganhou_jogo:
     PUSH R0
     MOV R6, [valor_display]                     ; ler o valor no display
@@ -1033,6 +1035,7 @@ fim_jogo:
 retorna:
     POP R0
     RET
+
 
 ; ******************************************************************************************************************************************************
 ; DESENHA_APAGA_BONECO - Rotina Desenha/Apaga um boneco na linha e coluna indicadas
@@ -1053,7 +1056,7 @@ desenha_apaga_boneco:
     PUSH    R6
     PUSH    R7
 
-verifica_jogo_a_correr:                         ; serve para que nada seja desnhado quando o jogo não está a correr
+verifica_jogo_a_correr:
     MOV R0, [jogo_estado]
     MOV R6, 1
     CMP R0, R6
@@ -1157,6 +1160,7 @@ display_a_zero:
 ;			             
 ; Argumentos:   R8 - largura/altura (iguais)
 ;               R7 - endereço para a posiçao na memoria
+; 
 ; Saida:        R11- 1 se o objeto sair dos limites, 2 se a nave explodir  e 0 caso nao aconteça nada
 ;
 ; ******************************************************************************************************************************************************
@@ -1175,53 +1179,51 @@ verifica_limites:
 verifica_nave:
     MOV     R2, 25                              ; coluna minima
     MOV     R3, 39                              ; coluna maxima
-    MOV     R4, 27                              ; linha minimo
+    MOV     R4, 25                              ; linha minimo
     
 verifica_topo_nave:
     MOV     R5, R0
     ADD     R5, R8
-    CMP     R5, R4                              ; compara a linha do asteroide com a da nave 
-    JLE     continua_verificacoes               ; se o objeto e estive a cima do topo da nave então não ocorreu colisão
+    CMP     R5, R4
+    JLE     continua_verificacoes
 
 verifica_direita_nave:
     MOV     R5,R1
-    CMP     R5,R3                               ; compara a coluna esquerda do objeto com a coluna direita da nave
-    JGE     continua_verificacoes               ; se o objeto estiver à direita da coluna direita da nave então não ocorreu colisão
+    CMP     R5,R3
+    JGE     continua_verificacoes
 
 verifica_esquerda_nave:
     MOV     R5, R1
     ADD     R5, R8
     CMP     R5, R2
     JLE     continua_verificacoes
-    MOV     R11, 2                              ; compara a coluna direita do objeto com a coluna esquerda da nave
-    JMP     retorna_limites                     ; se o objeto estiver à esquerda da coluna esqurda da nave então não ocorreu colisão
+    MOV     R11, 2
+    JMP     retorna_limites
 
 continua_verificacoes:  
-    MOV     R2, 0                               ; coluna e linha minima
+    MOV     R2, 0                               ; coluna e linha minimo
     MOV     R3, 63                              ; coluna maxima
     MOV     R4, 31                              ; linha maxima
 
-
-; verifica limites do ecrã
 verifica_direita:
-    CMP     R1, R3                              ; compra a coluna do asteroide com a coluna máxima 
-    jz      ha_colisao                          ; se forem iguais houve uma colisão com os limites do ecrã
+    CMP     R1, R3
+    jz      ha_colisao
 
 verifica_esquerda:
     MOV     R5, R1
     ADD     R5, R8
-    CMP     R5, R2                              ; compara a coluna direita do objeto com a coluna direita do ecrã 
-    JZ      ha_colisao                          ; se forem iguais houve uma colisão com os limites do ecrã
+    CMP     R5, R2
+    JZ      ha_colisao
 
 verifica_baixo:
-    CMP     R0, R4                              ; compara a linha do objeto com a linha minima do ecrão
-    jz      ha_colisao                          ; se forem iguais houve uma colisão com os limites do ecrã
+    CMP     R0, R4
+    jz      ha_colisao
 
 verifica_topo:
     MOV     R5, R0
     ADD     R5, R8
-    CMP     R5, R2                              ; compara a linha da parte de baixo do objeto com o topo do ecrã
-    JZ      ha_colisao                          ; se forem iguais houve uma colisão com os limites do ecrã
+    CMP     R5, R2
+    JZ      ha_colisao
     
 
 retorna_limites:
@@ -1234,7 +1236,7 @@ retorna_limites:
     RET
 
 ha_colisao:
-    MOV     R11, 1                              
+    MOV     R11, 1
     JMP     retorna_limites
 
 ;******************************************************************************************************************************************************
@@ -1261,30 +1263,30 @@ verifica_limites_sonda:
 
 
 continua_verificacoes_sonda:  
-    MOV     R2, 15                              ; linha minima
-    MOV     R9, 13                              ; coluna minima até onde vai a sonda 
-    MOV     R3, 50                              ; coluna maxima até onde vai a sonda
-    MOV     R4, 31                              ; linha maxima 
+    MOV     R2, 15                              ; coluna e linha minimo
+    MOV     R9, 0
+    MOV     R3, 63                              ; coluna maxima
+    MOV     R4, 31                              ; linha maxima
 
 verifica_direita_sonda:
-    CMP     R1, R3                              ; compara a coluna esquerda do objeto com a coluna máxima até onde vai a sonda
-    jz      ha_colisao_sonda                    ; se der 0 é suposto voltar a sonda à sua posição inicial
+    CMP     R1, R3
+    jz      ha_colisao_sonda
 
 verifica_esquerda_sonda:
     MOV     R5, R1
     ADD     R5, R8
-    CMP     R5, R9                              ; compara a coluna da direita do objeto com a coluna minima até onde vai a sonda
-    JZ      ha_colisao_sonda                    ; se der 0 é suposto voltar a sonda à sua posição inicial
+    CMP     R5, R9
+    JZ      ha_colisao_sonda
 
 verifica_baixo_sonda:
-    CMP     R0, R4                              ; compara a linha de cima do objeto com a linha maxima do ecrã
-    jz      ha_colisao_sonda                    ; se der 0 é suposto voltar a sonda à sua posição inicial
+    CMP     R0, R4
+    jz      ha_colisao_sonda
 
 verifica_topo_sonda:
     MOV     R5, R0
     ADD     R5, R8
-    CMP     R5, R2                              ; compara a linha de baixo do objeto com a linha maxima do ecrã
-    JZ      ha_colisao_sonda                    ; se der 0 é suposto voltar a sonda à sua posição inicial
+    CMP     R5, R2
+    JZ      ha_colisao_sonda
     
 
 retorna_limites_sonda:
@@ -1323,7 +1325,7 @@ colisoes_asteroide:
     PUSH R8
     PUSH R9
 
-    MOV R11, -1                                 ; se não houver uma colisão este valor não é alterado
+    MOV R11, -1
 
     ;SONDA:
     ;R0-LINHA
@@ -1333,6 +1335,7 @@ colisoes_asteroide:
     MOV R0, R9                                ;indica a linha da sonda
 
     MOV R2, N_ASTEROIDES                   
+    ;SUB R2, 1
     MOV R3,0                                ;contador para verificar todos os asteroides
     MOV R9, 0
 
@@ -1355,24 +1358,25 @@ colisoes_asteroide:
   
 verifica_topo_asteroide:
     CMP     R0, R5
-    JLT     continua_verificacoes_asteroide ; se estiver a cima do topo do asteroide já sabemos que não colidiu
+    JLT     continua_verificacoes_asteroide
 
 verifica_baixo_asteroide:
     CMP     R0,R6
-    JGT     continua_verificacoes_asteroide ; se estiver a cima da parte de baixo também já sabemos que não colidiu
+    JGT     continua_verificacoes_asteroide
 
 verifica_esquerda_asteroide:
     CMP R1,R7
-    JLT     continua_verificacoes_asteroide ; se estiver à esquerda do lado esquerdo do asteroide já sabemos que não colidiu
+    JLT     continua_verificacoes_asteroide
 
 verifica_direita_asteroide:
     CMP R1, R8
-    JGT     continua_verificacoes_asteroide ; se estiver à direita do lado direito do asteroide també já sabemos que não colidiu
+    JGT     continua_verificacoes_asteroide
 
-MOV R11, R9                                     ; se tiver colidido coloca R11 com o número do asteroide que explodiu
+MOV R11, R9
 JMP fim_colisoes
 
 continua_verificacoes_asteroide:
+    ADD R3, 1
     ADD R9,1
     CMP R9, R2
     JNZ obtem_limites_asteroide
@@ -1476,38 +1480,41 @@ rot_int_sonda:
     PUSH    R7
     MOV     R3, 1
     MOV     R7, [jogo_estado]  
-	CMP     R7, R3                              ; verifica se o jogo está a correr
-    JNZ     fim_rot_int_sonda                   ; se o jogo não estiver a correr não dá unlock 
-                                                ; nem gera valores aleatorios
+	CMP     R7, R3
+    JNZ     fim_rot_int_sonda
+    
 
-continuar_int_sonda:                            ; o valor aleatório é um número no intervalo [0, 3] 
-    MOV     R1, [valor_aleatorio]               ; vai buscar o valor aleatorio à memoria 
-    CMP     R1, 0                               
-    JZ      mete_1                              
-    CMP     R1, 1                               
+
+    
+continuar_int_sonda:
+    MOV     R1, [valor_aleatorio]
+    CMP     R1, 0
+    JZ      mete_1
+    CMP     R1, 1
     JZ      mete_2
-    CMP     R1, 2                               
+    CMP     R1, 2
     JZ      mete_3
     JMP     mete_0
 
-mete_1:                                         ; se o valor que estava anteriormente na memória era 0
-    MOV     R2, 1                               ; associado à criação dum asteroide mau
-    MOV     [valor_aleatorio], R2               ; coloca o valor aleatorio na memoria
+mete_1:
+    MOV     R2, 1
+    MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
 
-mete_0:                                         ; se o valor que estava anteriormente na memória era 3
-    MOV     R2, 0                               ; associado à criação dum asteroide bom
-    MOV     [valor_aleatorio], R2               ; coloca o valor aleatorio na memoria
+mete_0:
+    MOV     R2, 0
+    MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
 
-mete_2:                                         ; se o valor que estava anteriormente na memória era 1
-    MOV     R2, 2                               ; associado à criação dum asteroide mau
-    MOV     [valor_aleatorio], R2               ; coloca o valor aleatorio na memoria
+
+mete_2:
+    MOV     R2, 2
+    MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
 
-mete_3:                                         ; se o valor que estava anteriormente na memória era 2
-    MOV     R2, 3                               ; associado à criação dum asteroide mau
-    MOV     [valor_aleatorio], R2               ; coloca o valor aleatorio na memoria
+mete_3:
+    MOV     R2, 3
+    MOV     [valor_aleatorio], R2
     JMP     sonda_unlock
 
 
@@ -1520,4 +1527,3 @@ fim_rot_int_sonda:
     POP     R2
     POP     R1
     RFE
-
