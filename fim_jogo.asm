@@ -492,26 +492,6 @@ termina_jogo:
     CALL   nao_existe_sondas
     JMP    verifica_teclaC
 
-
-venceu_jogo:
-    MOV    [APAGA_ECRÃ], R6                     ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
-    MOV    R6, 2
-    MOV    [APAGA_CENARIO_FRONTAL], R6          ; apaga o cenário frontal número 2 (transparência)
-    MOV    R6, 1                      
-    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o som número 1
-    MOV    R6, 0   
-    MOV    [TERMINA_SOM_VIDEO], R6              ; termina o video número 0
-    MOV    R6, 5   
-    MOV    [SELECIONA_CENARIO_FUNDO], R6        ; seleciona o cenário de fundo número 1
-    MOV    R6, 8   
-    MOV    [SELECIONA_SOM_VIDEO], R6            ; seleciona o som que diz respeito ao jogo ter terminado(4)
-    MOV    [REPRODUZ_SOM_VIDEO], R6             ; inicia a reprodução do som número 4
-    MOV    R6, JOGO_NAO_INICIADO
-    MOV    [jogo_estado], R6
-    CALL   reset_posicoes_objetos
-    CALL   nao_existe_sondas
-    JMP    verifica_teclaC
-
 nao_existe_sondas:                              ; mete na memória que nenhuma das sonda aparece no ecrã
     PUSH    R0
     PUSH    R1
@@ -1009,10 +989,10 @@ acabou_energia:
     MOV     R6, 0   
     MOV     [TERMINA_SOM_VIDEO], R6             ; termina o video número 0
     MOV     R6, 3   
-    MOV     [SELECIONA_CENARIO_FUNDO], R6       ; seleciona o cenário de fundo número 1
+    MOV     [SELECIONA_CENARIO_FUNDO], R6       ; seleciona o cenário de fundo número 3
     MOV     R6, 5   
-    MOV     [SELECIONA_SOM_VIDEO], R6           ; seleciona o som que diz respeito ao jogo ter terminado(4)
-    MOV     [REPRODUZ_SOM_VIDEO], R6            ; inicia a reprodução do som número 4
+    MOV     [SELECIONA_SOM_VIDEO], R6           ; seleciona o som que diz respeito ao jogo ter terminado 5
+    MOV     [REPRODUZ_SOM_VIDEO], R6            ; inicia a reprodução do som número 5
     MOV     R6, 0
     MOV     [jogo_estado], R6
 retorna_energia:
@@ -1026,11 +1006,24 @@ ganhou_jogo:
     PUSH    R0
     MOV     R6, [valor_display]                 ; ler o valor no display
     MOV     R0, 0C8H                            ; verficar se é menor do que 200
-    CMP     R6, R0                              ; se for retorna, caso contrário executa venceu_jogo
+    CMP     R6, R0                              ; se for retorna, caso contrário executa fim_jogo
     JLT     retorna
 
 fim_jogo:
-    CALL    venceu_jogo
+    MOV     [APAGA_ECRÃ], R6                    ; não interesssa o valor de R5, apaga todos os pixels, de todos os ecrãs
+    MOV     R6, 2
+    MOV     [APAGA_CENARIO_FRONTAL], R6         ; apaga o cenário frontal número 2 (transparência)
+    MOV     R6, 1                      
+    MOV     [TERMINA_SOM_VIDEO], R6             ; termina o som número 1
+    MOV     R6, 0   
+    MOV     [TERMINA_SOM_VIDEO], R6             ; termina o video número 0
+    MOV     R6, 5   
+    MOV     [SELECIONA_CENARIO_FUNDO], R6       ; seleciona o cenário de fundo número 5
+    MOV     R6, 8  
+    MOV     [SELECIONA_SOM_VIDEO], R6           ; seleciona o som 8
+    MOV     [REPRODUZ_SOM_VIDEO], R6            ; inicia a reprodução do som número 8
+    MOV     R6, 0
+    MOV     [jogo_estado], R6
 
 retorna:
     POP     R0
