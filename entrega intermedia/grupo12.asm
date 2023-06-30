@@ -52,10 +52,10 @@ REPRODUZ_SOM_VIDEO_CICLO EQU COMANDOS + 5CH     ; reproduz um som/ video em cicl
 COR_PIXEL_VERDE  EQU 0F0F0H                     ; cor do pixel: verde em ARGB
 COR_PIXEL_ROXO  EQU 0F85FH                      ; cor do pixel: roxo em ARGB
 COR_PIXEL_VERMELHO  EQU 0FF00H                  ; cor do pixel: vermelho em ARGB
-COR_PIXEL_TRANSPARENTE EQU 0FCCCH               ;cor do pixel; cinzento transparente
-COR_PIXEL_CINZENTO EQU 0F777H                   ;cor do pixel; cinzento transparente
-COR_PIXEL_AMARELO   EQU 0FFF0H                  ;cor do pixel: amarelo em ARGB
-COR_PIXEL_AZUL_CLARO  EQU 0F0FFH                ;cor do pixel: azul em ARGB
+COR_PIXEL_TRANSPARENTE EQU 0FCCCH               ; cor do pixel; cinzento transparente
+COR_PIXEL_CINZENTO EQU 0F777H                   ; cor do pixel; cinzento transparente
+COR_PIXEL_AMARELO   EQU 0FFF0H                  ; cor do pixel: amarelo em ARGB
+COR_PIXEL_AZUL_CLARO  EQU 0F0FFH                ; cor do pixel: azul em ARGB
 
 ; ******************************************************************************************************************************************************
 ; * Definição dos desenhos
